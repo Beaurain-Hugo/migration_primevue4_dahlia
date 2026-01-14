@@ -50,6 +50,9 @@
                                         >
                                             <i class="pi pi-user" />
                                         </span>
+                                        <span style="color:black">
+                                            Informations
+                                        </span>
                                     </PButton>
                                     <Divider />
                                 </div>
@@ -65,6 +68,9 @@
                                         >
                                             <i class="pi pi-star" />
                                         </span>
+                                        <span style="color:black">
+                                            Agenda
+                                        </span>
                                     </PButton>
                                     <Divider />
                                 </div>
@@ -79,6 +85,43 @@
                                             ]"
                                         >
                                             <i class="pi pi-id-card" />
+                                        </span>
+                                        <span style="color:black">
+                                            Discussions
+                                        </span>
+                                    </PButton>
+                                </div>
+                            </Step>
+                             <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="4">
+                                <div class="flex flex-row pl-2" v-bind="a11yAttrs.root">
+                                    <PButton class="bg-transparent border-0 inline-flex flex-col gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
+                                        <span
+                                            :class="[
+                                                'rounded-full border-2 w-12 h-12 inline-flex items-center justify-center',
+                                                { 'bg-primary text-primary-contrast border-primary': value <= activeStep, 'border-surface-200 dark:border-surface-700': value > activeStep }
+                                            ]"
+                                        >
+                                            <i class="pi pi-id-card" />
+                                        </span>
+                                        <span style="color:black">
+                                            Actions
+                                        </span>
+                                    </PButton>
+                                </div>
+                            </Step>
+                            <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="5">
+                                <div class="flex flex-row pl-2" v-bind="a11yAttrs.root">
+                                    <PButton class="bg-transparent border-0 inline-flex flex-col gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
+                                        <span
+                                            :class="[
+                                                'rounded-full border-2 w-12 h-12 inline-flex items-center justify-center',
+                                                { 'bg-primary text-primary-contrast border-primary': value <= activeStep, 'border-surface-200 dark:border-surface-700': value > activeStep }
+                                            ]"
+                                        >
+                                            <i class="pi pi-id-card" />
+                                        </span>
+                                        <span style="color:black">
+                                            Finaliser
                                         </span>
                                     </PButton>
                                 </div>
@@ -158,6 +201,30 @@
                                 </div>
                                 <div class="flex pt-6 justify-start">
                                     <PButton label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(2)" />
+                                    <PButton label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(4)" />
+                                </div>
+                            </StepPanel>
+                             <StepPanel v-slot="{ activateCallback }" :value="4">
+                                <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 24rem">
+                                    <div class="text-center mt-4 mb-4 text-xl font-semibold">Account created successfully</div>
+                                    <div class="flex justify-center">
+                                        <img alt="logo" src="https://primefaces.org/cdn/primevue/images/stepper/content.svg" />
+                                    </div>
+                                </div>
+                                <div class="flex pt-6 justify-start">
+                                    <PButton label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(3)" />
+                                    <PButton label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(5)" />
+                                </div>
+                            </StepPanel>
+                             <StepPanel v-slot="{ activateCallback }" :value="5">
+                                <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 24rem">
+                                    <div class="text-center mt-4 mb-4 text-xl font-semibold">Account created successfully</div>
+                                    <div class="flex justify-center">
+                                        <img alt="logo" src="https://primefaces.org/cdn/primevue/images/stepper/content.svg" />
+                                    </div>
+                                </div>
+                                <div class="flex pt-6 justify-start">
+                                    <PButton label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(4)" />
                                 </div>
                             </StepPanel>
                         </StepPanels>
