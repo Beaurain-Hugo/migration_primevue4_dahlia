@@ -1,0 +1,10 @@
+.adherent-card-list{
+    display:flex;
+    justify-content:space-between;
+    padding: 0;
+    gap:2rem;
+    &__card{
+        list-style: none;
+        flex: 1 1 0px;
+    }
+}
