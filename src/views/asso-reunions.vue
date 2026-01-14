@@ -48,7 +48,7 @@
                                                 { 'bg-primary text-primary-contrast border-primary': value <= activeStep, 'border-surface-200 dark:border-surface-700': value > activeStep }
                                             ]"
                                         >
-                                            <i class="pi pi-user" />
+                                            <i class="pi pi-file" />
                                         </span>
                                         <span style="color:black">
                                             Informations
@@ -66,7 +66,7 @@
                                                 { 'bg-primary text-primary-contrast border-primary': value <= activeStep, 'border-surface-200 dark:border-surface-700': value > activeStep }
                                             ]"
                                         >
-                                            <i class="pi pi-star" />
+                                            <i class="pi pi-calendar" />
                                         </span>
                                         <span style="color:black">
                                             Agenda
@@ -84,7 +84,7 @@
                                                 { 'bg-primary text-primary-contrast border-primary': value <= activeStep, 'border-surface-200 dark:border-surface-700': value > activeStep }
                                             ]"
                                         >
-                                            <i class="pi pi-id-card" />
+                                            <i class="pi pi-users" />
                                         </span>
                                         <span style="color:black">
                                             Discussions
@@ -101,7 +101,7 @@
                                                 { 'bg-primary text-primary-contrast border-primary': value <= activeStep, 'border-surface-200 dark:border-surface-700': value > activeStep }
                                             ]"
                                         >
-                                            <i class="pi pi-id-card" />
+                                            <i class="pi pi-check-circle" />
                                         </span>
                                         <span style="color:black">
                                             Actions
@@ -118,7 +118,7 @@
                                                 { 'bg-primary text-primary-contrast border-primary': value <= activeStep, 'border-surface-200 dark:border-surface-700': value > activeStep }
                                             ]"
                                         >
-                                            <i class="pi pi-id-card" />
+                                            <i class="pi pi-send" />
                                         </span>
                                         <span style="color:black">
                                             Finaliser
@@ -179,11 +179,11 @@
                                     </div>
                                     <div v-else v-for="(point, index) in pointsOrdreJour" :key="point.id">
                                         <label :for="'salle-'+point.id">Titre du point *</label>
-                                        <InputText :id="'salle-'+point.id" placeholder="Ex: Validation du budget" />
+                                        <InputText v-model="pointsOrdreJour[index].title" :id="'salle-'+point.id" placeholder="Ex: Validation du budget" />
                                         <label :for="'duree-'+point.id">Durée *</label>
-                                        <InputNumber :inputId="'duree-'+point.id" suffix=" min" :min="1" placeholder="Indiquez une durée en minute" />
+                                        <InputNumber  showButtons v-model="pointsOrdreJour[index].duree" :inputId="'duree-'+point.id" suffix=" min" :min="1" placeholder="Indiquez une durée en minute" />
                                           <label :for="'resp'+point.id">Type de réunion *</label>
-                                        <Dropdown v-model="selectedPart" :id="'resp'+point.id" :options="selectedPart" placeholder="Sélectionner le responsable" />
+                                        <Dropdown v-model="pointsOrdreJour[index].responsable" :id="'resp'+point.id" :options="selectedPart" placeholder="Sélectionner le responsable" />
                                         <PButton  icon="pi pi-trash" @click="removePoint(index)"  />
                                     </div>
                                 </div>
@@ -193,27 +193,56 @@
                                 </div>
                             </StepPanel>
                             <StepPanel v-slot="{ activateCallback }" :value="3">
-                                <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 24rem">
-                                    <div class="text-center mt-4 mb-4 text-xl font-semibold">Account created successfully</div>
-                                    <div class="flex justify-center">
-                                        <img alt="logo" src="https://primefaces.org/cdn/primevue/images/stepper/content.svg" />
+                                <div>
+                                    <span>Discussions et décisions.</span>
+                                    <div v-if="pointsOrdreJour.length == 0">
+                                        <span>Discussions et décisions.</span>
+                                        <span>Ajoutez des points à l'ordre du jour.</span>
+                                    </div>
+                                    <div v-else  v-for="(point, index) in pointsOrdreJour" :key="point.id">
+                                        <Card>
+                                            <template #header>
+                                                <Chip :label="point.title" />({{ point.duree }} min - {{ point.responsable }})
+                                            </template>
+                                            <template #content>
+                                                Discussions et échanges
+                                                <PTextarea v-model="point.discussions" rows="5" cols="30" placeholder="Détaillez les échanges, arguments et points de vue exprimés"/>
+                                                <div>
+                                                    <Checkbox :inputId="'decision-'+point.id" v-model="point.decision" @click="console.log(point)" binary @update:modelValue="val => { if (!val) point.synthese = '' }" />
+                                                    <label :for="'decision-'+point.id">Une décision a été prise ?</label>
+                                                </div>
+                                                <div v-if="point.decision">
+                                                    <span>Synthèse de la décision</span>
+                                                    <PTextarea v-model="point.synthese" rows="5" cols="30" placeholder="Résumé concis des décisions (3 à 5 points)"/>
+                                                </div>
+                                            </template>
+                                        </Card>
                                     </div>
                                 </div>
-                                <div class="flex pt-6 justify-start">
+                                <div class="flex pt-6 justify-between">
                                     <PButton label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(2)" />
                                     <PButton label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(4)" />
                                 </div>
                             </StepPanel>
                              <StepPanel v-slot="{ activateCallback }" :value="4">
-                                <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 24rem">
-                                    <div class="text-center mt-4 mb-4 text-xl font-semibold">Account created successfully</div>
-                                    <div class="flex justify-center">
-                                        <img alt="logo" src="https://primefaces.org/cdn/primevue/images/stepper/content.svg" />
-                                    </div>
+                             <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 24rem">
+                                    <div class="text-center mt-4 mb-4 text-xl font-semibold">Points à l'ordre du jour</div>
+                                    <PButton label="Ajouter un point" icon="pi pi-plus" @click="addPoint" />
                                 </div>
-                                <div class="flex pt-6 justify-start">
-                                    <PButton label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(3)" />
-                                    <PButton label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(5)" />
+                                <div>
+                                    <div v-if="pointsOrdreJour.length == 0">
+                                        <span>Aucun action définie</span>
+                                        <span>Ajoutez votre premier point pour commencer</span>
+                                    </div>
+                                    <div v-else v-for="(point, index) in pointsOrdreJour" :key="point.id">
+                                        <label :for="'salle-'+point.id">Titre du point *</label>
+                                        <InputText v-model="pointsOrdreJour[index].title" :id="'salle-'+point.id" placeholder="Ex: Validation du budget" />
+                                        <label :for="'duree-'+point.id">Durée *</label>
+                                        <InputNumber  showButtons v-model="pointsOrdreJour[index].duree" :inputId="'duree-'+point.id" suffix=" min" :min="1" placeholder="Indiquez une durée en minute" />
+                                          <label :for="'resp'+point.id">Type de réunion *</label>
+                                        <Dropdown v-model="pointsOrdreJour[index].responsable" :id="'resp'+point.id" :options="selectedPart" placeholder="Sélectionner le responsable" />
+                                        <PButton  icon="pi pi-trash" @click="removePoint(index)"  />
+                                    </div>
                                 </div>
                             </StepPanel>
                              <StepPanel v-slot="{ activateCallback }" :value="5">
@@ -318,11 +347,14 @@ const addPoint = () => {
   pointsOrdreJour.value.push({
     id: Date.now(),
     title: '',
-    description: ''
+    duree: '',
+    responsable:'',
+    decision:false
   })
 }
 
 const removePoint = (index) => {
-  pointsOrdreJour.value.splice(index, 1)
+    console.log(pointsOrdreJour.value[index])
+//   pointsOrdreJour.value.splice(index, 1)
 }
 </script>
