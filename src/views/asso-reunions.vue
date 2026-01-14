@@ -37,7 +37,7 @@
                         <h5>Nouveau compte rendu</h5>
                        <span>Étape {{ activeStep }} sur 5</span>
                     </template>
-                    <Stepper v-model:value="activeStep" class="basis-[40rem]">
+                    <Stepper v-model:value="activeStep" linear class="basis-[40rem]">
                         <StepList>
                             <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="1">
                                 <div class="flex flex-row flex-auto gap-2" v-bind="a11yAttrs.root">
@@ -98,11 +98,6 @@
                                     </div>
                                     <div>
                                         <label for="hour">Heure</label>
-                                        <!-- <DatePicker showIcon  inputId="hour" v-model="time" timeOnly placeholder="Heure de début">
-                                            <template #inputicon="slotProps">
-                                                <i class="pi pi-clock" @click="slotProps.clickCallback" />
-                                            </template>
-                                        </DatePicker> -->
                                         <DatePicker v-model="time" showIcon fluid iconDisplay="input" timeOnly inputId="hour">
                                             <template #inputicon="slotProps">
                                                 <i class="pi pi-clock" @click="slotProps.clickCallback" />
@@ -132,12 +127,21 @@
                             <StepPanel v-slot="{ activateCallback }" :value="2">
                                 <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 24rem">
                                     <div class="text-center mt-4 mb-4 text-xl font-semibold">Points à l'ordre du jour</div>
-                                    <PButton label="Ajouter un point" icon="pi pi-plus" />
+                                    <PButton label="Ajouter un point" icon="pi pi-plus" @click="addPoint" />
                                 </div>
                                 <div>
-                                    <div v-if="pointsOrdreJour.length = 0">
+                                    <div v-if="pointsOrdreJour.length == 0">
                                         <span>Aucun point à l'ordre du jour</span>
                                         <span>Aujoutez votre premier point pour commencer</span>
+                                    </div>
+                                    <div v-else v-for="(point, index) in pointsOrdreJour" :key="point.id">
+                                        <label :for="'salle-'+point.id">Titre du point *</label>
+                                        <InputText :id="'salle-'+point.id" placeholder="Ex: Validation du budget" />
+                                        <label :for="'duree-'+point.id">Durée *</label>
+                                        <InputNumber :inputId="'duree-'+point.id" suffix=" min" :min="1" placeholder="Indiquez une durée en minute" />
+                                          <label :for="'resp'+point.id">Type de réunion *</label>
+                                        <Dropdown v-model="selectedPart" :id="'resp'+point.id" :options="selectedPart" placeholder="Sélectionner le responsable" />
+                                        <PButton  icon="pi pi-trash" @click="removePoint(index)"  />
                                     </div>
                                 </div>
                                 <div class="flex pt-6 justify-between">
@@ -172,7 +176,6 @@
 
 <script setup lang="ts">
     import Reunion from '@/models/ReunionModel';
-import { point } from 'leaflet';
 
     import { ref } from 'vue';
 
@@ -243,4 +246,16 @@ import { point } from 'leaflet';
             icon:"pi-send"
         }
     ]
+
+const addPoint = () => {
+  pointsOrdreJour.value.push({
+    id: Date.now(),
+    title: '',
+    description: ''
+  })
+}
+
+const removePoint = (index) => {
+  pointsOrdreJour.value.splice(index, 1)
+}
 </script>
