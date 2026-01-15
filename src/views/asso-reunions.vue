@@ -138,7 +138,7 @@
                                 <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 90vw; flex-direction:column">
                                      <div>
                                         <label for="title">Titre du compte-rendu *</label>
-                                        <InputText id="title" placeholder="CR CA - 14/09/2025" />
+                                        <InputText v-model="title" id="title" placeholder="CR CA - 14/09/2025" />
                                     </div>
                                     <div>
                                         <label for="date">Date *</label>
@@ -155,19 +155,21 @@
                                     </div>
                                     <div>
                                         <label for="place">Lieu</label>
-                                        <InputText id="place" placeholder="Salle de réunion / Visioconférence" />
+                                        <InputText v-model="lieu" id="place" placeholder="Salle de réunion / Visioconférence" />
                                     </div>
                                     <div>
                                         <label for="type">Type de réunion *</label>
                                         <Dropdown v-model="selectedType" id="type" :options="types" optionLabel="name" placeholder="Sélectionner le type" />
                                     </div>
-                                    <fieldset>
-                                        <legend>Participants</legend>
+                                    <!-- <fieldset>
+                                        <legend>Participants</legend> -->
+                                    <CheckboxGroup name="participant" v-model="selectedPart" >
                                      <div v-for="participant of participants" :key="participant.code" class="flex align-items-center">
-                                        <Checkbox v-model="selectedPart" :inputId="participant.code" name="participant" :value="participant.name" />
+                                        <Checkbox :inputId="participant.code"  :value="{ code: participant.code, name: participant.name }" />
                                         <label :for="participant.code">{{ participant.name }}</label>
                                     </div>
-                                    </fieldset>
+                                </CheckboxGroup>
+                                    <!-- </fieldset> -->
                                 </div>
                                 <div class="flex pt-6 justify-end">
                                     <PButton label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(2)" />
@@ -299,9 +301,52 @@
                                             <span>{{ actions.length }} <br> à suivre</span>
                                         </template>
                                     </Card>
-                                     <div id="pdf-content">
-                                            <h1>Mon PDF</h1>
-                                            <p>Contenu à exporter</p>
+                                     <div id="pdf-content" >
+                                        <div>
+                                            <h1>Compte-rendu</h1>
+                                            <h2>{{ title }}</h2>
+                                        </div>
+                                        <div>
+                                            <Chip label="Personne en charge"/> Euh faut mettre quoi là ?
+                                            <span>Date {{ date }}</span>
+                                            <span>Heure de début {{ time }}</span>
+                                            <span>Lieu {{ lieu }}</span>
+                                        </div>
+                                        <Chip label="Participants"/>
+                                        <DataTable :value="selectedPart" showGridlines tableStyle="min-width: 50rem">
+                                            <Column field="name" header="Présents"></Column>
+                                            <Column field="" header="Excusés"></Column>
+                                        </DataTable>
+                                        <div>
+                                            <Chip label="Type de réunion"/>
+                                            {{ selectedType.name }}
+                                        </div>
+                                        <div>
+                                            <Chip label="Ordres du jour"/>
+                                            <div v-for="(point,index) in pointsOrdreJour" :key="index">
+                                                {{point.title}}
+                                                <!-- {{ point }} -->
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Chip label="Discussions et décisions"/>
+                                            <div v-for="(point, index) in pointsOrdreJour">
+                                                <h3>{{ point.title }} par {{ point.responsable.name }}</h3>
+                                                {{ point.discussions }}
+                                                <div v-if="point.synthese">
+                                                Décision :
+                                                <span>{{ point.synthese }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Chip label="Actions à prendre"/>
+                                        <DataTable :value="actions" showGridlines tableStyle="min-width: 50rem">
+                                            <Column field="title" header="Actions"></Column>
+                                            <Column field="statut" header="Etat"></Column>
+                                            <Column field="prio" header="Priorité"></Column>
+                                            <Column field="date" header="Deadline"></Column>
+                                            <Column field="responsable" header="Personne en charge"></Column>
+                                        </DataTable>
                                     </div>
                                     <button @click="generatePdf">Télécharger PDF</button>
                                     <div class="flex pt-6 justify-between">
@@ -337,6 +382,8 @@
     };
     import { ref } from 'vue';
     const test = ref(false)
+    const title = ref()
+    const lieu = ref()
     const date = ref()
     const time = ref()
     const selectedType = ref();
