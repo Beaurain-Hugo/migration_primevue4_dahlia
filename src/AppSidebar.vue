@@ -13,7 +13,7 @@
     <li class="sidebar__list-item"><router-link to="/asso-detail"><img src="" alt="" /><span>Informations importantes</span></router-link></li>
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Création association</span></router-link></li>
     <li class="sidebar__list-item"><router-link to="/asso-reunion"><img src="" alt="" /><span>Réunions</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Planning</span></router-link></li>
+    <li class="sidebar__list-item"><router-link to="/asso-planning"><img src="" alt="" /><span>Planning</span></router-link></li>
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Tâches à effectuer</span></router-link></li>
     <li class="sidebar__list-item"><router-link to="/asso-benevoles"><img src="" alt="" /><span>Adhérents</span></router-link></li>
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Suivi administratif</span></router-link></li>

@@ -15,6 +15,7 @@ const TableauDeBord = defineAsyncComponent(() =>
 const AssoDetail = defineAsyncComponent(() => import('@/views/asso-detail.vue'));
 const TresoDetail = defineAsyncComponent(() => import('@/views/asso-tresorerie.vue'));
 const AssoReu = defineAsyncComponent(() => import('@/views/asso-reunions.vue'));
+const AssoPlanning = defineAsyncComponent(() => import('@/views/asso-planning.vue'));
 
 
 const router = createRouter({
@@ -71,6 +72,16 @@ const router = createRouter({
             requiresAuth: true,
             title: "Finances & Budgets",
             subtitle:"Suivez votre situation financière et optimisez votre gestion"
+          },
+        },
+        {
+          path: '/asso-planning',
+          name: 'asso-planning',
+          component: AssoPlanning,
+          meta: { 
+            requiresAuth: true,
+            title: "Calendrier",
+            subtitle:"Gérez ici vos réunions, évènements et autres"
           },
         },
         {
