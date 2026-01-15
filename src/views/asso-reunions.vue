@@ -157,9 +157,9 @@
                                     </div>
                                     <fieldset>
                                         <legend>Participants</legend>
-                                     <div v-for="participant of participants" :key="participant.key" class="flex align-items-center">
-                                        <Checkbox v-model="selectedPart" :inputId="participant.key" name="participant" :value="participant.name" />
-                                        <label :for="participant.key">{{ participant.name }}</label>
+                                     <div v-for="participant of participants" :key="participant.code" class="flex align-items-center">
+                                        <Checkbox v-model="selectedPart" :inputId="participant.code" name="participant" :value="participant.name" />
+                                        <label :for="participant.code">{{ participant.name }}</label>
                                     </div>
                                     </fieldset>
                                 </div>
@@ -182,7 +182,7 @@
                                         <InputText v-model="pointsOrdreJour[index].title" :id="'salle-'+point.id" placeholder="Ex: Validation du budget" />
                                         <label :for="'duree-'+point.id">Durée *</label>
                                         <InputNumber  showButtons v-model="pointsOrdreJour[index].duree" :inputId="'duree-'+point.id" suffix=" min" :min="1" placeholder="Indiquez une durée en minute" />
-                                          <label :for="'resp'+point.id">Type de réunion *</label>
+                                          <label :for="'resp'+point.id">Responsable *</label>
                                         <Dropdown v-model="pointsOrdreJour[index].responsable" :id="'resp'+point.id" :options="selectedPart" placeholder="Sélectionner le responsable" />
                                         <PButton  icon="pi pi-trash" @click="removePoint(index)"  />
                                     </div>
@@ -227,22 +227,40 @@
                              <StepPanel v-slot="{ activateCallback }" :value="4">
                              <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 24rem">
                                     <div class="text-center mt-4 mb-4 text-xl font-semibold">Points à l'ordre du jour</div>
-                                    <PButton label="Ajouter un point" icon="pi pi-plus" @click="addPoint" />
+                                    <PButton label="Ajouter un point" icon="pi pi-plus" @click="addAction" />
                                 </div>
                                 <div>
-                                    <div v-if="pointsOrdreJour.length == 0">
+                                    <div v-if="actions.length == 0">
                                         <span>Aucun action définie</span>
                                         <span>Ajoutez votre premier point pour commencer</span>
                                     </div>
-                                    <div v-else v-for="(point, index) in pointsOrdreJour" :key="point.id">
-                                        <label :for="'salle-'+point.id">Titre du point *</label>
-                                        <InputText v-model="pointsOrdreJour[index].title" :id="'salle-'+point.id" placeholder="Ex: Validation du budget" />
-                                        <label :for="'duree-'+point.id">Durée *</label>
-                                        <InputNumber  showButtons v-model="pointsOrdreJour[index].duree" :inputId="'duree-'+point.id" suffix=" min" :min="1" placeholder="Indiquez une durée en minute" />
-                                          <label :for="'resp'+point.id">Type de réunion *</label>
-                                        <Dropdown v-model="pointsOrdreJour[index].responsable" :id="'resp'+point.id" :options="selectedPart" placeholder="Sélectionner le responsable" />
-                                        <PButton  icon="pi pi-trash" @click="removePoint(index)"  />
+                                    <div v-else v-for="(point, index) in actions" :key="point.id">
+                                        <label :for="'titre-'+point.id">Titre du point *</label>
+                                        <Chip v-if="point.responsable" :label="valueToLabel(point.responsable, participants)" icon="pi pi-user" />
+                                        <Chip v-if="point.date" :label="point.date" icon="pi pi-calendar" />
+                                        <Chip :label="valueToLabel(point.prio, priorite)" />
+                                        <Chip :label="valueToLabel(point.statut, statut)" />
+                                        <InputText v-model="actions[index].title" :id="'titre-'+point.id" placeholder="Ex: Validation du budget" />
+                                        <ToggleButton @click="console.log(actions)" :modelValue="isOpen(point.id)" @update:modelValue="() => toggleAction(point.id)" onLabel="Réduire" offLabel="Modifier" />
+                                        <div v-if="isOpen(point.id)">
+                                            <label for="date">Date d'échéance *</label>
+                                            <DatePicker updateModelType="string" showIcon inputId="date" v-model="point.date" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
+                                            <label :for="'resp'+point.id">Assigné à *</label>
+                                            <Dropdown v-model="actions[index].responsable" :id="'resp'+point.id" :options="participants" optionLabel="name" optionValue="code" placeholder="Sélectionner le responsable" />
+                                            <label :for="'prio-'+point.id">Priorité *</label>
+                                            <Select defaultValue="mid" v-model="actions[index].prio" :id="'prio-'+point.id" :options="priorite" optionLabel="name" optionValue="code" placeholder="Sélectionner le responsable" />
+                                            <label :for="'statut-'+point.id">Statut *</label>
+                                            <Select defaultValue="TODO" v-model="actions[index].statut" :id="'statut-'+point.id" :options="statut" optionLabel="name" optionValue="code" placeholder="Sélectionner le responsable" />
+                                        </div>
+                                        <div v-else>
+                                            <span>Cliquez sur "Modifier" pour plus d'options</span>
+                                        </div>
+                                        <PButton  icon="pi pi-trash" @click="removeAction(index)"  />
                                     </div>
+                                </div>
+                                 <div class="flex pt-6 justify-between">
+                                    <PButton label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(3)" />
+                                    <PButton label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(5)" />
                                 </div>
                             </StepPanel>
                              <StepPanel v-slot="{ activateCallback }" :value="5">
@@ -274,13 +292,14 @@
     import Reunion from '@/models/ReunionModel';
 
     import { ref } from 'vue';
-
+    const test = ref(false)
     const date = ref()
     const time = ref()
     const selectedType = ref();
     const selectedPart = ref();
     const activeStep = ref(1);
     const pointsOrdreJour = ref([]);
+    const actions = ref([]);
     const types = ref([
         {name:"Conseil d'administration", code: "CA"},
         {name:"Assemblée générale", code: "AG"},
@@ -290,9 +309,19 @@
         {name:"Bureau exécutif", code: "BE"},
     ])
     const participants = ref([
-        {name:"Corentin Beuchat", key:"0"},
-        {name:"Elora Perrin", key:"1"},
-        {name:"Hugo Beaurain", key:"2"},
+        {name:"Corentin Beuchat", code:"0"},
+        {name:"Elora Perrin", code:"1"},
+        {name:"Hugo Beaurain", code:"2"},
+    ])
+    const priorite = ref([
+        {name:"Faible", code:"low"},
+        {name:"Moyenne", code:"mid"},
+        {name:"Forte", code:"high"},
+    ])
+    const statut = ref([
+        {name:"À faire", code:"TODO"},
+        {name:"En cours", code:"DOING"},
+        {name:"Terminé", code:"DONE"},
     ])
     const VISIBLE=ref(false);
     const REUNIONS = ref<Reunion>([])
@@ -343,6 +372,10 @@
         }
     ]
 
+    const valueToLabel = (value, array) => {
+        return array.find(val => val.code === value).name
+    }
+
 const addPoint = () => {
   pointsOrdreJour.value.push({
     id: Date.now(),
@@ -353,8 +386,37 @@ const addPoint = () => {
   })
 }
 
-const removePoint = (index) => {
-    console.log(pointsOrdreJour.value[index])
-//   pointsOrdreJour.value.splice(index, 1)
+const addAction = () => {
+  actions.value.push({
+    id: Date.now(),
+    // title: '',
+    // deadline: '',
+    // responsable:'',
+    prio:'mid',
+    statut:'TODO'
+  })
 }
+
+const removePoint = (index) => {
+  pointsOrdreJour.value.splice(index, 1)
+}
+
+const removeAction = (index) => {
+  actions.value.splice(index, 1)
+}
+
+import { reactive } from 'vue';
+
+const openedActions = reactive(new Set());
+
+const toggleAction = (id) => {
+    if (openedActions.has(id)) {
+        openedActions.delete(id);
+    } else {
+        openedActions.add(id);
+    }
+};
+
+const isOpen = (id) => openedActions.has(id);
+
 </script>
