@@ -1,7 +1,13 @@
 <template>
     <main>
-        <TabView>
-            <TabPanel header="Mes réunions">
+        <Tabs value="0">
+            <TabList>
+                <Tab value="0">Mes réunions</Tab>
+                <Tab value="1">Nouveau CR</Tab>
+                <Tab value="2">Rappels</Tab>
+            </TabList>
+            <TabPanels>
+            <TabPanel value="0">
                 <h3>Historique des réunions</h3>
                 <div>
                 <Card v-for="(reunion, index) in REUNIONS" :key="index">
@@ -307,13 +313,14 @@
                     </Stepper>
                 </PDialog>
             </TabPanel>
-            <TabPanel header="Nouveau CR">
+            <TabPanel value="1">
 
             </TabPanel>
-            <TabPanel header="Rappels">
+            <TabPanel value="2">
 
             </TabPanel>
-        </TabView>
+            </TabPanels>
+        </Tabs>
     </main>
 </template>
 
