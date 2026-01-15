@@ -264,14 +264,43 @@
                                 </div>
                             </StepPanel>
                              <StepPanel v-slot="{ activateCallback }" :value="5">
-                                <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 24rem">
-                                    <div class="text-center mt-4 mb-4 text-xl font-semibold">Account created successfully</div>
-                                    <div class="flex justify-center">
-                                        <img alt="logo" src="https://primefaces.org/cdn/primevue/images/stepper/content.svg" />
+                                <div>
+                                    Récapitulatif et finalisation
+                                    <Card>
+                                        <template #header>
+                                            <span class="pi pi-users"></span>
+                                            Participants
+                                        </template>
+                                        <template #content>
+                                            <span>{{ selectedPart.length }} <br> personnes conviées</span>
+                                        </template>
+                                    </Card>
+                                     <Card>
+                                        <template #header>
+                                            <span class="pi pi-check-circle"></span>
+                                            Décisions
+                                        </template>
+                                        <template #content>
+                                            <span>{{ pointsOrdreJour.length }} <br> décisions prises</span>
+                                        </template>
+                                    </Card>
+                                    <Card>
+                                        <template #header>
+                                            <span class="pi pi-file"></span>
+                                            Actions
+                                        </template>
+                                        <template #content>
+                                            <span>{{ actions.length }} <br> à suivre</span>
+                                        </template>
+                                    </Card>
+                                     <div id="pdf-content">
+                                            <h1>Mon PDF</h1>
+                                            <p>Contenu à exporter</p>
                                     </div>
-                                </div>
-                                <div class="flex pt-6 justify-start">
+                                    <button @click="generatePdf">Télécharger PDF</button>
+                                    <div class="flex pt-6 justify-between">
                                     <PButton label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(4)" />
+                                    </div>
                                 </div>
                             </StepPanel>
                         </StepPanels>
@@ -290,13 +319,21 @@
 
 <script setup lang="ts">
     import Reunion from '@/models/ReunionModel';
-
+    import domToPdf from 'dom-to-pdf'
+    const generatePdf = () => {
+        const element = document.getElementById('pdf-content');
+        domToPdf(element, {
+            filename: 'mon-document.pdf',
+            margin: 10,
+            scale: 2
+        });
+    };
     import { ref } from 'vue';
     const test = ref(false)
     const date = ref()
     const time = ref()
     const selectedType = ref();
-    const selectedPart = ref();
+    const selectedPart = ref([]);
     const activeStep = ref(1);
     const pointsOrdreJour = ref([]);
     const actions = ref([]);
