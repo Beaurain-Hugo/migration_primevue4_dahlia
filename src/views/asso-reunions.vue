@@ -211,8 +211,8 @@
                                                 <Chip :label="point.title" />({{ point.duree }} min - {{ point.responsable }})
                                             </template>
                                             <template #content>
-                                                Discussions et échanges
-                                                <PTextarea v-model="point.discussions" rows="5" cols="30" placeholder="Détaillez les échanges, arguments et points de vue exprimés"/>
+                                                <label :for="'discussions-'+point.id">Discussions et échanges</label>
+                                                <PTextarea :id="'discussions-'+point.id" v-model="point.discussions" rows="5" cols="30" placeholder="Détaillez les échanges, arguments et points de vue exprimés"/>
                                                 <div>
                                                     <Checkbox :inputId="'decision-'+point.id" v-model="point.decision" @click="console.log(point)" binary @update:modelValue="val => { if (!val) point.synthese = '' }" />
                                                     <label :for="'decision-'+point.id">Une décision a été prise ?</label>
