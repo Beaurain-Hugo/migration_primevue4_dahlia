@@ -55,6 +55,7 @@ import StepPanels from 'primevue/steppanels';
 import StepItem from 'primevue/stepitem';
 import Step from 'primevue/step';
 import StepPanel from 'primevue/steppanel';
+import SelectButton from 'primevue/selectbutton';
 
 import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
@@ -125,6 +126,7 @@ app.component('StepItem', StepItem );
 app.component('Step', Step );
 app.component('StepPanel', StepPanel );
 app.component('Select', Select );
+app.component('SelectButton', SelectButton );
 
 // Layouts
 app.component('default-layout', Default);
