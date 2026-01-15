@@ -135,11 +135,43 @@
 				@click-item="onClickItem"
 			>
 				<template #header="{ headerProps }">
-					<CalendarViewHeader :header-props @input="setShowDate" />
+					  <!-- <MyCalendarViewHeader
+       					 :header-props="headerProps"
+       					 @input="setShowDate = $event"
+     				 	  @add-event="openCreateModal"
+       					 @filter="applyFilter"
+      					/> -->
+						 <MyCalendarViewHeader
+      						:header-props="headerProps"
+     				 		@input="setShowDate"
+      						@add-event="openCreateModal"
+      						@filter="applyFilter"
+							@period="changePeriod"
+    					/>
+						<!-- <CalendarViewHeader :header-props="headerProps" @input="setShowDate"/> -->
 				</template>
 			</CalendarView>
 		</div>
 	</div>
+	<PDialog modal header="Créer un évènement" v-model:visible="VISIBLE">
+		<template #header>
+			<h5>Créer un évènement</h5>
+			<span>Organisez une réunion ou un évènement avec vos membres.</span>
+		</template>
+		<div>
+			<label for="title">Titre de l'évènement</label>
+            <InputText id="title" placeholder="Réunion du CA" />
+			<label for="description">Description</label>
+			<PTextarea id="description" v-model="description" rows="5" cols="30" placeholder="Objectifs / Notes"/>
+ 			<label for="date">Date</label>
+            <DatePicker updateModelType="string" showIcon inputId="date" v-model="date" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
+            <label for="hour">Date</label>
+			<DatePicker timeOnly showIcon inputId="hour" v-model="hour" placeholder="Heure de début" />
+			<Select v-model="selectedDuree" :options="duree" optionLabel="name" optionValue="code" placeholder="Select a City" class="w-full md:w-56" />
+			<label for="lieu">Lieu</label>
+            <InputText id="lieu" placeholder="Adresse du lieu" />
+		</div>
+	</PDialog>
 </template>
 <style>
     /* @import "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"; */
@@ -216,9 +248,21 @@ import 'vue-simple-calendar/dist/css/gcal.css';
 // import CalendarViewHeader from "vue-simple-calendar/src/CalendarViewHeader.vue"
 // import CalendarMath from "vue-simple-calendar/src/CalendarMath"
 import { ICalendarItem, INormalizedCalendarItem } from "vue-simple-calendar"
+import { ref, onMounted, reactive, computed } from "vue"
+import MyCalendarViewHeader from "@/components/MyCalendarViewHeader.vue";
 
-import { onMounted, reactive, computed } from "vue"
-
+const VISIBLE=ref(false);
+const description = ref()
+const date = ref()
+const hour = ref()
+const selectedDuree = ref()
+const duree = ref([
+	{name:'15 min', code:"15"},
+	{name:'30 min', code:"30"},
+	{name:'45 min', code:"45"},
+	{name:'1h', code:"60"},
+	{name:'2h', code:"120"},
+])
 const thisMonth = (d: number, h?: number, m?: number): Date => {
 	const t = new Date()
 	return new Date(t.getFullYear(), t.getMonth(), d, h || 0, m || 0)
@@ -249,7 +293,7 @@ const state = reactive({
 	/* Show the current month, and give it some fake items to show */
 	showDate: thisMonth(1),
 	message: "",
-	startingDayOfWeek: 0,
+	startingDayOfWeek: 1,
 	disablePast: false,
 	disableFuture: false,
 	displayPeriodUom: "month",
@@ -376,14 +420,16 @@ const periodChanged = (): void => {
 	// range, eventSource) {
 	// Demo does nothing with this information, just including the method to demonstrate how
 	// you can listen for changes to the displayed range and react to them (by loading items, etc.)
-	//console.log(eventSource)
-	//console.log(range)
+	// console.log(eventSource)
+	// console.log(range)
 }
 
 const onClickDay = (d: Date): void => {
 	state.selectionStart = undefined
 	state.selectionEnd = undefined
 	state.message = `You clicked: ${d.toLocaleDateString()}`
+	VISIBLE.value=true
+	date.value = d
 }
 
 const onClickItem = (item: INormalizedCalendarItem): void => {
@@ -423,4 +469,20 @@ const clickTestAddItem = (): void => {
 	})
 	state.message = "You added a calendar item!"
 }
+
+const items = ref([]);
+
+const openCreateModal = () => {
+  VISIBLE.value=true
+  date.value = ""
+};
+
+const applyFilter = (value) => {
+  console.log("Filtre :", value);
+};
+
+const changePeriod = (value) => {
+  console.log("changePeriod :", value);
+  state.displayPeriodUom = value
+};
 </script>
