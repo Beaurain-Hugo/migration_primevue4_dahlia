@@ -36,6 +36,7 @@ import FileUpload from 'primevue/fileupload';
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
+import Select from 'primevue/select';
 import AccordionContent from 'primevue/accordioncontent';
 import Checkbox from 'primevue/checkbox';
 import TabView from 'primevue/tabview';
@@ -123,6 +124,7 @@ app.component('StepPanels', StepPanels );
 app.component('StepItem', StepItem );
 app.component('Step', Step );
 app.component('StepPanel', StepPanel );
+app.component('Select', Select );
 
 // Layouts
 app.component('default-layout', Default);
