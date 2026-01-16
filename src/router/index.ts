@@ -45,7 +45,7 @@ const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
-          path: '/asso-reunion',
+          path: '/asso-reunion/:id',
           name: 'asso-reunion',
           component: AssoReu,
           meta: { 
@@ -55,7 +55,7 @@ const router = createRouter({
           },
         },
         {
-          path: '/asso-benevoles',
+          path: '/asso-benevoles/:id',
           name: 'asso-benevoles',
           component: () => import('@/views/asso-benevole.vue'),
           meta: { 
@@ -65,7 +65,7 @@ const router = createRouter({
           },
         },
         {
-          path: '/tresorerie-detail',
+          path: '/tresorerie-detail/:id',
           name: 'tresorerie-detail',
           component: TresoDetail,
           meta: { 
@@ -75,7 +75,7 @@ const router = createRouter({
           },
         },
         {
-          path: '/asso-planning',
+          path: '/asso-planning/:id',
           name: 'asso-planning',
           component: AssoPlanning,
           meta: { 
