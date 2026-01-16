@@ -3,12 +3,15 @@
     <DialogErreur v-model:afficherDialogErreur="afficherDialogErreur" v-model:libelleErreur="libelleErreur" />
     <Toast />
     <ConfirmPopup />
-    <AppSideBar :staticMenuInactive="staticMenuInactive" :mobileMenuActive="mobileMenuActive" @menuToggle.prevent="onMenuToggle" />
+    <AppSideBar :idAsso="assoId" :staticMenuInactive="staticMenuInactive" :mobileMenuActive="mobileMenuActive" @menuToggle.prevent="onMenuToggle" />
     <!-- <div class="layout-sidebar" @click="onSidebarClick">
       <AppMenu :model="menu" @menuitemClick="onMenuItemClick" />
     </div> -->
 
     <div class="layout-main-container">
+      <div>
+        <DashboardHeader v-model="assoId" />
+      </div>
       <div class="layout-main" :class="{ 'flex align-items-stretch': isFallbackDisplayed }">
         <div>
           <h1>{{ $route.meta.title }}</h1>
@@ -38,6 +41,7 @@
 <script setup lang="ts">
 import AppFooter from '@/AppFooter.vue';
 import AppMenu from '@/AppMenu.vue';
+import DashboardHeader from '@/components/DashboardHeader.vue';
 import AppSideBar from '@/AppSidebar.vue';
 import DialogErreur from '@/components/dialog/DialogErreur.vue';
 import ReloadPWA from '@/components/ReloadPWA.vue';
@@ -46,7 +50,7 @@ import { usePrimeVue } from 'primevue/config';
 import type { MenuItem } from 'primevue/menuitem';
 import { useToast } from 'primevue/usetoast';
 import { computed, onBeforeUpdate, onErrorCaptured, ref, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import ErrorCause from '@/constants/ErrorCause';
 import { useUtilsService } from '@/composables/UtilsService';
 import LoadingSpinner from '@/components/ui-elements/LoadingSpinner.vue';
@@ -61,10 +65,34 @@ defineEmits<{
 }>();
 
 const route = useRoute();
+const router = useRouter();
 const primevue = usePrimeVue();
 const toast = useToast();
 const { afficherDialogErreur, libelleErreur } = useErreurService();
 const { isLoading, isLoading2, isDialogLoading, isButtonLoading } = useUtilsService();
+
+// let assoId = ref<number | null>(sessionStorage.getItem("idAsso") ? Number(sessionStorage.getItem("idAsso")) : null);
+const assoId = ref<number | null>(
+  sessionStorage.getItem('idAsso')
+    ? Number(sessionStorage.getItem('idAsso'))
+    : null
+);
+
+watch(assoId, (val) => {
+  if (val !== null) {
+    sessionStorage.setItem('idAsso', val.toString());
+    console.log(route.params.id)
+     if (route.params.id !== String(val)) {
+      router.push({
+        name: route.name!,
+        params: {
+          ...route.params,
+          id: val
+        }
+      });
+    }
+  }
+});
 
 onErrorCaptured((e) => {
   if (!afficherDialogErreur.value) {
@@ -90,34 +118,34 @@ const mobileMenuActive = ref(false);
 const menuActive = ref();
 const menuClick = ref();
 const isFallbackDisplayed = ref(false);
-const menu = ref([
-  {
-    label: 'Gestion du tournoi',
-    icon: 'pi pi-fw pi-sitemap',
-    items: [
-      {
-        label: 'Tableau de bord',
-        icon: 'pi pi-fw pi-chart-line', // Tableau de bord -> Représente des statistiques ou un aperçu
-        to: '/tableau-de-bord',
-      },
-      {
-        label: 'Informations',
-        icon: 'pi pi-fw pi-info-circle', // Informations -> Représente un symbole d'information
-        to: '/asso-detail',
-      },
-      {
-        label: 'Bénévoles',
-        icon: 'pi pi-fw pi-users', // Bénévoles -> Représente des groupes de personnes
-        to: '/asso-benevoles',
-      },
-      {
-        label: 'Trésorerie',
-        icon: 'pi pi-fw pi-wallet', // Trésorerie -> Représente un portefeuille ou les finances
-        to: '/tresorerie-detail',
-      }
-    ],
-  },
-]);
+// const menu = ref([
+//   {
+//     label: 'Gestion du tournoi',
+//     icon: 'pi pi-fw pi-sitemap',
+//     items: [
+//       {
+//         label: 'Tableau de bord',
+//         icon: 'pi pi-fw pi-chart-line', // Tableau de bord -> Représente des statistiques ou un aperçu
+//         to: '/tableau-de-bord',
+//       },
+//       {
+//         label: 'Informations',
+//         icon: 'pi pi-fw pi-info-circle', // Informations -> Représente un symbole d'information
+//         to: '/asso-detail',
+//       },
+//       {
+//         label: 'Bénévoles',
+//         icon: 'pi pi-fw pi-users', // Bénévoles -> Représente des groupes de personnes
+//         to: '/asso-benevoles',
+//       },
+//       {
+//         label: 'Trésorerie',
+//         icon: 'pi pi-fw pi-wallet', // Trésorerie -> Représente un portefeuille ou les finances
+//         to: '/tresorerie-detail',
+//       }
+//     ],
+//   },
+// ]);
 
 const containerClass = computed(() => {
   return [
@@ -167,16 +195,16 @@ function onMenuToggle() {
   }
 }
 
-function onSidebarClick() {
-  menuClick.value = true;
-}
+// function onSidebarClick() {
+//   menuClick.value = true;
+// }
 
-function onMenuItemClick(event: { item: MenuItem }) {
-  if (event.item && !event.item.items) {
-    overlayMenuActive.value = false;
-    mobileMenuActive.value = false;
-  }
-}
+// function onMenuItemClick(event: { item: MenuItem }) {
+//   if (event.item && !event.item.items) {
+//     overlayMenuActive.value = false;
+//     mobileMenuActive.value = false;
+//   }
+// }
 
 function addClass(element: HTMLElement, className: string) {
   if (element.classList) element.classList.add(className);

@@ -9,15 +9,15 @@
       <img class="logo-image" alt="Logo Aide Asso" src="@/assets/images/Logo_aide_asso.png" />
     </router-link>
     </li>
-    <li class="sidebar__list-item"><router-link to="/tableau-de-bord"><img src="" alt="" /><span>Tableau de bord</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to="/asso-detail"><img src="" alt="" /><span>Informations importantes</span></router-link></li>
+    <li class="sidebar__list-item"><router-link to="/tableau-de-bord"><img src="" alt="" /><span>Tableau de bord{{ props.idAsso }}</span></router-link></li>
+    <li class="sidebar__list-item"><router-link :to="`/asso-detail/${props.idAsso}`"><img src="" alt="" /><span>Informations importantes</span></router-link></li>
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Création association</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to="/asso-reunion"><img src="" alt="" /><span>Réunions</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to="/asso-planning"><img src="" alt="" /><span>Planning</span></router-link></li>
+    <li class="sidebar__list-item"><router-link :to="`/asso-reunion/${props.idAsso}`"><img src="" alt="" /><span>Réunions</span></router-link></li>
+    <li class="sidebar__list-item"><router-link :to="`/asso-planning/${props.idAsso}`"><img src="" alt="" /><span>Planning</span></router-link></li>
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Tâches à effectuer</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to="/asso-benevoles"><img src="" alt="" /><span>Adhérents</span></router-link></li>
+    <li class="sidebar__list-item"><router-link :to="`/asso-benevoles/${props.idAsso}`"><img src="" alt="" /><span>Adhérents</span></router-link></li>
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Suivi administratif</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to="/tresorerie-detail"><img src="" alt="" /><span>Trésorerie</span></router-link></li>
+    <li class="sidebar__list-item"><router-link :to="`/tresorerie-detail`"><img src="" alt="" /><span>Trésorerie</span></router-link></li>
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Profil</span></router-link></li>
     <li class="sidebar__list-item">
     <button
@@ -224,6 +224,7 @@ onBeforeUnmount(() => {
 const props = defineProps<{
   staticMenuInactive: boolean;
   mobileMenuActive: boolean;
+  idAsso: Number
 }>();
 const emit = defineEmits<{
   (e: 'menu-toggle', v: Event): void;
@@ -253,12 +254,13 @@ onMounted(async () => {
   await fetchData();
 });
 
-watch(
-  () => sessionStorage.getItem('jwt'),
-  async () => {
-    await fetchData();
-  }
-);
+// watch(props.idAsso, (newId, oldId) => {
+//         console.log("watch")  
+
+//     if (newId !== oldId) {
+//       // fetchAssociation();
+//     }
+// });
 
 watch(
   () => route.name,

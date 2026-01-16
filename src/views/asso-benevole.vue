@@ -281,7 +281,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { useAssoService } from '@/composables/asso/AssoService';
@@ -294,6 +295,7 @@ const ACTIVE_MEMBRES = ref<Membre>([]);
 const AssoService = useAssoService();
 const MemberService = useMemberService();
 const UserService = useUserService();
+const route = useRoute();
 
 onMounted(async () => {
   const idAsso = sessionStorage.getItem('idAsso'); // Récupérer l'ID de l'association actuelle
@@ -301,8 +303,17 @@ onMounted(async () => {
   allMembres.value = await UserService.getUsers(); // Récupérer tous les membres de la BDD
   membres.value = allMembres.value.filter((user) => !listeMembres.value.some((member) => member.user_id === user.id));
   ACTIVE_MEMBRES.value = listeMembres.value.filter((membre) => membre.est_actif);
-  console.log(listeMembres.value.filter((membre) => console.log("TEST", new Date(membre.date_adhesion))));
-  console.log(listeMembres.value.filter((membre) => new Date(membre.date_adhesion) > new Date( new Date().getFullYear(), new Date().getMonth() - 1, new Date().getDate())))
+  // console.log(listeMembres.value.filter((membre) => console.log("TEST", new Date(membre.date_adhesion))));
+  // console.log(listeMembres.value.filter((membre) => new Date(membre.date_adhesion) > new Date( new Date().getFullYear(), new Date().getMonth() - 1, new Date().getDate())))
+});
+
+// CHANGER LES VALEURS DANS LES PAGES QUAND CHANGEMENT D'ASSO
+watch(() => route.params.id, async (newId) => {
+    const id = newId ? Number(newId) : null;
+    const idAsso = sessionStorage.getItem('idAsso'); // Récupérer l'ID de l'association actuelle
+    if (id == Number(idAsso)) {
+      listeMembres.value = await AssoService.getMembersByAssoId(Number(idAsso)); // Récupérer les membres de l'association par son ID
+    }
 });
 
 const toast = useToast();
