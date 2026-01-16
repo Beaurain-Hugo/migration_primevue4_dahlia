@@ -82,7 +82,7 @@ export function useAssoService() {
         return 'Erreur lors de la création de l\'association.';
       }
     },
-    async getAllAssociations(id: number) {
+    async getAllAssociations(id: number) { // récupère les associations d'un utilisateur par son ID
       try {
         const response = await assoApi.getAllAssociations(id);
         if (response) {
@@ -123,7 +123,7 @@ export function useAssoService() {
         return 'Erreur lors de la création de la Tresorie.';
       }
     },
-    async getAllAssociation() {
+    async getAllAssociation() { // récupère toutes les associations
       try {
         const response = await assoApi.getAllAssociation();
         if (response) {
