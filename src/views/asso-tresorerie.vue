@@ -160,7 +160,8 @@
 </template>
   
 <script setup>
-  import { ref, onMounted, computed } from 'vue';
+  import { ref, onMounted, computed, watch } from 'vue';
+  import {useRoute} from 'vue-router';
   import { useAssoService } from '@/composables/asso/AssoService';
   import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
     import { useToast } from 'primevue/usetoast';
@@ -174,6 +175,7 @@ const maxValue = computed(() => {
   if (!transactions.value.length) return null;
   return Math.max(...transactions.value.map(t => t.operation));
 });
+const route = useRoute();
   const assoService = useAssoService();
   const transactions = ref([]);
   const filters = ref({
@@ -199,20 +201,18 @@ const maxValue = computed(() => {
   const lineChartOptions = ref(null);
   const periods = ref()
 
-  const items = ref([
-    {
-      item: "test",
-      index: 0,
-      active: true,
-      label: "jsp",
-    },
-    {
-      item: "test 2",
-      index: 1,
-      active: false,
-      label: "jsqsfqfqfp",
-    },
-  ])
+// CHANGER LES VALEURS DANS LES PAGES QUAND CHANGEMENT D'ASSO
+watch(() => route.params.id, async (newId) => {
+    const id = newId ? Number(newId) : null;
+    const idAsso = sessionStorage.getItem('idAsso'); // Récupérer l'ID de l'association actuelle
+    if (id == Number(idAsso)) {
+      const res = await assoService.getAllTresorieByAssociations(Number(idAsso)); // Récupérer les membres de l'association par son ID
+      transactions.value = res.map(transaction => ({
+        ...transaction,
+        date_operation: new Date(transaction.date_operation)
+      }));
+    }
+});
   
   onMounted(async () => {
     try {
@@ -263,8 +263,9 @@ const groupedByDate = computed(() => {
       );
     })
     .sort((a, b) => a.date_operation.getTime() - b.date_operation.getTime())
+    // .sort((a, b) => new Date(a.date_operation) - new Date(b.date_operation))
     .reduce((acc, transaction) => {
-      const date = transaction.date_operation;
+      const date = transaction.date_operation;  
       const day = String(date.getDate()).padStart(2, '0'); // Jour sur 2 chiffres
       const month = String(date.getMonth() + 1).padStart(2, '0'); // Mois sur 2 chiffres (0-indexé)
       const year = date.getFullYear(); // Année sur 4 chiffres
