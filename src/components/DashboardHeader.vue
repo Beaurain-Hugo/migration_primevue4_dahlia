@@ -53,7 +53,6 @@ onMounted(async () => {
   const jwt = sessionStorage.getItem('jwt');
   isLoading.value = true;
   associationData.value = await associationService.getAllAssociations(Number(jwt));
-  console.log(associationData.value);
   isLoading.value = false;
 });
 
