@@ -31,10 +31,17 @@
         </div>
       </div>
     </div>
-    <TabView>
-      <TabPanel header="Vue générale">
+    <Tabs value="0">
+      <TabList>
+        <Tab value="0">Vue générale</Tab>
+        <Tab value="1">Budget détaillé</Tab>
+        <Tab value="2">Conseils IA</Tab>
+      </TabList>
+      <TabPanels>
+      <TabPanel value="0">
         <!-- Graphique en courbes -->
     <div class="mb-4">
+      <DatePicker v-model="periods" placeholder="Sélectionner deux dates" selectionMode="range" :manualInput="false" @update:modelValue="updateChartData" />
       <div class="card">
         <Chart type="line" :data="lineChartData" :options="lineChartOptions" class="h-[28rem]" />
       </div>
@@ -43,28 +50,29 @@
       </div>
     </div>
       </TabPanel>
-        <TabPanel header="Header II">
+        <TabPanel value="1">
         <p class="m">
             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim
             ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi.
         </p>
     </TabPanel>
-    <TabPanel header="Header III">
+    <TabPanel value="2">
         <p class="m">
             At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui
             officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
         </p>
     </TabPanel>
-    </TabView>
+    </TabPanels>
+    </Tabs>
      
      <!-- Table des transactions -->
-    <DataTable 
+      <DataTable 
       v-model:filters="filters"
       :value="transactions"
       paginator
       :rows="5"
       dataKey="id"
-      filterDisplay="row"
+      filterDisplay="menu"
       :loading="loading"
       :globalFilterFields="['nom_transaction', 'tiers', 'operation', 'date_operation']"
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -80,7 +88,7 @@
         <template #empty>Aucune transaction trouvée</template>
         <template #loading>Chargement des transactions. Veuillez patienter.</template>
   
-        <Column field="nom_transaction" header="Nom de transaction" style="min-width: 12rem">
+        <Column field="nom_transaction" header="Nom de transaction" :showFilterMatchModes="false" style="min-width: 12rem">
           <template #body="{ data }">
             {{ data.nom_transaction }}
           </template>
@@ -89,25 +97,32 @@
           </template>
         </Column>
   
-        <Column field="operation" header="Transaction" style="min-width: 10rem">
+        <Column field="operation" header="Transaction" :showFilterMatchModes="false" style="min-width: 10rem">
           <template #body="{ data }">
             {{ data.operation }}€
           </template>
-          <template #filter="{ filterModel, filterCallback }">
-            <InputText v-model="filterModel.value" @input="filterCallback()" placeholder="Filtrer par transaction" />
+          <template #filter="{ filterModel }">
+            
+            <Slider :min="minValue" :max="maxValue" v-model="filterModel.value" range class="m-4"></Slider>
+            <div class="flex items-center justify-between px-2">
+                <span>{{ filterModel.value ? filterModel.value[0] : minValue }}</span>
+                /
+                <span>{{ filterModel.value ? filterModel.value[1] : maxValue }}</span>
+            </div>
           </template>
+          
         </Column>
   
-        <Column field="date_operation" header="Date" style="min-width: 12rem">
+        <Column field="date_operation" dataType="date" header="Date" style="min-width: 12rem">
           <template #body="{ data }">
             {{ formatDate(data.date_operation) }}
           </template>
           <template #filter="{ filterModel, filterCallback }">
-            <Calendar v-model="filterModel.value" dateFormat="dd/mm/yy" @change="filterCallback()" placeholder="Filtrer par date" />
+            <DatePicker v-model="filterModel.value" dateFormat="dd/mm/yy" @change="filterCallback()" placeholder="Filtrer par date" />
           </template>
         </Column>
   
-        <Column field="tiers" header="Tiers" style="min-width: 12rem">
+        <Column field="tiers" header="Tiers" :showFilterMatchModes="false" style="min-width: 12rem">
           <template #body="{ data }">
             {{ data.tiers }}
           </template>
@@ -129,7 +144,7 @@
         </div>
         <div class="field">
           <label for="date_operation">Date</label>
-          <Calendar id="date_operation" v-model="newTransaction.date_operation" dateFormat="dd/mm/yy" />
+          <DatePicker id="date_operation" v-model="newTransaction.date_operation" dateFormat="dd/mm/yy" />
         </div>
         <div class="field">
           <label for="tiers">Tiers</label>
@@ -147,18 +162,28 @@
 <script setup>
   import { ref, onMounted, computed } from 'vue';
   import { useAssoService } from '@/composables/asso/AssoService';
-  import { FilterMatchMode } from '@primevue/core/api';
+  import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
     import { useToast } from 'primevue/usetoast';
 
+  const minValue = computed(() => {
+  if (!transactions.value.length) return null;
+  return Math.min(...transactions.value.map(t => t.operation));
+});
+
+const maxValue = computed(() => {
+  if (!transactions.value.length) return null;
+  return Math.max(...transactions.value.map(t => t.operation));
+});
   const assoService = useAssoService();
   const transactions = ref([]);
   const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     nom_transaction: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    operation: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    date_operation: { value: null, matchMode: FilterMatchMode.DATE },
+    operation: { value: null, matchMode: FilterMatchMode.BETWEEN },
+    date_operation:{ operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_BEFORE }]},
     tiers: { value: null, matchMode: FilterMatchMode.STARTS_WITH }
   });
+  console.log(filters.value.date_operation)
   const newTransaction = ref({
     association_id: Number(sessionStorage.getItem("idAsso")),
     nom_transaction: "",
@@ -169,9 +194,11 @@
   const showDialog = ref(false);
   const loading = ref(true);
   const toast = useToast();
-  const lineChartData = ref(null);
+  // const lineChartData = ref(null);
   const pieChartData = ref(null);
   const lineChartOptions = ref(null);
+  const periods = ref()
+
   const items = ref([
     {
       item: "test",
@@ -219,21 +246,29 @@
     return new Intl.DateTimeFormat('fr-FR', options).format(date);
   };
   
-  const updateChartData = async () => {
-    const res = await assoService.getAllTresorieByAssociations(Number(sessionStorage.getItem("idAsso")));
-      transactions.value = res.map(transaction => ({
-        ...transaction,
-        date_operation: new Date(transaction.date_operation)
-      }));
-    const groupedByDate = transactions.value
-  .sort((a, b) => new Date(a.date_operation) - new Date(b.date_operation)) // Trier par date
-  .reduce((acc, transaction) => {
-    const date = transaction.date_operation;
-    const day = String(date.getDate()).padStart(2, '0'); // Jour sur 2 chiffres
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mois sur 2 chiffres (0-indexé)
-    const year = date.getFullYear(); // Année sur 4 chiffres
-    const formattedDate = `${day}-${month}-${year}`;
+const groupedByDate = computed(() => {
+  return transactions.value
+    .filter(transaction => {
+      if (!periods.value) return true;
 
+      const [start, end] = periods.value;
+      if (!start || !end) return true;
+
+      const endOfDay = new Date(end);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      return (
+        transaction.date_operation >= start &&
+        transaction.date_operation <= endOfDay
+      );
+    })
+    .sort((a, b) => a.date_operation.getTime() - b.date_operation.getTime())
+    .reduce((acc, transaction) => {
+      const date = transaction.date_operation;
+      const day = String(date.getDate()).padStart(2, '0'); // Jour sur 2 chiffres
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Mois sur 2 chiffres (0-indexé)
+      const year = date.getFullYear(); // Année sur 4 chiffres
+      const formattedDate = `${day}-${month}-${year}`;
     
     // Initialiser la date si elle n'existe pas dans `acc`
     if (!acc[formattedDate]) {
@@ -242,6 +277,12 @@
     
     // Ajouter l'opération au crédit, débit et total
     acc[formattedDate].total += transaction.operation;
+    // if(minValue.value > transaction.operation){
+    //   minValue.value = transaction.operation
+    // }
+    // if(maxValue.value < transaction.operation){
+    //   maxValue.value = transaction.operation
+    // }
     if (transaction.operation > 0) {
       acc[formattedDate].credit += transaction.operation;
     } else {
@@ -254,18 +295,17 @@
     if (previousDate) {
       acc[formattedDate].total += acc[previousDate].total; // Ajouter le total cumulatif précédent
     }
-    
-    return acc;
-  }, {});
+      return acc;
+    }, {});
+});
 
-  
-    lineChartData.value = {
-      labels: Object.keys(groupedByDate),
+const lineChartData = computed(() => ({
+      labels: Object.keys(groupedByDate.value),
       datasets: [
         {
           label: 'Total',
           type:'line',
-          data: Object.values(groupedByDate).map(item => item.total),
+          data: Object.values(groupedByDate.value).map(item => item.total),
           borderColor: '#42A5F5',
           backgroundColor: 'rgba(66, 165, 245, 0.3)',
           fill: false,
@@ -274,7 +314,7 @@
         {
           label: 'Crédit',
           type:'bar',
-          data: Object.values(groupedByDate).map(item => item.credit),
+          data: Object.values(groupedByDate.value).map(item => item.credit),
           borderColor: '#66BB6A',
           backgroundColor: 'rgba(102, 187, 106, 0.3)',
           fill: true,
@@ -283,16 +323,25 @@
         {
           label: 'Débit',
           type:'bar',
-          data: Object.values(groupedByDate).map(item => item.debit),
+          data: Object.values(groupedByDate.value).map(item => item.debit),
           borderColor: '#EF5350',
           backgroundColor: 'rgba(239, 83, 80, 0.3)',
           fill: true,
           tension: 0.4
         }
       ]
-    };
+    }));
+
+  const updateChartData = async () => {
+    const res = await assoService.getAllTresorieByAssociations(Number(sessionStorage.getItem("idAsso")));
+      transactions.value = res.map(transaction => ({
+        ...transaction,
+        date_operation: new Date(transaction.date_operation)
+      }));
   
-    const documentStyle = getComputedStyle(document.documentElement);
+  };
+  
+  const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');
     const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
     const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
@@ -326,8 +375,7 @@
         }
       }
     };
-  };
-  
+
   const addTransaction = async () => {
     // if (newTransaction.value.nom_transaction && newTransaction.value.operation !== null && newTransaction.value.date_operation) {
     //   transactions.value.push({ ...newTransaction.value, id: Date.now() }); // Simulated ID
