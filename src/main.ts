@@ -57,6 +57,9 @@ import StepItem from 'primevue/stepitem';
 import Step from 'primevue/step';
 import StepPanel from 'primevue/steppanel';
 import SelectButton from 'primevue/selectbutton';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
+import VirtualScroller from 'primevue/virtualscroller';
 
 import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
@@ -129,6 +132,9 @@ app.component('Step', Step );
 app.component('StepPanel', StepPanel );
 app.component('Select', Select );
 app.component('SelectButton', SelectButton );
+app.component('InputIcon', InputIcon );
+app.component('IconField', IconField );
+app.component('VirtualScroller', VirtualScroller );
 
 // Layouts
 app.component('default-layout', Default);
