@@ -61,20 +61,21 @@
         </template>
 
         <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-        <Column field="username" header="Username" sortable style="min-width: 5rem"></Column>
-        <Column header="Image">
+        <Column field="username" header="Membre" sortable>
           <template #body="slotProps">
-            <img
-              v-if="slotProps.data.image"
-              :src="`https://primefaces.org/cdn/primevue/images/membre/${slotProps.data.image}`"
-              :alt="slotProps.data.image"
-              class="rounded"
-              style="width: 64px"
-            />
+            <Avatar v-if="slotProps.data.photo" size="large" shape="circle" :image="'data:image/png;base64,' + slotProps.data.photo"  @click="toggleReglage">
+            </Avatar>
+            <Avatar size="large" shape="circle" v-else @click="toggleReglage">
+              <div>
+                {{ slotProps.data.prenom?.charAt(0).toUpperCase() + '' + slotProps.data.nom.charAt(0).toUpperCase() }}
+              </div>
+            </Avatar>
+            <div>
+              <div>{{ slotProps.data.prenom + " " + slotProps.data.nom}}</div>
+              <div>{{ slotProps.data.email }}</div>
+            </div>
           </template>
         </Column>
-        <Column field="prenom" header="Prénom" sortable style="min-width: 8rem"></Column>
-        <Column field="nom" header="Nom" sortable style="min-width: 10rem"></Column>
         <Column field="role" header="Rôle" sortable style="min-width: 12rem"></Column>
         <Column field="email" header="Mail" sortable style="min-width: 12rem"></Column>
         <Column field="date_adhesion" header="Date d'adhésion" sortable style="min-width: 12rem">
@@ -515,6 +516,7 @@ const saveProduct = async () => {
       life: 5000,
     });
     addMembreDialog.value = false;
+    selectedUsers.value = [];
     listeMembres.value = await AssoService.getMembersByAssoId(Number(sessionStorage.getItem('idAsso')));
   } catch (error) {
     // Handle error if needed
