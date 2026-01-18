@@ -51,18 +51,65 @@
     </div>
       </TabPanel>
         <TabPanel value="1">
-        <p class="m">
-            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim
-            ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi.
-        </p>
-    </TabPanel>
-    <TabPanel value="2">
+          <Card>
+            <template #header>
+              <div>
+                <span class="pi pi-calendar"></span>
+                <span>Période budgétaire</span>
+              </div>
+            </template>
+            <template #content>
+              <PButton label="Définir le budget" @click="showDialogBudget = true" icon="pi pi-cog"  />
+            </template>
+          </Card>
+          <Card>
+            <template #header>
+              Suivi budgétaire par catégorie
+            </template>
+            <template #content>
+              <div>
+                <div>
+                  <span>Evènements</span>
+                  <span>X / {{budgetEvent}}€</span>
+                </div>
+                <ProgressBar />
+                <div>
+                  <span>restant</span>
+                  <span>% utilisé</span>
+                </div>
+              </div>
+              <div>
+                <div>
+                  <span>Communication</span>
+                  <span>X / {{budgetCom}}€</span>
+                </div>
+                <ProgressBar />
+                <div>
+                  <span>restant</span>
+                  <span>% utilisé</span>
+                </div>
+              </div>
+              <div>
+                <div>
+                  <span>Matériel</span>
+                  <span>X / {{budgetMat}}€</span>
+                </div>
+                <ProgressBar />
+                <div>
+                  <span>restant</span>
+                  <span>% utilisé</span>
+                </div>
+              </div>
+            </template>
+          </Card>
+        </TabPanel>
+        <TabPanel value="2">
         <p class="m">
             At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui
             officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
         </p>
-    </TabPanel>
-    </TabPanels>
+        </TabPanel>
+      </TabPanels>
     </Tabs>
      
      <!-- Table des transactions -->
@@ -81,7 +128,7 @@
     >
         <template #header>
           <div class="flex" style="justify-content:space-between; align-items:baseline">
-            <PButton label="Ajouter une transaction" icon="pi pi-plus" @click="showDialog = true" class="mb-3" />
+            <PButton label="Ajouter une transaction" icon="pi pi-plus" @click="showDialogNewTransactions = true" class="mb-3" />
             <InputText v-model="filters['global'].value" placeholder="Rechercher" />
           </div>
         </template>
@@ -132,7 +179,7 @@
         </Column>
     </DataTable>
      <!-- Dialogue pour ajouter une transaction -->
-    <PDialog header="Ajouter une transaction" v-model:visible="showDialog" :modal="true" :closable="false" :style="{ width: '50vw' }">
+    <PDialog header="Ajouter une transaction" v-model:visible="showDialogNewTransactions" :modal="true" :closable="false" :style="{ width: '50vw' }">
       <div class="p-fluid">
         <div class="field">
           <label for="nom_transaction">Nom de la transaction</label>
@@ -152,7 +199,61 @@
         </div>
       </div>
       <template #footer>
-        <PButton label="Annuler" icon="pi pi-times" class="p-button-text" @click="showDialog = false" />
+        <PButton label="Annuler" icon="pi pi-times" class="p-button-text" @click="showDialogNewTransactions = false" />
+        <PButton label="Ajouter" icon="pi pi-check" @click="addTransaction" />
+      </template>
+    </PDialog>
+    <PDialog header="Définition du budget" v-model:visible="showDialogBudget" :modal="true" :closable="false" :style="{ width: '50vw' }">
+      <div class="p-fluid">
+        <h3>Répartition du budget</h3>
+        <span>Utilisé : {{allBudgetUsed}}</span>
+        <span>Total : {{netBalance}}</span>
+      </div>
+      <Card>
+        <template #header>
+          <div>
+            <span>Evènements</span>
+            <span>{{percetBudgetEvent}}% du budget total</span>
+          </div>
+          <div>{{budgetEvent}}</div>
+        </template>
+        <template #content>
+          <label for="budgetEvent">Montant</label>
+          <InputNumber showButtons :min="0" v-model="budgetEvent" :max="budgetEvent + budgetRestant" inputId="budgetEvent" mode="currency" currency="EUR" locale="fr-FR" />
+          <ProgressBar :value="percetBudgetEvent"></ProgressBar>
+
+        </template>
+      </Card>
+      <Card>
+        <template #header>
+          <div>
+            <span>Communication</span>
+            <span>{{percetBudgetCom}}% du budget total</span>
+          </div>
+          <div>{{budgetCom}}</div>
+        </template>
+        <template #content>
+          <label for="budgetCom">Montant</label>
+          <InputNumber showButtons :min="0" :max="budgetCom + budgetRestant" v-model="budgetCom" inputId="budgetCom" mode="currency" currency="EUR" locale="fr-FR" />
+          <ProgressBar :value="percetBudgetCom"></ProgressBar>
+        </template>
+      </Card>
+       <Card>
+        <template #header>
+          <div>
+            <span>Matériel</span>
+            <span>{{percetBudgetMat}}% du budget total</span>
+          </div>
+          <div>{{budgetMat}}</div>
+        </template>
+        <template #content>
+          <label for="budgetMat">Montant</label>
+          <InputNumber showButtons :min="0" :max="budgetMat + budgetRestant" v-model="budgetMat" inputId="budgetMat" mode="currency" currency="EUR" locale="fr-FR" />
+          <ProgressBar :value="percetBudgetMat"></ProgressBar>
+        </template>
+      </Card>
+      <template #footer>
+        <PButton label="Annuler" icon="pi pi-times" class="p-button-text" @click="showDialogBudget = false" />
         <PButton label="Ajouter" icon="pi pi-check" @click="addTransaction" />
       </template>
     </PDialog>
@@ -175,6 +276,31 @@ const maxValue = computed(() => {
   if (!transactions.value.length) return null;
   return Math.max(...transactions.value.map(t => t.operation));
 });
+
+const budgetEvent = ref(0)
+const budgetCom = ref(0)
+const budgetMat = ref(0)
+
+const allBudgetUsed = computed(() => {
+  return budgetEvent.value + budgetCom.value + budgetMat.value
+  })
+
+const percetBudgetEvent = computed(() => {
+  return ((budgetEvent.value / netBalance.value)*100).toFixed(2)
+})
+
+const percetBudgetMat = computed(() => {
+  return ((budgetMat.value / netBalance.value)*100).toFixed(2)
+})
+
+const percetBudgetCom = computed(() => {
+  return ((budgetCom.value / netBalance.value)*100).toFixed(2)
+})
+
+const budgetRestant = computed(() => {
+  return netBalance.value - allBudgetUsed.value
+})
+
 const route = useRoute();
   const assoService = useAssoService();
   const transactions = ref([]);
@@ -193,7 +319,8 @@ const route = useRoute();
     date_operation: null,
     tiers: ""
   });
-  const showDialog = ref(false);
+  const showDialogNewTransactions = ref(false);
+  const showDialogBudget = ref(false);
   const loading = ref(true);
   const toast = useToast();
   // const lineChartData = ref(null);
@@ -387,7 +514,7 @@ const lineChartData = computed(() => ({
     //     date_operation: null,
     //     tiers: ""
     //   };
-    //   showDialog.value = false;
+    //   showDialogNewTransactions.value = false;
     //   updateChartData();
     // } else {
     //   alert('Veuillez remplir tous les champs.');
@@ -400,7 +527,7 @@ const lineChartData = computed(() => ({
         detail: 'Les membres ont été ajoutés avec succès.',
         life: 5000,
       });
-      showDialog.value = false;
+      showDialogNewTransactions.value = false;
       updateChartData();
     } catch (error) {
       // Handle error if needed
