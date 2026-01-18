@@ -16,6 +16,7 @@ const AssoDetail = defineAsyncComponent(() => import('@/views/asso-detail.vue'))
 const TresoDetail = defineAsyncComponent(() => import('@/views/asso-tresorerie.vue'));
 const AssoReu = defineAsyncComponent(() => import('@/views/asso-reunions.vue'));
 const AssoPlanning = defineAsyncComponent(() => import('@/views/asso-planning.vue'));
+const Profil = defineAsyncComponent(() => import('@/views/profil.vue'));
 
 
 const router = createRouter({
@@ -82,6 +83,16 @@ const router = createRouter({
             requiresAuth: true,
             title: "Calendrier",
             subtitle:"Gérez ici vos réunions, évènements et autres"
+          },
+        },
+        {
+          path: '/mon-profil/',
+          name: 'profil',
+          component: Profil,
+          meta: { 
+            requiresAuth: true,
+            title: "Mon compte",
+            subtitle:"Gérez vos informations personnelles et vos préférences"
           },
         },
         {
