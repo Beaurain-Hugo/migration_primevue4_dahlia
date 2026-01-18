@@ -317,7 +317,7 @@
                                             <Column field="name" header="Présents"></Column>
                                             <Column field="" header="Excusés"></Column>
                                         </DataTable>
-                                        <div>
+                                        <div v-if="selectedType">
                                             <Chip label="Type de réunion"/>
                                             {{ selectedType.name }}
                                         </div>
