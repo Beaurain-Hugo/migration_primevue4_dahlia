@@ -160,7 +160,7 @@
 		</template>
 		<div>
 			<label for="title">Titre de l'évènement</label>
-            <InputText id="title" placeholder="Réunion du CA" />
+            <InputText id="title" v-model="titre" placeholder="Réunion du CA" />
 			<label for="description">Description</label>
 			<PTextarea id="description" v-model="description" rows="5" cols="30" placeholder="Objectifs / Notes"/>
  			<label for="date">Date</label>
@@ -169,8 +169,11 @@
 			<DatePicker timeOnly showIcon inputId="hour" v-model="hour" placeholder="Heure de début" />
 			<Select v-model="selectedDuree" :options="duree" optionLabel="name" optionValue="code" placeholder="Select a City" class="w-full md:w-56" />
 			<label for="lieu">Lieu</label>
-            <InputText id="lieu" placeholder="Adresse du lieu" />
+            <InputText v-model="lieu" id="lieu" placeholder="Adresse du lieu" />
 		</div>
+		<template #footer>
+			<PButton label="Ajouter" @click="addEvent"/>
+			</template>
 	</PDialog>
 </template>
 <style>
@@ -247,14 +250,20 @@ import 'vue-simple-calendar/dist/css/gcal.css';
 // import CalendarView from "vue-simple-calendar/src/CalendarView.vue"
 // import CalendarViewHeader from "vue-simple-calendar/src/CalendarViewHeader.vue"
 // import CalendarMath from "vue-simple-calendar/src/CalendarMath"
-import { ICalendarItem, INormalizedCalendarItem } from "vue-simple-calendar"
-import { ref, onMounted, reactive, computed } from "vue"
+import { ICalendarItem, INormalizedCalendarItem } from "vue-simple-calendar";
+import { ref, onMounted, reactive, computed } from "vue";
 import MyCalendarViewHeader from "@/components/MyCalendarViewHeader.vue";
+import Event from '@/models/EventModel';
+import {useEventService} from '@/composables/event/EventService';
 
 const VISIBLE=ref(false);
+const events = ref<Event>([]);
+const EventService = useEventService();
+const titre = ref<string>()
 const description = ref()
-const date = ref()
+const date = ref();
 const hour = ref()
+const lieu = ref()
 const selectedDuree = ref()
 const duree = ref([
 	{name:'15 min', code:"15"},
@@ -411,10 +420,40 @@ const myDateClasses = (): DateClasses => {
 	return o
 }
 
-onMounted((): void => {
+onMounted(async() => {
 	state.newItemStartDate = CalendarMath.isoYearMonthDay(CalendarMath.today())
 	state.newItemEndDate = CalendarMath.isoYearMonthDay(CalendarMath.today())
+	events.value = await EventService.getEventsByAssoId(Number(sessionStorage.getItem('idAsso')))
+	// console.log(events);
+	console.log(state.items)
+	// state.items = events.value
+	state.items = events.value.map(event => ({
+        id:event.id,
+		title: event.titre,
+		startDate: new Date(event.date_debut),
+		// endDate: new Date(event?.date_fin)
+        // date_operation: new Date(transaction.date_operation)
+      }));
+	console.log(state.items)
+
 })
+
+const addEvent = async() => {
+	const data = {
+		association_id: sessionStorage.getItem('idAsso'),
+		titre: titre.value,
+		description: description.value,
+		date_debut: date.value,
+		lieu: lieu.value,
+		type: "test",
+	}
+	try {
+		await EventService.addEvent(data);
+		console.log('succed')
+	} catch (error){
+		console.error('Erreur :', error)
+	}
+}
 
 const periodChanged = (): void => {
 	// range, eventSource) {
