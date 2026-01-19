@@ -18,7 +18,7 @@
     <li class="sidebar__list-item"><router-link :to="`/asso-benevoles/${props.idAsso}`"><img src="" alt="" /><span>Adhérents</span></router-link></li>
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Suivi administratif</span></router-link></li>
     <li class="sidebar__list-item"><router-link :to="`/tresorerie-detail/${props.idAsso}`"><img src="" alt="" /><span>Trésorerie</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Profil</span></router-link></li>
+    <li class="sidebar__list-item"><router-link to="/mon-profil"><img src="" alt="" /><span>Profil</span></router-link></li>
     <li class="sidebar__list-item">
     <button
       class="p-link layout-topbar-menu-button layout-topbar-button"
@@ -125,7 +125,7 @@ import router from '@/router';
 import { MenuItem } from 'primevue/menuitem';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
-import { Association } from '@/models/AssociationModel';
+import { AssociationModel } from '@/models/AssociationModel';
 import { useAssoService } from './composables/asso/AssoService';
 
 const confirm = useConfirm();
