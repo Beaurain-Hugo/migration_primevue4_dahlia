@@ -10,7 +10,7 @@
             <TabPanel value="0">
                 <h3>Historique des réunions</h3>
                 <div>
-                <Card v-for="(reunion, index) in REUNIONS" :key="index">
+                <Card v-for="(reunion, index) in reunions" :key="index">
                     <template #header>
                         <div>
                             <h4>{{ reunion.nom }}</h4>
@@ -371,7 +371,10 @@
 
 <script setup lang="ts">
     import Reunion from '@/models/ReunionModel';
+    import Event from '@/models/EventModel';
     import domToPdf from 'dom-to-pdf'
+    import {useEventService} from '@/composables/event/EventService';
+
     const generatePdf = () => {
         const element = document.getElementById('pdf-content');
         domToPdf(element, {
@@ -380,8 +383,10 @@
             scale: 2
         });
     };
-    import { ref } from 'vue';
+    import { ref, onMounted } from 'vue';
     const test = ref(false)
+    const reunions = ref<Event[]>([]);
+    const EventService = useEventService();
     const title = ref()
     const lieu = ref()
     const date = ref()
@@ -415,30 +420,30 @@
         {name:"Terminé", code:"DONE"},
     ])
     const VISIBLE=ref(false);
-    const REUNIONS = ref<Reunion>([])
-    REUNIONS.value = [
-        {
-            id:1,
-            nom:"Test",
-            statut:"Terminé",
-            date:"15/02/20205",
-            compte_rendu:true
-        },
-         {
-            id:2,
-            nom:"Test",
-            statut:"Terminé",
-            date:"15/02/20205",
-            compte_rendu:true
-        },
-         {
-            id:3,
-            nom:"Test",
-            statut:"Terminé",
-            date:"15/02/20205",
-            compte_rendu:false
-        },
-    ]
+    // const REUNIONS = ref<Reunion>([])
+    // REUNIONS.value = [
+    //     {
+    //         id:1,
+    //         nom:"Test",
+    //         statut:"Terminé",
+    //         date:"15/02/20205",
+    //         compte_rendu:true
+    //     },
+    //      {
+    //         id:2,
+    //         nom:"Test",
+    //         statut:"Terminé",
+    //         date:"15/02/20205",
+    //         compte_rendu:true
+    //     },
+    //      {
+    //         id:3,
+    //         nom:"Test",
+    //         statut:"Terminé",
+    //         date:"15/02/20205",
+    //         compte_rendu:false
+    //     },
+    // ]
     const ITEMS = ref([])
     ITEMS.value = [
         {
@@ -462,6 +467,11 @@
             icon:"pi-send"
         }
     ]
+
+    onMounted(async () => {
+        reunions.value = await EventService.getEventsByTypeByAssoId(Number(sessionStorage.getItem('idAsso')), "reunion")
+        console.log(reunions.value)
+    })
 
     const valueToLabel = (value, array) => {
         return array.find(val => val.code === value).name
