@@ -3,7 +3,7 @@
 		<div class="calendar-controls">
 			<div v-if="state.message" class="notification is-success">{{ state.message }}</div>
 
-			<div class="box">
+			<!-- <div class="box">
 				<h4 class="title is-5">Play with the options!</h4>
 
 				<div class="field">
@@ -105,7 +105,7 @@
 				</div>
 
 				<button class="button is-info" @click="clickTestAddItem">Add Item</button>
-			</div>
+			</div> -->
 		</div>
 		<div class="calendar-parent">
 			<CalendarView
@@ -152,6 +152,40 @@
 				</template>
 			</CalendarView>
 		</div>
+		<div>
+			<Card>
+				<template #header>
+					<span class="pi pi-clock"></span>
+					<span>Prochains évènements</span>
+				</template>
+				<template #content>
+					<div v-if="comingEvents && comingEvents.length == 0">
+						<span class="pi pi-clock"></span>
+						<span>Aucun évènement à venir</span>
+					</div>
+					<div v-else>
+						<div v-for="event in comingEvents" :key="event.id">
+							<Card>
+								<template #header>
+									<span>{{ event.title }}</span>
+									<Chip :label="event.startDate.toLocaleDateString()" />
+								</template>
+								<template #content>
+									<div>
+										<span class="pi pi-clock"></span>
+										<span>{{ event.startDate }} - {{ event.heure_fin }}</span>
+									</div>
+									<div>
+										<span class="pi pi-map-marker"></span>
+										<span>{{ event.lieu}}</span>
+									</div>
+								</template>
+							</Card>
+						</div>
+					</div>
+				</template>
+			</Card>
+		</div>
 	</div>
 	<PDialog modal header="Créer un évènement" v-model:visible="VISIBLE">
 		<template #header>
@@ -167,7 +201,8 @@
             <DatePicker updateModelType="string" showIcon inputId="date" v-model="date" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
             <label for="hour">Date</label>
 			<DatePicker timeOnly showIcon inputId="hour" v-model="hour" placeholder="Heure de début" />
-			<Select v-model="selectedDuree" :options="duree" optionLabel="name" optionValue="code" placeholder="Select a City" class="w-full md:w-56" />
+			<Select v-model="selectedDuree" :options="duree" optionLabel="name" optionValue="code" placeholder="Sélectionner une durée" class="w-full md:w-56" />
+			<Select v-model="selectedType" :options="type" optionLabel="name" optionValue="code" placeholder="Sélectionner un type d'évènement" class="w-full md:w-56" />
 			<label for="lieu">Lieu</label>
             <InputText v-model="lieu" id="lieu" placeholder="Adresse du lieu" />
 		</div>
@@ -193,8 +228,8 @@
 
 #example-full .calendar-controls {
 	margin-right: 1rem;
-	min-width: 14rem;
-	max-width: 14rem;
+	/*min-width: 14rem;
+	max-width: 14rem; */
 }
 
 #example-full .calendar-parent {
@@ -257,7 +292,7 @@ import Event from '@/models/EventModel';
 import {useEventService} from '@/composables/event/EventService';
 
 const VISIBLE=ref(false);
-const events = ref<Event>([]);
+const events = ref<Event[]>([]);
 const EventService = useEventService();
 const titre = ref<string>()
 const description = ref()
@@ -265,12 +300,17 @@ const date = ref();
 const hour = ref()
 const lieu = ref()
 const selectedDuree = ref()
+const selectedType = ref()
 const duree = ref([
 	{name:'15 min', code:"15"},
 	{name:'30 min', code:"30"},
 	{name:'45 min', code:"45"},
 	{name:'1h', code:"60"},
 	{name:'2h', code:"120"},
+])
+const type = ref([
+	{name:'Réunion', code:"reunion"},
+	{name:'Je sais pas', code:"jsp"},
 ])
 const thisMonth = (d: number, h?: number, m?: number): Date => {
 	const t = new Date()
@@ -318,80 +358,86 @@ const state = reactive({
 	useHolidayTheme: true,
 	useTodayIcons: false,
 	items: [
-		/*{
-			id: "e0",
-			startDate: "2018-01-05",
-		},*/
-		{
-			id: "e1",
-			startDate: thisMonth(15, 18, 30),
-		},
-		{
-			id: "e2",
-			startDate: thisMonth(15),
-			title: "Single-day item with a long title",
-		},
-		{
-			id: "e3",
-			startDate: thisMonth(7, 9, 25),
-			endDate: thisMonth(10, 16, 30),
-			title: "Multi-day item with a long title and times",
-		},
-		{
-			id: "e4",
-			startDate: thisMonth(20),
-			title: "My Birthday!",
-			classes: "birthday",
-			url: "https://en.wikipedia.org/wiki/Birthday",
-		},
-		{
-			id: "e5",
-			startDate: thisMonth(5),
-			endDate: thisMonth(12),
-			title: "Multi-day item",
-			classes: "purple",
-			tooltip: "This spans multiple days",
-		},
-		{
-			id: "foo",
-			startDate: thisMonth(29),
-			title: "Same day 1",
-		},
-		{
-			id: "e6",
-			startDate: thisMonth(29),
-			title: "Same day 2",
-			classes: "orange",
-		},
-		{
-			id: "e7",
-			startDate: thisMonth(29),
-			title: "Same day 3",
-		},
-		{
-			id: "e8",
-			startDate: thisMonth(29),
-			title: "Same day 4",
-			classes: "orange",
-		},
-		{
-			id: "e9",
-			startDate: thisMonth(29),
-			title: "Same day 5",
-		},
-		{
-			id: "e10",
-			startDate: thisMonth(29),
-			title: "Same day 6",
-			classes: "orange",
-		},
-		{
-			id: "e11",
-			startDate: thisMonth(29),
-			title: "Same day 7",
-		},
+		// /*{
+		// 	id: "e0",
+		// 	startDate: "2018-01-05",
+		// },*/
+		// {
+		// 	id: "e1",
+		// 	startDate: thisMonth(15, 18, 30),
+		// },
+		// {
+		// 	id: "e2",
+		// 	startDate: thisMonth(15),
+		// 	title: "Single-day item with a long title",
+		// },
+		// {
+		// 	id: "e3",
+		// 	startDate: thisMonth(7, 9, 25),
+		// 	endDate: thisMonth(10, 16, 30),
+		// 	title: "Multi-day item with a long title and times",
+		// },
+		// {
+		// 	id: "e4",
+		// 	startDate: thisMonth(20),
+		// 	title: "My Birthday!",
+		// 	classes: "birthday",
+		// 	url: "https://en.wikipedia.org/wiki/Birthday",
+		// },
+		// {
+		// 	id: "e5",
+		// 	startDate: thisMonth(5),
+		// 	endDate: thisMonth(12),
+		// 	title: "Multi-day item",
+		// 	classes: "purple",
+		// 	tooltip: "This spans multiple days",
+		// },
+		// {
+		// 	id: "foo",
+		// 	startDate: thisMonth(29),
+		// 	title: "Same day 1",
+		// },
+		// {
+		// 	id: "e6",
+		// 	startDate: thisMonth(29),
+		// 	title: "Same day 2",
+		// 	classes: "orange",
+		// },
+		// {
+		// 	id: "e7",
+		// 	startDate: thisMonth(29),
+		// 	title: "Same day 3",
+		// },
+		// {
+		// 	id: "e8",
+		// 	startDate: thisMonth(29),
+		// 	title: "Same day 4",
+		// 	classes: "orange",
+		// },
+		// {
+		// 	id: "e9",
+		// 	startDate: thisMonth(29),
+		// 	title: "Same day 5",
+		// },
+		// {
+		// 	id: "e10",
+		// 	startDate: thisMonth(29),
+		// 	title: "Same day 6",
+		// 	classes: "orange",
+		// },
+		// {
+		// 	id: "e11",
+		// 	startDate: thisMonth(29),
+		// 	title: "Same day 7",
+		// },
 	],
 } as IExampleState)
+
+const comingEvents = computed(() => {
+	console.log(state.items)
+	console.log(state.items[0])
+	return state.items.filter((event) => event.startDate > Date.now())
+})
 
 const userLocale = computed((): string => CalendarMath.getDefaultBrowserLocale())
 
@@ -428,14 +474,12 @@ onMounted(async() => {
 	console.log(state.items)
 	// state.items = events.value
 	state.items = events.value.map(event => ({
-        id:event.id,
+       id:event.id,
 		title: event.titre,
 		startDate: new Date(event.date_debut),
-		// endDate: new Date(event?.date_fin)
-        // date_operation: new Date(transaction.date_operation)
+		lieu: event.lieu,
+		...(event.date_fin && {endDate: new Date(event.date_fin)})
       }));
-	console.log(state.items)
-
 })
 
 const addEvent = async() => {
@@ -445,7 +489,7 @@ const addEvent = async() => {
 		description: description.value,
 		date_debut: date.value,
 		lieu: lieu.value,
-		type: "test",
+		type: selectedType.value,
 	}
 	try {
 		await EventService.addEvent(data);
