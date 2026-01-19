@@ -6,3 +6,4 @@ export const ApiUrlUsers = `${ApiUrl}/user`;
 export const ApiUrlAssos = `${ApiUrl}/association`;
 export const ApiUrlMembres = `${ApiUrl}/membre`;
 export const ApiUrlTresories = `${ApiUrl}/tresorerie`;
+export const ApiUrlEvents = `${ApiUrl}/events`;
