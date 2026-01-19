@@ -31,5 +31,18 @@ export function useEventService() {
         return 'Erreur lors de la récupération des évènements.';
       }
     },
+    async getEventsByTypeByAssoId(id:number, type:string){
+      try {
+        const response = await EventApi.getEventsByTypeByAssoId(id, type);
+        if(response){
+          return response;
+        } else {
+          return 'Aucun évènement trouvé.'
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des évènements :', error);
+        return 'Erreur lors de la récupération des évènements.';
+      }
+    }
   };
 }

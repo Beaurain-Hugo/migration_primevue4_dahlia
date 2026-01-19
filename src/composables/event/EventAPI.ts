@@ -10,6 +10,10 @@ export function useEventApi() {
      async getEventsByAssoId(id: number) {
       const res = await axiosInstance.get(`${ApiUrlAssos}/${id}/events`);
       return res.data.body;
-    }, 
+    },
+    async getEventsByTypeByAssoId(id:number, type:string){
+      const res = await axiosInstance.get(`${ApiUrlAssos}/${id}/events/${type}`);
+      return res.data.body
+    }
   };
 }
