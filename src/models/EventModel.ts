@@ -3,9 +3,10 @@ export default interface Event {
   titre: string; 
   description: string;
   date_debut: Date; 
-  date_fin: Date;
+  date_fin?: Date;
   heure_debut:string,
   heure_fin:number,
+  type:string,
   lieu:string,
   association_id: number;
 }
