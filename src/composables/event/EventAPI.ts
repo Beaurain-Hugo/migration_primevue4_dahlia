@@ -5,15 +5,26 @@ export function useEventApi() {
   return {
     async addEvent(data: any) {
       const res = await axiosInstance.post(`${ApiUrlEvents}/add`, data);
+      console.log(res)
       return res.data.body;
     },
      async getEventsByAssoId(id: number) {
       const res = await axiosInstance.get(`${ApiUrlAssos}/${id}/events`);
+      console.log("ICI", res)
       return res.data.body;
     },
     async getEventsByTypeByAssoId(id:number, type:string){
       const res = await axiosInstance.get(`${ApiUrlAssos}/${id}/events/${type}`);
       return res.data.body
+    },
+    async addParticipantsToEvent(id:number, data: any){
+      const res = await axiosInstance.post(`${ApiUrlEvents}/${id}/add/participants`, data);
+      return res.data.body
+    },
+    async deleteEvent(id:number){
+      const res = await axiosInstance.delete(`${ApiUrlEvents}/delete/${id}`);
+      console.log(res)
+      return res.data.message
     }
   };
 }

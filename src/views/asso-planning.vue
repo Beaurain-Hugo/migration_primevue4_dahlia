@@ -156,7 +156,7 @@
 			<Card>
 				<template #header>
 					<span class="pi pi-clock"></span>
-					<span>Prochains évènements</span>
+					<span>Prochains évènements : {{ comingEvents.length }} à venir</span>
 				</template>
 				<template #content>
 					<div v-if="comingEvents && comingEvents.length == 0">
@@ -197,17 +197,37 @@
             <InputText id="title" v-model="titre" placeholder="Réunion du CA" />
 			<label for="description">Description</label>
 			<PTextarea id="description" v-model="description" rows="5" cols="30" placeholder="Objectifs / Notes"/>
- 			<label for="date">Date</label>
-            <DatePicker updateModelType="string" showIcon inputId="date" v-model="date" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
-            <label for="hour">Date</label>
-			<DatePicker timeOnly showIcon inputId="hour" v-model="hour" placeholder="Heure de début" />
-			<Select v-model="selectedDuree" :options="duree" optionLabel="name" optionValue="code" placeholder="Sélectionner une durée" class="w-full md:w-56" />
+ 			<label for="dateD">Date {{ multiDay ? 'de début' : '' }}</label>
+            <DatePicker showIcon inputId="dateD" v-model="date_debut" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
+            {{ date_debut }}
+			<label for="hourD">Heure de début</label>
+			<DatePicker timeOnly showIcon inputId="hourD" v-model="hour_debut" placeholder="Heure de début" />
+			{{ hour_debut }}
+			<label for="multiDay">Votre évènement dure plusieurs jours ?</label>
+			<Checkbox inputId="multiDay" v-model="multiDay" binary @update:modelValue="val => { if (!val) date_fin = '' }"/>
+			<div v-if="multiDay">
+			<label for="dateF">Date de fin</label>
+            <DatePicker showIcon :minDate="minDateFin" inputId="dateF" v-model="date_fin" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
+            {{ date_fin }}
+			<label for="hour">Heure de fin</label>
+			<DatePicker timeOnly showIcon inputId="hour" v-model="hour_fin" placeholder="Heure de fin" />
+			{{ hour_fin }}
+			</div>
+			<Select v-if="!multiDay" v-model="selectedDuree" :options="duree" optionLabel="name" optionValue="code" placeholder="Sélectionner une durée" class="w-full md:w-56" />
 			<Select v-model="selectedType" :options="type" optionLabel="name" optionValue="code" placeholder="Sélectionner un type d'évènement" class="w-full md:w-56" />
 			<label for="lieu">Lieu</label>
             <InputText v-model="lieu" id="lieu" placeholder="Adresse du lieu" />
+			<CheckboxGroup name="participant" v-model="selectedPart" >
+            	<div v-for="membre of membres" :key="membre.id" class="flex align-items-center">
+                	<Checkbox :inputId="membre.user_id.toString()"  :value="{user_id:membre.user_id}" />
+                    <label :for="membre.user_id.toString()">{{ membre.username }}</label>
+                </div>
+            </CheckboxGroup>
+			{{ selectedPart }}
 		</div>
 		<template #footer>
-			<PButton label="Ajouter" @click="addEvent"/>
+			<PButton v-if="editEvent" label="Supprimer" @click="deleteEvent(id)"/>
+			<PButton :label="editEvent ? 'Enregistrer' : 'Ajouter'" @click="addEvent"/>
 			</template>
 	</PDialog>
 </template>
@@ -289,18 +309,31 @@ import { ICalendarItem, INormalizedCalendarItem } from "vue-simple-calendar";
 import { ref, onMounted, reactive, computed } from "vue";
 import MyCalendarViewHeader from "@/components/MyCalendarViewHeader.vue";
 import Event from '@/models/EventModel';
+import Membre from '@/models/MembreModel';
 import {useEventService} from '@/composables/event/EventService';
+import {useAssoService} from '@/composables/asso/AssoService';
 
 const VISIBLE=ref(false);
 const events = ref<Event[]>([]);
+const membres = ref<Membre[]>([]);
 const EventService = useEventService();
+const AssoService = useAssoService();
+const minDateFin = computed(() => {
+	return new Date(date_debut.value.getTime() + 86400 *1000)
+})
 const titre = ref<string>()
+const id = ref()
 const description = ref()
-const date = ref();
-const hour = ref()
+const multiDay = ref(false);
+const editEvent = ref(false);
+const date_debut = ref();
+const hour_debut = ref()
+const hour_fin = ref()
+const date_fin = ref()
 const lieu = ref()
 const selectedDuree = ref()
 const selectedType = ref()
+const selectedPart = ref()
 const duree = ref([
 	{name:'15 min', code:"15"},
 	{name:'30 min', code:"30"},
@@ -434,8 +467,6 @@ const state = reactive({
 } as IExampleState)
 
 const comingEvents = computed(() => {
-	console.log(state.items)
-	console.log(state.items[0])
 	return state.items.filter((event) => event.startDate > Date.now())
 })
 
@@ -470,30 +501,67 @@ onMounted(async() => {
 	state.newItemStartDate = CalendarMath.isoYearMonthDay(CalendarMath.today())
 	state.newItemEndDate = CalendarMath.isoYearMonthDay(CalendarMath.today())
 	events.value = await EventService.getEventsByAssoId(Number(sessionStorage.getItem('idAsso')))
-	// console.log(events);
-	console.log(state.items)
+	membres.value = await AssoService.getMembersByAssoId(Number(sessionStorage.getItem('idAsso')))
 	// state.items = events.value
 	state.items = events.value.map(event => ({
        id:event.id,
 		title: event.titre,
+		description: event.description,
+		type: event.type,
 		startDate: new Date(event.date_debut),
 		lieu: event.lieu,
+		participants:JSON.parse(event.participants),
 		...(event.date_fin && {endDate: new Date(event.date_fin)})
       }));
+	console.log("EVENEMENT CALENDRIER", state.items)
 })
 
 const addEvent = async() => {
+	const endDate = ref();
+	if (hour_debut.value){
+		const h = hour_debut.value.getHours()
+		const m = hour_debut.value.getMinutes()
+		date_debut.value.setMinutes(m)
+		date_debut.value.setHours(h)
+	}
+	if(multiDay.value && hour_fin.value){
+		const h = hour_fin.value.getHours()
+		const m = hour_fin.value.getMinutes()
+		date_fin.value.setMinutes(m)
+		date_fin.value.setHours(h)
+		endDate.value = date_fin.value
+	} else if (multiDay.value){
+		endDate.value = date_fin.value
+	} else {
+		endDate.value = new Date(date_debut.value.getTime() + selectedDuree.value *60000)
+	}
 	const data = {
 		association_id: sessionStorage.getItem('idAsso'),
 		titre: titre.value,
 		description: description.value,
-		date_debut: date.value,
+		date_debut: date_debut.value,
 		lieu: lieu.value,
 		type: selectedType.value,
+		date_fin: endDate.value
 	}
+
 	try {
-		await EventService.addEvent(data);
-		console.log('succed')
+		const res = await EventService.addEvent(data);
+		if (selectedPart.value && selectedPart.value.length > 0){
+			await EventService.addParticipantsToEvent(res.id, selectedPart.value)
+		}
+	} catch (error){
+		console.error('Erreur :', error)
+	}
+}
+
+const deleteEvent = async (idEvent: number) => {
+	try {
+		const res = await EventService.deleteEvent(idEvent);
+		console.log(res)
+		id.value = ''
+		VISIBLE.value = false
+		events.value = await EventService.getEventsByAssoId(Number(sessionStorage.getItem('idAsso')))
 	} catch (error){
 		console.error('Erreur :', error)
 	}
@@ -512,11 +580,38 @@ const onClickDay = (d: Date): void => {
 	state.selectionEnd = undefined
 	state.message = `You clicked: ${d.toLocaleDateString()}`
 	VISIBLE.value=true
-	date.value = d
+	date_debut.value = d
+	  VISIBLE.value=true
+  date_fin.value = ""
+  titre.value = ""
+  description.value = ""
+  lieu.value = ""
+  selectedDuree.value = ""
+  selectedType.value = ""
+  editEvent.value = false
+  selectedPart.value = ""
 }
 
 const onClickItem = (item: INormalizedCalendarItem): void => {
 	state.message = `You clicked: ${item.title}`
+	console.log(item)
+	VISIBLE.value=true
+	titre.value = item.title
+	id.value = item.id
+	editEvent.value = true
+	date_debut.value = item.startDate
+	description.value = item.originalItem.description
+	lieu.value = item.originalItem.lieu
+	selectedType.value = item.originalItem.type
+	selectedPart.value = item.originalItem.participants.map(participant => ({user_id:participant.user_id}))
+	if(date_debut.value.getDay() != item.endDate.getDay())
+	{
+		multiDay.value = true
+	} else {
+		multiDay.value = false
+		selectedDuree.value = new Date(Math.abs(item.endDate - date_debut.value)).getMinutes().toString()
+	}
+	date_fin.value = item.endDate
 }
 
 const setShowDate = (d: Date): void => {
@@ -532,6 +627,17 @@ const setSelection = (dateRange: Date[]): void => {
 const finishSelection = (dateRange: Date[]): void => {
 	setSelection(dateRange)
 	state.message = `You selected: ${state.selectionStart?.toLocaleDateString() ?? "n/a"} - ${state.selectionEnd?.toLocaleDateString() ?? "n/a"}`
+	VISIBLE.value=true
+	date_debut.value = dateRange[0]
+	multiDay.value = true
+	date_fin.value = dateRange[1]
+  titre.value = ""
+  description.value = ""
+  lieu.value = ""
+  selectedDuree.value = ""
+  selectedType.value = ""
+  selectedPart.value = ""
+	editEvent.value = false
 }
 
 const onDrop = (item: INormalizedCalendarItem, date: Date): void => {
@@ -557,7 +663,16 @@ const items = ref([]);
 
 const openCreateModal = () => {
   VISIBLE.value=true
-  date.value = ""
+  date_debut.value = ""
+  date_fin.value = ""
+  titre.value = ""
+  multiDay.value = false
+  description.value = ""
+  lieu.value = ""
+  selectedDuree.value = ""
+  selectedType.value = ""
+  selectedPart.value = ""
+  editEvent.value = false
 };
 
 const applyFilter = (value) => {

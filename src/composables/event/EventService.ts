@@ -8,7 +8,7 @@ export function useEventService() {
       try {
         const response = await EventApi.addEvent(data);
         if (response) {
-          return `Evènement ajouté avec succès. ID: ${response}`;
+          return response;
         } else {
           return "Échec de l'ajout de l'évènement.";
         }
@@ -42,6 +42,32 @@ export function useEventService() {
       } catch (error) {
         console.error('Erreur lors de la récupération des évènements :', error);
         return 'Erreur lors de la récupération des évènements.';
+      }
+    },
+    async addParticipantsToEvent(id:number, data:any){
+      try {
+        const response = await EventApi.addParticipantsToEvent(id, data);
+        if (response){
+          return response;
+        } else {
+          return 'Aucun évènement trouvé.';
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'ajout des participants", error);
+        return "Erreur lors de l'ajout des participants";
+      }
+    },
+    async deleteEvent(id:number){
+      try {
+        const response = await EventApi.deleteEvent(id);
+        if(response){
+          return response
+        } else {
+          return 'Erreur dans la suppression'
+        }
+      }catch (error) {
+        console.error("Erreur lors de la suppression", error);
+        return "Erreur lors de la suppression";
       }
     }
   };

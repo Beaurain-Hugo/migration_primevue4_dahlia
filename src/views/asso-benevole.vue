@@ -394,8 +394,8 @@ import {useUserService} from '@/composables/user/UserService';
 import { useMemberService } from '@/composables/member/MemberService';
 import Membre from '@/models/MembreModel';
 
-const listeMembres = ref<Membre>([]);
-const ACTIVE_MEMBRES = ref<Membre>([]);
+const listeMembres = ref<Membre[]>([]);
+const ACTIVE_MEMBRES = ref<Membre[]>([]);
 const AssoService = useAssoService();
 const MemberService = useMemberService();
 const UserService = useUserService();
