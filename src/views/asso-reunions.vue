@@ -10,21 +10,22 @@
             <TabPanel value="0">
                 <h3>Historique des réunions</h3>
                 <div>
+                    {{ reunions }}
                 <Card v-for="(reunion, index) in reunions" :key="index">
                     <template #header>
                         <div>
-                            <h4>{{ reunion.nom }}</h4>
+                            <h4>{{ reunion.titre }}</h4>
                             <Tag :value="reunion.statut" rounded />
                         </div>
                     </template>
                     <template #content>
                         <div>
                         <span class="pi pi-calendar"></span>
-                        <span>{{ reunion.date }}</span>
+                        <span>{{ reunion.date_debut }}</span>
                         </div>
                         <div>
                         <span class="pi pi-users"></span>
-                        <span>Participants</span>
+                        <span>{{reunion.participants.length}}Participants</span>
                         </div>
                     </template>
                     <template #footer>
@@ -33,7 +34,7 @@
                             <PButton label="PDF" icon="pi pi-download" />
                         </div>
                         <div v-else>
-                            <PButton label="Créer le compte-rendu" icon="pi pi-file-pdf" @click="VISIBLE=true" />
+                            <PButton label="Créer le compte-rendu" icon="pi pi-file-pdf" @click="createCR(reunion)" />
                         </div>
                     </template>
                 </Card>
@@ -138,7 +139,7 @@
                                 <div class="flex flex-col gap-2 mx-auto" style="min-height: 16rem; max-width: 90vw; flex-direction:column">
                                      <div>
                                         <label for="title">Titre du compte-rendu *</label>
-                                        <InputText v-model="title" id="title" placeholder="CR CA - 14/09/2025" />
+                                        <InputText v-model="compte_rendu.titre" id="title" placeholder="CR CA - 14/09/2025" />
                                     </div>
                                     <div>
                                         <label for="date">Date *</label>
@@ -155,7 +156,7 @@
                                     </div>
                                     <div>
                                         <label for="place">Lieu</label>
-                                        <InputText v-model="lieu" id="place" placeholder="Salle de réunion / Visioconférence" />
+                                        <InputText v-model="compte_rendu.lieu" id="place" placeholder="Salle de réunion / Visioconférence" />
                                     </div>
                                     <div>
                                         <label for="type">Type de réunion *</label>
@@ -164,11 +165,14 @@
                                     <!-- <fieldset>
                                         <legend>Participants</legend> -->
                                     <CheckboxGroup name="participant" v-model="selectedPart" >
-                                     <div v-for="participant of participants" :key="participant.code" class="flex align-items-center">
-                                        <Checkbox :inputId="participant.code"  :value="{ code: participant.code, name: participant.name }" />
+                                     <div v-for="participant of compte_rendu.participants" :key="participant.code" class="flex align-items-center">
+                                        <Checkbox :inputId="participant.code"  :value="{ code: participant.user_id, name: participant.name }" />
                                         <label :for="participant.code">{{ participant.name }}</label>
                                     </div>
                                 </CheckboxGroup>
+                                {{ selectedPart }}/
+                                {{ absentPart }}/
+                                {{ compte_rendu.participants }}
                                     <!-- </fieldset> -->
                                 </div>
                                 <div class="flex pt-6 justify-end">
@@ -191,7 +195,7 @@
                                         <label :for="'duree-'+point.id">Durée *</label>
                                         <InputNumber  showButtons v-model="pointsOrdreJour[index].duree" :inputId="'duree-'+point.id" suffix=" min" :min="1" placeholder="Indiquez une durée en minute" />
                                           <label :for="'resp'+point.id">Responsable *</label>
-                                        <Dropdown v-model="pointsOrdreJour[index].responsable" :id="'resp'+point.id" :options="selectedPart" placeholder="Sélectionner le responsable" />
+                                        <Dropdown v-model="pointsOrdreJour[index].responsable" :id="'resp'+point.id" optionLabel="name" optionValue="code" :options="selectedPart" placeholder="Sélectionner le responsable" />
                                         <PButton  icon="pi pi-trash" @click="removePoint(index)"  />
                                     </div>
                                 </div>
@@ -244,17 +248,17 @@
                                     </div>
                                     <div v-else v-for="(point, index) in actions" :key="point.id">
                                         <label :for="'titre-'+point.id">Titre du point *</label>
-                                        <Chip v-if="point.responsable" :label="valueToLabel(point.responsable, participants)" icon="pi pi-user" />
+                                        <Chip v-if="point.responsable" :label="valueToLabel(point.responsable, membres, 'user_id').username" icon="pi pi-user" />
                                         <Chip v-if="point.date" :label="point.date" icon="pi pi-calendar" />
-                                        <Chip :label="valueToLabel(point.prio, priorite)" />
-                                        <Chip :label="valueToLabel(point.statut, statut)" />
+                                        <Chip :label="valueToLabel(point.prio, priorite, 'code').name" />
+                                        <Chip :label="valueToLabel(point.statut, statut, 'code').name" />
                                         <InputText v-model="actions[index].title" :id="'titre-'+point.id" placeholder="Ex: Validation du budget" />
                                         <ToggleButton @click="console.log(actions)" :modelValue="isOpen(point.id)" @update:modelValue="() => toggleAction(point.id)" onLabel="Réduire" offLabel="Modifier" />
                                         <div v-if="isOpen(point.id)">
                                             <label for="date">Date d'échéance *</label>
                                             <DatePicker updateModelType="string" showIcon inputId="date" v-model="point.date" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
                                             <label :for="'resp'+point.id">Assigné à *</label>
-                                            <Dropdown v-model="actions[index].responsable" :id="'resp'+point.id" :options="participants" optionLabel="name" optionValue="code" placeholder="Sélectionner le responsable" />
+                                            <Select v-model="actions[index].responsable" :id="'resp'+point.id" :options="membres" optionLabel="username" optionValue="user_id" placeholder="Sélectionner le responsable" />
                                             <label :for="'prio-'+point.id">Priorité *</label>
                                             <Select defaultValue="mid" v-model="actions[index].prio" :id="'prio-'+point.id" :options="priorite" optionLabel="name" optionValue="code" placeholder="Sélectionner le responsable" />
                                             <label :for="'statut-'+point.id">Statut *</label>
@@ -372,8 +376,11 @@
 <script setup lang="ts">
     import Reunion from '@/models/ReunionModel';
     import Event from '@/models/EventModel';
+    import Membre from '@/models/MembreModel';
     import domToPdf from 'dom-to-pdf'
     import {useEventService} from '@/composables/event/EventService';
+    import {useAssoService} from '@/composables/asso/AssoService';
+    import { ref, onMounted, computed } from 'vue';
 
     const generatePdf = () => {
         const element = document.getElementById('pdf-content');
@@ -383,16 +390,30 @@
             scale: 2
         });
     };
-    import { ref, onMounted } from 'vue';
     const test = ref(false)
     const reunions = ref<Event[]>([]);
+    const membres = ref<Membre[]>([]);
+    const compte_rendu = ref({});
     const EventService = useEventService();
+    const AssoService = useAssoService();
     const title = ref()
     const lieu = ref()
     const date = ref()
     const time = ref()
     const selectedType = ref();
     const selectedPart = ref([]);
+    const absentPart = computed(() => {
+  const participants = compte_rendu.participants ?? [];
+  const selected = selectedPart.value ?? [];
+
+  const selectedCodes = new Set(
+    selected.map(s => s.code)
+  );
+
+  return participants.filter(
+    p => !selectedCodes.has(p.user_id)
+  );
+});
     const activeStep = ref(1);
     const pointsOrdreJour = ref([]);
     const actions = ref([]);
@@ -420,6 +441,11 @@
         {name:"Terminé", code:"DONE"},
     ])
     const VISIBLE=ref(false);
+    const createCR = (data) => {
+        compte_rendu.value = {...data}
+        console.log(compte_rendu.value)
+        VISIBLE.value = true
+    }
     // const REUNIONS = ref<Reunion>([])
     // REUNIONS.value = [
     //     {
@@ -469,13 +495,29 @@
     ]
 
     onMounted(async () => {
+        membres.value = await AssoService.getMembersByAssoId(Number(sessionStorage.getItem('idAsso')));
         reunions.value = await EventService.getEventsByTypeByAssoId(Number(sessionStorage.getItem('idAsso')), "reunion")
-        console.log(reunions.value)
     })
 
-    const valueToLabel = (value, array) => {
-        return array.find(val => val.code === value).name
+    const valueToLabel = (value, array, label) => {
+        console.log(array.find(val => val.code === value))
+        console.log(array.find(val => val[label] === value))
+        return array.find(val => val[label] === value)
+        // return true
     }
+
+    const findIndexById = (id, array) => {
+        let index = 0;
+        console.log("findbyindex", id, array);
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].id === id) {
+                index = i;
+                console.log(index)
+                break;
+            }
+        }
+        return index;
+    };
 
 const addPoint = () => {
   pointsOrdreJour.value.push({

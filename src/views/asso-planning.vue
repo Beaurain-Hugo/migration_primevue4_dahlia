@@ -513,7 +513,8 @@ onMounted(async() => {
 		participants:JSON.parse(event.participants),
 		...(event.date_fin && {endDate: new Date(event.date_fin)})
       }));
-	console.log("EVENEMENT CALENDRIER", state.items)
+	console.log("EVENEMENT", events.value)
+	console.log("EVENEMENT CALENDRIER", state.items[0])
 })
 
 const addEvent = async() => {
