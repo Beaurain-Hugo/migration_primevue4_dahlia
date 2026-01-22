@@ -46,7 +46,7 @@
         <Chart type="line" :data="lineChartData" :options="lineChartOptions" class="h-[28rem]" />
       </div>
       <div class="card">
-        <!-- <Chart type="pie" :data="lineChartData" :options="lineChartOptions" class="h-[28rem]" /> -->
+        <Chart type="pie" :data="pieChartData" :options="lineChartOptions" class="h-[28rem]" />
       </div>
     </div>
       </TabPanel>
@@ -177,6 +177,14 @@
             <InputText v-model="filterModel.value" @input="filterCallback()" placeholder="Filtrer par tier" />
           </template>
         </Column>
+        <Column field="categorie" header="Categorie" :showFilterMatchModes="false" style="min-width: 12rem">
+          <template #body="{ data }">
+            {{ data.categorie }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText v-model="filterModel.value" @input="filterCallback()" placeholder="Filtrer par categorie" />
+          </template>
+        </Column>
     </DataTable>
      <!-- Dialogue pour ajouter une transaction -->
     <PDialog header="Ajouter une transaction" v-model:visible="showDialogNewTransactions" :modal="true" :closable="false" :style="{ width: '50vw' }">
@@ -196,6 +204,10 @@
         <div class="field">
           <label for="tiers">Tiers</label>
           <InputText id="tiers" v-model="newTransaction.tiers" />
+        </div>
+        <div class="field">
+          <label for="categorie">Categorie</label>
+          <InputText id="categorie" v-model="newTransaction.categorie" />
         </div>
       </div>
       <template #footer>
@@ -258,6 +270,7 @@
       </template>
     </PDialog>
   </div>
+  {{transactions}}
 </template>
   
 <script setup>
@@ -317,14 +330,15 @@ const route = useRoute();
     nom_transaction: "",
     operation: null,
     date_operation: null,
-    tiers: ""
+    tiers: "",
+    categorie: "",
   });
   const showDialogNewTransactions = ref(false);
   const showDialogBudget = ref(false);
   const loading = ref(true);
   const toast = useToast();
   // const lineChartData = ref(null);
-  const pieChartData = ref(null);
+  // const pieChartData = ref(null);
   const lineChartOptions = ref(null);
   const periods = ref()
 
@@ -468,6 +482,38 @@ const lineChartData = computed(() => ({
       }));
   
   };
+
+  const transactionsByCategoryAmount = computed(() => {
+  const txs = transactions.value ?? [];
+
+  if (!txs.length) return [];
+
+  const totalAmount = txs.reduce(
+    (sum, tx) => sum + Math.abs(tx.operation),
+    0
+  );
+
+  const sums = txs.reduce((acc, tx) => {
+    const category = tx.categorie ?? "Non catégorisée";
+    acc[category] = (acc[category] || 0) + Math.abs(tx.operation);
+    return acc;
+  }, {});
+
+  return Object.entries(sums).map(([categorie, amount]) => ({
+    categorie,
+    amount,
+    percentage: Number(((amount / totalAmount) * 100).toFixed(2))
+  }));
+});
+
+const pieChartData = computed(() => ({
+  labels: transactionsByCategoryAmount.value.map(r => r.categorie),
+  datasets: [
+    {
+      data: transactionsByCategoryAmount.value.map(r => r.percentage)
+    }
+  ]
+}));
   
   const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');
@@ -505,20 +551,6 @@ const lineChartData = computed(() => ({
     };
 
   const addTransaction = async () => {
-    // if (newTransaction.value.nom_transaction && newTransaction.value.operation !== null && newTransaction.value.date_operation) {
-    //   transactions.value.push({ ...newTransaction.value, id: Date.now() }); // Simulated ID
-    //   newTransaction.value = {
-    //     association_id: Number(sessionStorage.getItem("idAsso")),
-    //     nom_transaction: "",
-    //     operation: null,
-    //     date_operation: null,
-    //     tiers: ""
-    //   };
-    //   showDialogNewTransactions.value = false;
-    //   updateChartData();
-    // } else {
-    //   alert('Veuillez remplir tous les champs.');
-    // }
      try {
       await assoService.saveTresorieAsso(newTransaction.value);
       toast.add({
