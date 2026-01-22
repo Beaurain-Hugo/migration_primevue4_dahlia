@@ -317,10 +317,28 @@
                                             <span>Lieu {{ lieu }}</span>
                                         </div>
                                         <Chip label="Participants"/>
-                                        <DataTable :value="selectedPart" showGridlines tableStyle="min-width: 50rem">
-                                            <Column field="name" header="Présents"></Column>
-                                            <Column field="" header="Excusés"></Column>
+                                        <DataTable :value="[{}]" showGridlines class="p-datatable-sm">
+                                          <Column header="Présents">
+                                            <template #body>
+                                              <ul>
+                                                <li v-for="p in presentMembers" :key="p.user_id">
+                                                  {{ p.name }}
+                                                </li>
+                                              </ul>
+                                            </template>
+                                          </Column>
+                                        
+                                          <Column header="Absents">
+                                            <template #body>
+                                              <ul>
+                                                <li v-for="p in absentMembers" :key="p.user_id">
+                                                  {{ p.name }}
+                                                </li>
+                                              </ul>
+                                            </template>
+                                          </Column>
                                         </DataTable>
+
                                         <div v-if="selectedType">
                                             <Chip label="Type de réunion"/>
                                             {{ selectedType.name }}
@@ -334,7 +352,7 @@
                                         </div>
                                         <div>
                                             <Chip label="Discussions et décisions"/>
-                                            <div v-for="(point, index) in pointsOrdreJour">
+                                            <div v-for="(point, index) in pointsOrdreJour" :key="index">
                                                 <h3>{{ point.title }} par {{ point.responsable.name }}</h3>
                                                 {{ point.discussions }}
                                                 <div v-if="point.synthese">
@@ -403,7 +421,7 @@
     const selectedType = ref();
     const selectedPart = ref([]);
     const absentPart = computed(() => {
-  const participants = compte_rendu.participants ?? [];
+  const participants = compte_rendu.value.participants ?? [];
   const selected = selectedPart.value ?? [];
 
   const selectedCodes = new Set(
@@ -414,6 +432,28 @@
     p => !selectedCodes.has(p.user_id)
   );
 });
+
+const participantsWithStatus = computed(() => {
+  const participants = compte_rendu?.value.participants ?? [];
+  const presentIds = new Set(
+    selectedPart.value?.map(s => s.code) ?? []
+  );
+
+  return participants.map(p => ({
+    ...p,
+    isPresent: presentIds.has(p.user_id)
+  }));
+});
+
+const presentMembers = computed(() =>
+  participantsWithStatus.value.filter(p => p.isPresent)
+);
+
+const absentMembers = computed(() =>
+  participantsWithStatus.value.filter(p => !p.isPresent)
+);
+
+
     const activeStep = ref(1);
     const pointsOrdreJour = ref([]);
     const actions = ref([]);
