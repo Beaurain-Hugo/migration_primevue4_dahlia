@@ -10,18 +10,17 @@
             <TabPanel value="0">
                 <h3>Historique des réunions</h3>
                 <div>
-                    {{ reunions }}
                 <Card v-for="(reunion, index) in reunions" :key="index">
                     <template #header>
                         <div>
                             <h4>{{ reunion.titre }}</h4>
-                            <Tag :value="reunion.statut" rounded />
+                            <Tag :value="statutReunion(reunion.date_debut, reunion.document)" rounded />
                         </div>
                     </template>
                     <template #content>
                         <div>
                         <span class="pi pi-calendar"></span>
-                        <span>{{ reunion.date_debut }}</span>
+                        <span>{{ formatDate(reunion.date_debut) }}</span>
                         </div>
                         <div>
                         <span class="pi pi-users"></span>
@@ -29,9 +28,9 @@
                         </div>
                     </template>
                     <template #footer>
-                        <div v-if="reunion.compte_rendu">
-                            <PButton label="Voir" icon="pi pi-eye" />
-                            <PButton label="PDF" icon="pi pi-download" />
+                        <div v-if="reunion.document?.titre">
+                            <PButton label="Voir" icon="pi pi-eye" @click="openPdf(reunion.document?.id)" />
+                            <PButton label="Télécharger le PDF" icon="pi pi-download" @click="downloadPdf(reunion.document?.id)" />
                         </div>
                         <div v-else>
                             <PButton label="Créer le compte-rendu" icon="pi pi-file-pdf" @click="createCR(reunion)" />
@@ -284,7 +283,7 @@
                                             Participants
                                         </template>
                                         <template #content>
-                                            <span>{{ selectedPart.length }} <br> personnes conviées</span>
+                                            <span>{{ selectedPart.length }} <br> personnes présentes</span>
                                         </template>
                                     </Card>
                                      <Card>
@@ -311,18 +310,18 @@
                                             <h2>{{ title }}</h2>
                                         </div>
                                         <div>
-                                            <Chip label="Personne en charge"/> Euh faut mettre quoi là ?
+                                            <Chip><span>Personne en charge</span></Chip>
                                             <span>Date {{ date }}</span>
                                             <span>Heure de début {{ time }}</span>
-                                            <span>Lieu {{ lieu }}</span>
+                                            <span>Lieu {{ compte_rendu.lieu }}</span>
                                         </div>
-                                        <Chip label="Participants"/>
+                                        <Chip><span>Participants</span></Chip>
                                         <DataTable :value="[{}]" showGridlines class="p-datatable-sm">
                                           <Column header="Présents">
                                             <template #body>
                                               <ul>
                                                 <li v-for="p in presentMembers" :key="p.user_id">
-                                                  {{ p.name }}
+                                                  {{ p.name }}              
                                                 </li>
                                               </ul>
                                             </template>
@@ -340,18 +339,17 @@
                                         </DataTable>
 
                                         <div v-if="selectedType">
-                                            <Chip label="Type de réunion"/>
+                                            <Chip><span>Type de réunion</span></Chip>
                                             {{ selectedType.name }}
                                         </div>
                                         <div>
-                                            <Chip label="Ordres du jour"/>
+                                            <Chip><span>Ordres du jour</span></Chip>
                                             <div v-for="(point,index) in pointsOrdreJour" :key="index">
                                                 {{point.title}}
-                                                <!-- {{ point }} -->
                                             </div>
                                         </div>
                                         <div>
-                                            <Chip label="Discussions et décisions"/>
+                                            <Chip><span>Discussions et décisions</span></Chip>
                                             <div v-for="(point, index) in pointsOrdreJour" :key="index">
                                                 <h3>{{ point.title }} par {{ point.responsable.name }}</h3>
                                                 {{ point.discussions }}
@@ -361,7 +359,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <Chip label="Actions à prendre"/>
+                                        <Chip><span>Actions à prendre</span></Chip>
                                         <DataTable :value="actions" showGridlines tableStyle="min-width: 50rem">
                                             <Column field="title" header="Actions"></Column>
                                             <Column field="statut" header="Etat"></Column>
@@ -395,19 +393,76 @@
     import Reunion from '@/models/ReunionModel';
     import Event from '@/models/EventModel';
     import Membre from '@/models/MembreModel';
-    import domToPdf from 'dom-to-pdf'
     import {useEventService} from '@/composables/event/EventService';
     import {useAssoService} from '@/composables/asso/AssoService';
     import { ref, onMounted, computed } from 'vue';
+    import html2canvas from 'html2canvas';
+    import jsPDF from 'jspdf';
+    const generatePdfBlob = async (element) => {
+        const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true
+        });
 
-    const generatePdf = () => {
+        const imgData = canvas.toDataURL('image/png');
+
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        console.log(pdf.output('blob'))
+        return pdf.output('blob'); // ✅ PROMISE RESOLUE
+    };
+    const generatePdf = async () => {
         const element = document.getElementById('pdf-content');
-        domToPdf(element, {
-            filename: 'mon-document.pdf',
-            margin: 10,
-            scale: 2
+
+        const blob = await generatePdfBlob(element); // ✅ fonctionne
+
+        const formData = new FormData();
+        formData.append('contenu', blob, 'compte_rendu.pdf');
+        formData.append('association_id', sessionStorage.getItem('idAsso'));
+        formData.append('titre', `compte_rendu_${title.value}`);
+        const id = await AssoService.addDocuments(formData);
+
+        await EventService.updateEvent(compte_rendu.value.id, {
+            document_id: id.id
         });
     };
+    const openPdf = async (id) => {
+        const { blob } = await AssoService.getDocumentById(id);
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+    };
+    const downloadPdf = async (id) => {
+        const { blob, filename } = await AssoService.getDocumentById(id);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename; // nom correct
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+    const formatDate = (date: Date | string | number | null | undefined): string => {
+        if (!date) return '';
+        const parsedDate = new Date(date); 
+        if (isNaN(parsedDate.getTime())) return '';
+        const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return new Intl.DateTimeFormat('fr-FR', options).format(parsedDate);
+    };
+    const statutReunion = (date: Date | string | number | null | undefined, hasCR:Boolean): string => {
+        if (!date) return '';
+        const parsedDate = new Date(date);
+        if(Date.now() > parsedDate && hasCR){
+            return 'Terminé';
+        }else if (Date.now() > parsedDate && !hasCR) {
+            return 'En attente'
+        } else {
+            console.log(hasCR)
+            return 'À venir'
+        }
+    };
+
     const test = ref(false)
     const reunions = ref<Event[]>([]);
     const membres = ref<Membre[]>([]);
@@ -465,11 +520,6 @@ const absentMembers = computed(() =>
         {name:"Comité de direction", code: "CD"},
         {name:"Bureau exécutif", code: "BE"},
     ])
-    const participants = ref([
-        {name:"Corentin Beuchat", code:"0"},
-        {name:"Elora Perrin", code:"1"},
-        {name:"Hugo Beaurain", code:"2"},
-    ])
     const priorite = ref([
         {name:"Faible", code:"low"},
         {name:"Moyenne", code:"mid"},
@@ -486,30 +536,7 @@ const absentMembers = computed(() =>
         console.log(compte_rendu.value)
         VISIBLE.value = true
     }
-    // const REUNIONS = ref<Reunion>([])
-    // REUNIONS.value = [
-    //     {
-    //         id:1,
-    //         nom:"Test",
-    //         statut:"Terminé",
-    //         date:"15/02/20205",
-    //         compte_rendu:true
-    //     },
-    //      {
-    //         id:2,
-    //         nom:"Test",
-    //         statut:"Terminé",
-    //         date:"15/02/20205",
-    //         compte_rendu:true
-    //     },
-    //      {
-    //         id:3,
-    //         nom:"Test",
-    //         statut:"Terminé",
-    //         date:"15/02/20205",
-    //         compte_rendu:false
-    //     },
-    // ]
+
     const ITEMS = ref([])
     ITEMS.value = [
         {

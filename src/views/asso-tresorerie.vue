@@ -46,7 +46,7 @@
         <Chart type="line" :data="lineChartData" :options="lineChartOptions" class="h-[28rem]" />
       </div>
       <div class="card">
-        <Chart type="pie" :data="pieChartData" :options="lineChartOptions" class="h-[28rem]" />
+        <Chart type="pie" :data="pieChartData" :options="chartOptions" class="h-[28rem]" />
       </div>
     </div>
       </TabPanel>
@@ -57,47 +57,42 @@
                 <span class="pi pi-calendar"></span>
                 <span>Période budgétaire</span>
               </div>
-            </template>
-            <template #content>
               <PButton label="Définir le budget" @click="showDialogBudget = true" icon="pi pi-cog"  />
             </template>
+            <template #content>
+              <div v-for="budget in budgets" :key="budget.id">
+                <Card>
+                  <template #header>
+                    {{ budget.titre }}
+                  </template>
+                  <template #content>
+                    <div>
+                      <span>Montant total : {{ budget.montant_total }}</span>
+                      <span>Période : {{ budget.date_debut }} - {{ budget.date_fin }}</span>
+                    </div>
+                  </template>
+                  <template #footer>
+                    <PButton label="Suivre ce budget" @click="getBudgetSuivi(budget.id)"/>
+                  </template>
+                </Card>
+              </div>
+            </template>
           </Card>
+          
           <Card>
             <template #header>
               Suivi budgétaire par catégorie
             </template>
             <template #content>
-              <div>
+              <div v-for="(budg, index) in budget" :key="index">
                 <div>
-                  <span>Evènements</span>
-                  <span>X / {{budgetEvent}}€</span>
+                  <span>{{budg.categorie}}</span>
+                  <span>{{ budg.montant_reel }} / {{budg.montant_prevu}}€</span>
                 </div>
-                <ProgressBar />
+                <ProgressBar :value="Number(budg.taux_utilisation)" />
                 <div>
-                  <span>restant</span>
-                  <span>% utilisé</span>
-                </div>
-              </div>
-              <div>
-                <div>
-                  <span>Communication</span>
-                  <span>X / {{budgetCom}}€</span>
-                </div>
-                <ProgressBar />
-                <div>
-                  <span>restant</span>
-                  <span>% utilisé</span>
-                </div>
-              </div>
-              <div>
-                <div>
-                  <span>Matériel</span>
-                  <span>X / {{budgetMat}}€</span>
-                </div>
-                <ProgressBar />
-                <div>
-                  <span>restant</span>
-                  <span>% utilisé</span>
+                  <span>{{ budg.montant_prevu - budg.montant_reel }} restant</span>
+                  <span>{{budg.taux_utilisation}} % utilisé</span>
                 </div>
               </div>
             </template>
@@ -221,6 +216,12 @@
         <span>Utilisé : {{allBudgetUsed}}</span>
         <span>Total : {{netBalance}}</span>
       </div>
+      <div>
+        <label for="name">Budget</label>
+        <InputText id="name" v-model="titre_budget" />
+        Période de définition du budget
+        <DatePicker v-model="dates_budget" placeholder="Sélectionner deux dates" selectionMode="range" :manualInput="false" />
+      </div>
       <Card>
         <template #header>
           <div>
@@ -232,7 +233,7 @@
         <template #content>
           <label for="budgetEvent">Montant</label>
           <InputNumber showButtons :min="0" v-model="budgetEvent" :max="budgetEvent + budgetRestant" inputId="budgetEvent" mode="currency" currency="EUR" locale="fr-FR" />
-          <ProgressBar :value="percetBudgetEvent"></ProgressBar>
+          <ProgressBar :value="Number(percetBudgetEvent)"></ProgressBar>
 
         </template>
       </Card>
@@ -247,7 +248,7 @@
         <template #content>
           <label for="budgetCom">Montant</label>
           <InputNumber showButtons :min="0" :max="budgetCom + budgetRestant" v-model="budgetCom" inputId="budgetCom" mode="currency" currency="EUR" locale="fr-FR" />
-          <ProgressBar :value="percetBudgetCom"></ProgressBar>
+          <ProgressBar :value="Number(percetBudgetCom)"></ProgressBar>
         </template>
       </Card>
        <Card>
@@ -261,16 +262,16 @@
         <template #content>
           <label for="budgetMat">Montant</label>
           <InputNumber showButtons :min="0" :max="budgetMat + budgetRestant" v-model="budgetMat" inputId="budgetMat" mode="currency" currency="EUR" locale="fr-FR" />
-          <ProgressBar :value="percetBudgetMat"></ProgressBar>
+          <ProgressBar :value="Number(percetBudgetMat)"></ProgressBar>
         </template>
       </Card>
+     
       <template #footer>
         <PButton label="Annuler" icon="pi pi-times" class="p-button-text" @click="showDialogBudget = false" />
-        <PButton label="Ajouter" icon="pi pi-check" @click="addTransaction" />
+        <PButton label="Ajouter" icon="pi pi-check" @click="addBuget" />
       </template>
     </PDialog>
   </div>
-  {{transactions}}
 </template>
   
 <script setup>
@@ -293,6 +294,9 @@ const maxValue = computed(() => {
 const budgetEvent = ref(0)
 const budgetCom = ref(0)
 const budgetMat = ref(0)
+const dates_budget = ref();
+const budget = ref();
+const budgets = ref();
 
 const allBudgetUsed = computed(() => {
   return budgetEvent.value + budgetCom.value + budgetMat.value
@@ -313,8 +317,8 @@ const percetBudgetCom = computed(() => {
 const budgetRestant = computed(() => {
   return netBalance.value - allBudgetUsed.value
 })
-
-const route = useRoute();
+  const titre_budget = ref();
+  const route = useRoute();
   const assoService = useAssoService();
   const transactions = ref([]);
   const filters = ref({
@@ -324,7 +328,6 @@ const route = useRoute();
     date_operation:{ operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_BEFORE }]},
     tiers: { value: null, matchMode: FilterMatchMode.STARTS_WITH }
   });
-  console.log(filters.value.date_operation)
   const newTransaction = ref({
     association_id: Number(sessionStorage.getItem("idAsso")),
     nom_transaction: "",
@@ -333,6 +336,30 @@ const route = useRoute();
     tiers: "",
     categorie: "",
   });
+  const newBudget = computed(() => {
+    const startDate = ref()
+    const endDate = ref()
+    if(dates_budget.value.length == 2)
+    { [startDate.value, endDate.value] = dates_budget.value}
+    return {
+    titre: titre_budget.value,
+    date_debut:startDate.value,
+    date_fin:endDate.value,
+    budgets:[
+      {
+        categorie:"communication",
+        montant_prevu:budgetCom.value
+      },
+      {
+        categorie:"materiel",
+        montant_prevu:budgetMat.value
+      },
+      {
+        categorie:"evenement",
+        montant_prevu:budgetEvent.value
+      }
+    ]
+  }});
   const showDialogNewTransactions = ref(false);
   const showDialogBudget = ref(false);
   const loading = ref(true);
@@ -357,6 +384,8 @@ watch(() => route.params.id, async (newId) => {
   
   onMounted(async () => {
     try {
+      budgets.value = await assoService.getAllbudgetsByAsso(Number(sessionStorage.getItem("idAsso")));
+      console.log(budgets.value)
       const res = await assoService.getAllTresorieByAssociations(Number(sessionStorage.getItem("idAsso")));
       transactions.value = res.map(transaction => ({
         ...transaction,
@@ -369,6 +398,9 @@ watch(() => route.params.id, async (newId) => {
     }
   });
   
+  const getBudgetSuivi = async (id) => {
+    budget.value = await assoService.getBudgetSuivi(id);
+  }
   const totalCredit = computed(() => {
     return transactions.value.reduce((acc, transaction) => (transaction.operation > 0 ? acc + transaction.operation : acc), 0).toFixed(2);
   });
@@ -507,14 +539,35 @@ const lineChartData = computed(() => ({
 });
 
 const pieChartData = computed(() => ({
-  labels: transactionsByCategoryAmount.value.map(r => r.categorie),
+  labels: transactionsByCategoryAmount.value.map(
+    item => `${item.categorie} (${item.percentage} %)`
+  ),
   datasets: [
     {
-      data: transactionsByCategoryAmount.value.map(r => r.percentage)
+      data: transactionsByCategoryAmount.value.map(
+        item => item.amount
+      )
     }
   ]
 }));
-  
+const chartOptions = {
+  plugins: {
+    title:{
+      align:'start',
+      display:true,
+      text:"Répartition des dépenses"
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const value = context.raw ?? 0;
+          return `Montant : ${value} €`;
+        }
+      }
+    },
+  }
+};
+ 
   const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');
     const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
@@ -524,6 +577,11 @@ const pieChartData = computed(() => ({
       maintainAspectRatio: false,
       aspectRatio: 0.6,
       plugins: {
+        title:{
+          align:'start',
+          display:true,
+          text:"Évolution de la trésorerie"
+        },
         legend: {
           labels: {
             color: textColor
@@ -566,6 +624,22 @@ const pieChartData = computed(() => ({
       console.error('Error adding members:', error);
   }
   };
+
+  const addBuget = async () => {
+     try {
+      console.log(newBudget.value)
+      await assoService.addBudget(Number(sessionStorage.getItem('idAsso')), newBudget.value);
+      toast.add({
+        severity: 'success',
+        summary: 'Succès',
+        detail: 'Le budget a été ajouté avec succès.',
+        life: 5000,
+      });
+      showDialogBudget.value = false;
+    } catch (error) {
+      console.error('Error adding members:', error);
+  }
+  }
 </script>
   
 <style scoped>

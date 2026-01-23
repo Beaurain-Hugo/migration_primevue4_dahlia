@@ -1,9 +1,9 @@
 <template>
 	<div id="example-full">
-		<div class="calendar-controls">
+		<!-- <div class="calendar-controls">
 			<div v-if="state.message" class="notification is-success">{{ state.message }}</div>
 
-			<!-- <div class="box">
+			<div class="box">
 				<h4 class="title is-5">Play with the options!</h4>
 
 				<div class="field">
@@ -105,8 +105,8 @@
 				</div>
 
 				<button class="button is-info" @click="clickTestAddItem">Add Item</button>
-			</div> -->
-		</div>
+			</div>
+		</div> -->
 		<div class="calendar-parent">
 			<CalendarView
 				:items="state.items"
@@ -173,7 +173,7 @@
 								<template #content>
 									<div>
 										<span class="pi pi-clock"></span>
-										<span>{{ event.startDate }} - {{ event.heure_fin }}</span>
+										<span>{{ formatDate(event.startDate) }} - {{ formatDate(event.endDate) }}</span>
 									</div>
 									<div>
 										<span class="pi pi-map-marker"></span>
@@ -513,8 +513,6 @@ onMounted(async() => {
 		participants:JSON.parse(event.participants),
 		...(event.date_fin && {endDate: new Date(event.date_fin)})
       }));
-	console.log("EVENEMENT", events.value)
-	console.log("EVENEMENT CALENDRIER", state.items[0])
 })
 
 const addEvent = async() => {
@@ -559,7 +557,6 @@ const addEvent = async() => {
 const deleteEvent = async (idEvent: number) => {
 	try {
 		const res = await EventService.deleteEvent(idEvent);
-		console.log(res)
 		id.value = ''
 		VISIBLE.value = false
 		events.value = await EventService.getEventsByAssoId(Number(sessionStorage.getItem('idAsso')))
@@ -567,6 +564,14 @@ const deleteEvent = async (idEvent: number) => {
 		console.error('Erreur :', error)
 	}
 }
+
+const formatDate = (date: Date | string | number | null | undefined): string => {
+        if (!date) return '';
+        const parsedDate = new Date(date); 
+        if (isNaN(parsedDate.getTime())) return '';
+        const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return new Intl.DateTimeFormat('fr-FR', options).format(parsedDate);
+    };
 
 const periodChanged = (): void => {
 	// range, eventSource) {
@@ -582,7 +587,7 @@ const onClickDay = (d: Date): void => {
 	state.message = `You clicked: ${d.toLocaleDateString()}`
 	VISIBLE.value=true
 	date_debut.value = d
-	  VISIBLE.value=true
+	  multiDay.value=false
   date_fin.value = ""
   titre.value = ""
   description.value = ""
@@ -595,7 +600,6 @@ const onClickDay = (d: Date): void => {
 
 const onClickItem = (item: INormalizedCalendarItem): void => {
 	state.message = `You clicked: ${item.title}`
-	console.log(item)
 	VISIBLE.value=true
 	titre.value = item.title
 	id.value = item.id
@@ -681,7 +685,6 @@ const applyFilter = (value) => {
 };
 
 const changePeriod = (value) => {
-  console.log("changePeriod :", value);
   state.displayPeriodUom = value
 };
 </script>

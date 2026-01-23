@@ -25,6 +25,10 @@ export function useEventApi() {
       const res = await axiosInstance.delete(`${ApiUrlEvents}/delete/${id}`);
       console.log(res)
       return res.data.message
-    }
+    },
+    async editEvent(id:number, data:any){
+      const res = await axiosInstance.put(`${ApiUrlEvents}/update/${id}`, data);
+      return res.data.message;
+    },
   };
 }

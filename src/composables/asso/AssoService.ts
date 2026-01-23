@@ -1,3 +1,4 @@
+import { AnyARecord } from 'dns';
 import { useAssoApi } from './AssoAPI';
 
 const assoApi = useAssoApi();
@@ -86,7 +87,6 @@ export function useAssoService() {
       try {
         const response = await assoApi.getAllAssociations(id);
         if (response) {
-          console.log(response);
           return response;
         } else {
           return 'Échec de la recupereation association.';
@@ -113,7 +113,6 @@ export function useAssoService() {
       try {
         const response = await assoApi.getAllTresorieByAssociations(id);
         if (response) {
-          console.log(response);
           return response;
         } else {
           return 'Échec de la recupereation tresorie.';
@@ -127,7 +126,6 @@ export function useAssoService() {
       try {
         const response = await assoApi.getAllAssociation();
         if (response) {
-          console.log(response);
           return response;
         } else {
           return 'Échec de la recupereation association.';
@@ -137,6 +135,118 @@ export function useAssoService() {
         return 'Erreur lors de la création de l\'association.';
       }
     },
-    
+    async addBudget(id:number, data:any){
+      try {
+        const response = await assoApi.addBudget(id, data);
+        if(response){
+          return response;
+        } else {
+          return "Echec de l'ajout du budget";
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'ajout du budget :", error);
+        return "Erreur lors de l'ajout du budget.";
+      }
+    },
+     async getBudgetSuivi(id:number) { // récupère toutes les associations
+      try {
+        const response = await assoApi.getBudgetSuivi(id);
+        if (response) {
+          return response;
+        } else {
+          return 'Échec de la recupereation du suivi du budget.';
+        }
+      } catch (error) {
+        console.error('Erreur lors de la recupereation du suivi du budget :', error);
+        return 'Erreur lors de la récupération du suivi du budget.';
+      }
+    },
+    async getAllbudgetsByAsso(id:number) { // récupère toutes les associations
+      try {
+        const response = await assoApi.getAllbudgetsByAsso(id);
+        if (response) {
+          return response;
+        } else {
+          return 'Échec de la recupereation des budgets.';
+        }
+      } catch (error) {
+        console.error('Erreur lors de la recupereation des budgets :', error);
+        return 'Erreur lors de la récupération des budgets.';
+      }
+    },
+     async addActions(id:number, data:any){
+      try {
+        const response = await assoApi.addActions(id, data);
+        if(response){
+          return response;
+        } else {
+          return "Echec de l'ajout des actions";
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'ajout des actions :", error);
+        return "Erreur lors de l'ajout des actions.";
+      }
+    },
+     async getActionsByAssoId(id:number) { // récupère toutes les associations
+      try {
+        const response = await assoApi.getActionsByAssoId(id);
+        if (response) {
+          return response;
+        } else {
+          return 'Échec de la recupereation des actions.';
+        }
+      } catch (error) {
+        console.error('Erreur lors de la recupereation des actions :', error);
+        return 'Erreur lors de la récupération des actions.';
+      }
+    },
+    async deleteActionById(id:number) { // récupère toutes les associations
+      try {
+        const response = await assoApi.deleteActionById(id);
+        if (response) {
+          return response;
+        } else {
+          return 'Échec de la suppression de l\'action.';
+        }
+      } catch (error) {
+        console.error('Erreur lors de la suppression de l\'action :', error);
+        return 'Erreur lors de la suppression de l\'action.';
+      }
+    },
+     async updateAction(id: number, updatedAction: any) {
+      try {
+        const response = await assoApi.editActionById(id, updatedAction);
+        return response;  // Retourne un message de succès
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour de l\'action :', error);
+        return 'Erreur lors de la mise à jour de l\'action.';
+      }
+    },
+      async addDocuments(data:any){
+      try {
+        const response = await assoApi.addDocuments(data);
+        if(response){
+          return response;
+        } else {
+          return "Echec de l'ajout du document";
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'ajout du document :", error);
+        return "Erreur lors de l'ajout du document.";
+      }
+    },
+     async getDocumentById(id:number) { // récupère toutes les associations
+      try {
+        const response = await assoApi.getDocumentById(id);
+        if (response) {
+          return response;
+        } else {
+          return 'Échec de la recupereation du document.';
+        }
+      } catch (error) {
+        console.error('Erreur lors de la recupereation du document :', error);
+        return 'Erreur lors de la récupération du document.';
+      }
+    },
   };
 }

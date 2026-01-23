@@ -9,5 +9,6 @@ export default interface Event {
   type:string,
   lieu:string,
   association_id: number;
-  participants: JSON;
+  participants: JSON,
+  document: JSON;
 }

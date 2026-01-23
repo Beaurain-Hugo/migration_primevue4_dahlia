@@ -17,6 +17,7 @@ const TresoDetail = defineAsyncComponent(() => import('@/views/asso-tresorerie.v
 const AssoReu = defineAsyncComponent(() => import('@/views/asso-reunions.vue'));
 const AssoPlanning = defineAsyncComponent(() => import('@/views/asso-planning.vue'));
 const Profil = defineAsyncComponent(() => import('@/views/profil.vue'));
+const AssoActions = defineAsyncComponent(() => import('@/views/asso-actions.vue'));
 
 
 const router = createRouter({
@@ -73,6 +74,16 @@ const router = createRouter({
             requiresAuth: true,
             title: "Finances & Budgets",
             subtitle:"Suivez votre situation financière et optimisez votre gestion"
+          },
+        },
+        {
+          path: '/asso-actions/:id',
+          name: 'asso-actions',
+          component: AssoActions,
+          meta: { 
+            requiresAuth: true,
+            title: "Gestion des tâches",
+            subtitle:"Créez et attribuez des tâches aux membres de votre association"
           },
         },
         {

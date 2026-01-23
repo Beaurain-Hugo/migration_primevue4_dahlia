@@ -14,7 +14,7 @@
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Création association</span></router-link></li>
     <li class="sidebar__list-item"><router-link :to="`/asso-reunion/${props.idAsso}`"><img src="" alt="" /><span>Réunions</span></router-link></li>
     <li class="sidebar__list-item"><router-link :to="`/asso-planning/${props.idAsso}`"><img src="" alt="" /><span>Planning</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Tâches à effectuer</span></router-link></li>
+    <li class="sidebar__list-item"><router-link :to="`/asso-actions/${props.idAsso}`"><img src="" alt="" /><span>Tâches à effectuer</span></router-link></li>
     <li class="sidebar__list-item"><router-link :to="`/asso-benevoles/${props.idAsso}`"><img src="" alt="" /><span>Adhérents</span></router-link></li>
     <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Suivi administratif</span></router-link></li>
     <li class="sidebar__list-item"><router-link :to="`/tresorerie-detail/${props.idAsso}`"><img src="" alt="" /><span>Trésorerie</span></router-link></li>

@@ -69,6 +69,15 @@ export function useEventService() {
         console.error("Erreur lors de la suppression", error);
         return "Erreur lors de la suppression";
       }
-    }
+    },
+     async updateEvent(id: number, updatedEvent: any) {
+      try {
+        const response = await EventApi.editEvent(id, updatedEvent);
+        return response;  // Retourne un message de succès
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour de l\'evenement :', error);
+        return 'Erreur lors de la mise à jour de l\'evenement.';
+      }
+    },
   };
 }
