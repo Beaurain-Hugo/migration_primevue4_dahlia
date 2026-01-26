@@ -99,10 +99,11 @@
           </Card>
         </TabPanel>
         <TabPanel value="2">
-        <p class="m">
-            At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui
-            officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
-        </p>
+          <div id="messages">
+
+          </div>
+          <div v-html="msg.html" v-for="(msg, index) in parsedMessages" :key="index"></div>
+          <input type="text" id="userInput" v-model="userMessage" @keyup.enter="sendMessage">
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -391,6 +392,7 @@ watch(() => route.params.id, async (newId) => {
         ...transaction,
         date_operation: new Date(transaction.date_operation)
       }));
+      console.log(transactions.value)
       loading.value = false;
       updateChartData();
     } catch (error) {
@@ -609,6 +611,7 @@ const chartOptions = {
     };
 
   const addTransaction = async () => {
+    newTransaction.value.association_id = Number(sessionStorage.getItem("idAsso"));
      try {
       await assoService.saveTresorieAsso(newTransaction.value);
       toast.add({
@@ -640,6 +643,135 @@ const chartOptions = {
       console.error('Error adding members:', error);
   }
   }
+
+// ########################################################################################################
+// IA GENERATIVE
+
+import {marked} from 'marked';
+const aiMessage = ref([])
+const userMessage = ref('')
+
+const parsedMessages = computed(() =>
+  aiMessage.value.map(m => ({
+    ...m,
+    html: marked(m)
+  }))
+)
+
+function sendMessage() {
+  if (!userMessage.value.trim()) return
+
+  displayMessage('User: ' + userMessage.value)
+  getResponse(userMessage.value)
+  userMessage.value = ''
+}
+
+function displayMessage(messag){
+  const messageDisplay = document.getElementById('messages')
+  const message = document.createElement('div')
+  message.textContent = messag
+  messageDisplay.appendChild(message);
+}
+
+function getResponse(data){
+  var test = transactions.value.map(function(transaction){return transactions[transaction]})
+  console.log(JSON.stringify(transactions.value))
+  let jsonData = {messages:[
+    {role:"system", content:`Tu es une IA spécialisée en analyse financière et gestion de trésorerie pour les associations.
+    Tu analyses des données transactionnelles structurées et fournis des prévisions chiffrées ainsi que des recommandations opérationnelles.`},
+    {role:"user", content:`Voici les données de la trésorerie d'une association : ${JSON.stringify(transactions.value)}
+
+    CONTEXTE (objet) DE L'ASSOCIATION (doit être utilisé dans la conception des conseils)
+Cette association à pour but :
+
+De promouvoir, mettre en place, créer et participer à des activités liées aux jeux vidéos compétitifs comme les compétitions et les événements mais aussi, favoriser et soutenir l'écosystème de l'esport à travers la création de communautés, le développement des
+compétences esportives pour les joueurs et l'éducation des jeunes dans le numérique
+De créer, initier et soutenir toute action, s'inscrivant dans une démarche de jeunesse et d'éducation populaire, particulièrement celles en lien avec les jeux vidéo, les outils numériques
+et les pratiques ludiques, permettant de réduire la fracture numérique existante entre les quartiers et les territoires, d'utilité publique et sociale ou d'intérêt général en lien avec les jeux
+vidéo, les outils numériques et les pratiques ludiques ainsi que favoriser toute action permettant de créer et d'entretenir des passerelles entre le sport et l'esport.
+Exalty se veut être une association à caractère philanthropique à vocation éducative et sociale. Elle souhaite également valoriser et démocratiser la pratique esportive (pratique compétitive du jeu vidéo) en la rendant accessible à tous, plus largement.
+L'association souhaite défendre l'idée que la culture du jeu vidéo possède un héritage qui lui permet d'être qualifié comme un véritable patrimoine culturel qu'il faut défendre, préserver et surtout, faire découvrir.
+
+    Analyse les données financières fournies afin d’aider à la prise de décision
+et à la gestion de la trésorerie d’une association.
+
+OBJECTIFS
+- Évaluer la situation financière actuelle
+- Identifier les tendances et les risques réels
+- Mettre en évidence des leviers d’amélioration concrets
+
+INSTRUCTIONS GÉNÉRALES
+- Analyse uniquement à partir des données fournies
+- N’invente aucune information
+- Si les données sont insuffisantes, indique-le clairement
+- Utilise un langage clair, non technique
+- Évite les généralités évidentes ou triviales
+
+CRITÈRE DE PERTINENCE (IMPORTANT)
+Pour chaque point, le champ "pertinent" doit être évalué selon la règle suivante :
+
+Un point est "pertinent = true" UNIQUEMENT s’il respecte AU MOINS UN de ces critères :
+- il apporte une information actionnable pour la gestion de trésorerie
+- il met en évidence un risque ou un levier non évident
+- il justifie une décision ou une action concrète
+- il apporte une valeur durable s’il est stocké en base de données
+
+Un point doit être "pertinent = false" si :
+- il est trop générique ou évident
+- il reformule simplement les données sans analyse
+- il n’apporte pas de valeur décisionnelle
+- il dépend d’informations absentes ou incertaines
+
+⚠️ Il est normal et attendu que PLUSIEURS points aient "pertinent": false. Cela ne doit pas passer par la génération de point lambda
+Si aucun point ne respecte les critères de pertinence, retourne une liste vide ou uniquement des éléments avec "pertinent": false.
+
+MODÈLE DE RÉPONSE OBLIGATOIRE
+Réponds UNIQUEMENT en JSON valide.
+Aucun texte en dehors du JSON.
+Respecte STRICTEMENT la structure suivante :
+
+{
+  "situation_generale": "string",
+  "points_positifs": [
+    { "texte": "string", "pertinent": boolean }
+  ],
+  "points_faibles": [
+    { "texte": "string", "pertinent": boolean }
+  ],
+  "opportunites": [
+    { "texte": "string", "pertinent": boolean }
+  ],
+  "recommandations": [
+    {
+      "priorite": "haute | moyenne | basse",
+      "texte": "string",
+      "pertinent": boolean
+    }
+  ],
+}`,
+ }],
+    model_params:{temperature:0.3, top_p:1, max_new_tokens:2048, stream:false},
+    model:"mistralai/ministral-3-3b"
+  }
+  let requestOptions = {
+  method:"POST",
+  headers:{
+    "Content-Type":"application/json"
+  },
+  body: JSON.stringify(jsonData)
+};
+
+const apiUrl = "http://127.0.0.1:1234/v1/chat/completions";
+fetch(apiUrl, requestOptions).then(res => res.json()).then(apiData => {
+  let theResponse = apiData.choices[0].message.content;
+  aiMessage.value.push(theResponse);
+  const botResponse = "Chatbot:" + theResponse;
+  // displayMessage(botResponse);
+}).catch((error) => {
+  console.log("Error:", error)
+})
+};
+
 </script>
   
 <style scoped>

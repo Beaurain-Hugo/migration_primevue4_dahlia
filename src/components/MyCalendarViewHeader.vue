@@ -1,45 +1,12 @@
 <template>
-  <div class="cv-header custom-calendar-header">
+  <div class="cv-header custom-calendar-header bg-white p-4 py-6 rounded-t-2xl">
     <!-- Navigation -->
-    <div class="cv-header-nav">
-      <button
-        class="previousYear"
-        :disabled="!headerProps.previousYear"
-        @click="emitDate(headerProps.previousYear)"
-      >
-        «
-      </button>
-
-      <button
-        class="previousPeriod"
-        :disabled="!headerProps.previousPeriod"
-        @click="emitDate(headerProps.previousPeriod)"
-      >
-        ‹
-      </button>
-
-      <button
-        class="nextPeriod"
-        :disabled="!headerProps.nextPeriod"
-        @click="emitDate(headerProps.nextPeriod)"
-      >
-        ›
-      </button>
-
-      <button
-        class="nextYear"
-        :disabled="!headerProps.nextYear"
-        @click="emitDate(headerProps.nextYear)"
-      >
-        »
-      </button>
-      <button
-        class="currentPeriod"
-        :disabled="!headerProps.currentPeriod"
-        @click="emitDate(headerProps.currentPeriod)"
-      >
-        {{ headerProps.currentPeriodLabel }}
-      </button>
+    <div class="cv-header-nav flex gap-2">
+      <PButton class="text-black bg-gray-200" icon="pi pi-angle-double-left" :disabled="!headerProps.previousYear" @click="emitDate(headerProps.previousYear)" />
+      <PButton class="text-black bg-gray-200" icon="pi pi-chevron-left" :disabled="!headerProps.previousPeriod" @click="emitDate(headerProps.previousPeriod)"/>
+      <PButton class="text-black bg-gray-200" icon="pi pi-chevron-right" :disabled="!headerProps.nextPeriod" @click="emitDate(headerProps.nextPeriod)" />
+      <PButton class="text-black bg-gray-200" icon="pi pi-angle-double-right" :disabled="!headerProps.nextYear" @click="emitDate(headerProps.nextYear)"/>
+      <PButton class="text-black bg-gray-200" :label="headerProps.currentPeriodLabel" :disabled="!headerProps.currentPeriod" @click="emitDate(headerProps.currentPeriod)"/>
     </div>
 
     <!-- Libellé de période -->
@@ -49,9 +16,9 @@
     </div>
 
     <!-- 🔽 EXTENSION PERSONNALISÉE -->
-    <div class="custom-actions">
-        <SelectButton v-model="value" @update:modelValue="$emit('period', value)" :options="options" />
-        <PButton @click="$emit('add-event')" label="Créer un évènement" icon="pi pi-plus" />
+    <div class="custom-actios flex gap-2">
+        <SelectButton v-model="value" @update:modelValue="$emit('period', value)" :options="options"  />
+        <PButton @click="$emit('add-event')" label="Créer un évènement" icon="pi pi-plus" :pt="{root:'text-white bg-purple-900 border-purple-900'}" />
         <!-- <select @change="$emit('filter', $event.target.value)">
             <option value="all">Tous</option>
             <option value="meeting">Réunions</option>

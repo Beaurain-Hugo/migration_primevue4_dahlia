@@ -1,29 +1,31 @@
 <template>
-    <div v-if="selectedAsso">
-        <p>Bonjour {{ selectedAsso.username }}, {{selectedAsso.role}} de {{selectedAsso.nom}}</p>
-        <p>Que souhaitez-vous accomplir aujourd'hui ?</p>
-    </div>
-    <div>
-        <Select @change="changeAsso(selectedAsso.association_id)" v-model="selectedAsso" :options="associationData" optionLabel="nom" placeholder="Sélectionnez une association" class="w-full md:w-56">
-            <template #value="slotProps">
-                <div v-if="slotProps.value" class="flex items-center">
-                    <img v-if="slotProps.value.logo" :alt="slotProps.value.label" :src="'data:image/png;base64,' + slotProps.value.logo" :class="`mr-2 flag`" style="width: 18px" />
-                    <div>{{ slotProps.value.nom }}<Chip :label="slotProps.value.role"/></div>
-                </div>
-                <span v-else>
-                    {{ slotProps.placeholder }}
-                </span>
-            </template>
-            <template #option="slotProps">
-                <div class="flex items-center">
-                    <img v-if="slotProps.option.logo" :alt="'Logo ' + slotProps.option.nom" :src="'data:image/png;base64,' + slotProps.option.logo" :class="`mr-2 flag`" style="width: 18px" />
-                    <div>{{ slotProps.option.nom }}<Chip :label="slotProps.option.role"/></div>
-                </div>
-            </template>
-            <template #header>
-                <div class="font-medium p-3">Changer d'association</div>
-            </template>
-        </Select>
+    <div class="bg-orange-50 flex justify-between p-2 rounded-xl border shadow-sm">
+        <div v-if="selectedAsso">
+            <p class="text-black text-lg">Bonjour {{ selectedAsso.username }}, {{selectedAsso.role}} de {{selectedAsso.nom}}</p>
+            <p>Que souhaitez-vous accomplir aujourd'hui ?</p>
+        </div>
+        <div>
+            <Select @change="changeAsso(selectedAsso.association_id)" v-model="selectedAsso" :options="associationData" optionLabel="nom" placeholder="Sélectionnez une association" class="w-full md:w-56">
+                <template #value="slotProps">
+                    <div v-if="slotProps.value" class="flex items-center">
+                        <img v-if="slotProps.value.logo" :alt="slotProps.value.label" :src="'data:image/png;base64,' + slotProps.value.logo" :class="`mr-2 flag`" style="width: 18px" />
+                        <div>{{ slotProps.value.nom }}<Chip :label="slotProps.value.role"/></div>
+                    </div>
+                    <span v-else>
+                        {{ slotProps.placeholder }}
+                    </span>
+                </template>
+                <template #option="slotProps">
+                    <div class="flex items-center">
+                        <img v-if="slotProps.option.logo" :alt="'Logo ' + slotProps.option.nom" :src="'data:image/png;base64,' + slotProps.option.logo" :class="`mr-2 flag`" style="width: 18px" />
+                        <div>{{ slotProps.option.nom }}<Chip :label="slotProps.option.role"/></div>
+                    </div>
+                </template>
+                <template #header>
+                    <div class="font-medium p-3">Changer d'association</div>
+                </template>
+            </Select>
+        </div>
     </div>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex" @click="onWrapperClick">
+  <div class="flex bg-orange-100 p-5 " @click="onWrapperClick">
     <DialogErreur v-model:afficherDialogErreur="afficherDialogErreur" v-model:libelleErreur="libelleErreur" />
     <Toast />
     <ConfirmPopup />
@@ -8,14 +8,14 @@
       <AppMenu :model="menu" @menuitemClick="onMenuItemClick" />
     </div> -->
 
-    <div class="layout-main-container">
+    <div class="layout-main-containr flex gap-4 w-full flex-col justify-between p-6 min-h-screen bg-white rounded-3xl">
       <div>
         <DashboardHeader v-model="assoId" />
       </div>
       <div class="layout-main" :class="{ 'flex align-items-stretch': isFallbackDisplayed }">
-        <div>
-          <h1>{{ $route.meta.title }}</h1>
-          <h2>{{ $route.meta.subtitle }}</h2>
+        <div class="bg-violet-100 p-4 rounded-2xl">
+          <h1 class="text-black">{{ $route.meta.title }}</h1>
+          <h2 class="text-xl">{{ $route.meta.subtitle }}</h2>
         </div>
         <RouterView v-slot="{ Component }">
           <div :class="{ 'flex align-items-stretch flex-1': isFallbackDisplayed }">

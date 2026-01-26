@@ -2,34 +2,49 @@
   <div>
     <ul class="adherent-card-list">
       <li class="adherent-card-list__card">
-        <Card>
-          <template #title>Total adhérents</template>
-          <template #content>{{ listeMembres.length }}</template>
-        </Card>
+        <div class="border flex p-4 rounded-xl shadow gap-2">
+          <span class="pi pi-users text-3xl p-2 rounded-full bg-blue-200 text-blue-600 inline-flex items-center justify-center"></span>
+          <div class="flex flex-col">
+            <span class="text-lg">Total adhérents</span>
+            <span class="text-xl font-bold">{{ listeMembres.length }}</span>
+          </div>
+        </div>
       </li>
       <li class="adherent-card-list__card">
-        <Card>
-          <template #title>Adhérents actifs</template>
-          <template #content>{{ ACTIVE_MEMBRES.length }}</template>
-        </Card>
+        <div class="border flex p-4 rounded-xl shadow gap-2">
+          <span class="pi pi-users text-3xl  p-2 rounded-full bg-green-200 text-green-600 inline-flex items-center justify-center"></span>
+          <div class="flex flex-col">
+            <span class="text-lg">Adhérents actifs</span>
+            <span class="text-xl font-bold">{{ ACTIVE_MEMBRES.length }}</span>
+          </div>
+        </div>
       </li>
       <li class="adherent-card-list__card">
-        <Card>
-          <template #title>Bureau</template>
-          <template #content>À faire</template>
-        </Card>
+        <div class="border flex p-4 rounded-xl shadow gap-2">
+          <span class="pi pi-crown text-3xl"></span>
+          <div class="flex flex-col">
+            <span class="text-lg">Bureau</span>
+            <span class="text-xl font-bold">À faire</span>
+          </div>
+        </div>
       </li>
       <li class="adherent-card-list__card">
-        <Card>
-          <template #title>Nouveaux ce mois</template>
-          <template #content>{{ listeMembres.filter((membre) => new Date(membre.date_adhesion) > new Date( new Date().getFullYear(), new Date().getMonth() - 1, new Date().getDate())).length }}</template>
-        </Card>
+        <div class="border flex p-4 rounded-xl shadow gap-2">
+          <span class="pi pi-calendar text-3xl  p-2 rounded-full bg-orange-200 text-orange-600 inline-flex items-center justify-center"></span>
+          <div class="flex flex-col">
+            <span class="text-lg">Nouveaux ce mois-ci</span>
+            <span class="text-xl font-bold">{{ listeMembres.filter((membre) => new Date(membre.date_adhesion) > new Date( new Date().getFullYear(), new Date().getMonth() - 1, new Date().getDate())).length }}</span>
+          </div>
+        </div>
       </li>
     </ul>
     <div style="width:70vw" class="card">
       <Toolbar class="mb-6">
         <template #start>
-          <PButton label="Nouveau membre" icon="pi pi-plus" class="mr-2" @click="openNew" />
+            <InputText v-model="filters['global'].value" placeholder="Rechercher un adhérent" />
+        </template>
+        <template #end>
+          <PButton label="Inviter des adhérents" icon="pi pi-plus" class="mr-2" @click="openNew"  :pt="{root:'bg-purple-900 border-purple-900'}"/>
           <PButton
             label="Supprimer"
             icon="pi pi-trash"
@@ -56,7 +71,7 @@
         <template #header>
           <div class="flex" style="justify-content:space-between; align-items:baseline">
             <h4 class="m-0">Gérer les bénévoles</h4>
-            <InputText v-model="filters['global'].value" placeholder="Rechercher" />
+            <!-- <InputText v-model="filters['global'].value" placeholder="Rechercher" /> -->
           </div>
         </template>
 
@@ -116,8 +131,9 @@
                   <PButton label="Tout déselectionner" variant="text" @click="selectedUsers = []" />
                 </template>
                 <template #content>
-                  <div v-for="user in selectedUsers" :key="user.id">
-                    <Chip>
+                  <div class="flex">
+                  <div v-for="user in selectedUsers" :key="user.id" >
+                    <Chip class="bg-white border">
                      <Avatar v-if="user.photo" shape="circle" :image="'data:image/png;base64,' + item.photo"  @click="toggleReglage">
                           </Avatar>
                           <Avatar shape="circle" v-else @click="toggleReglage">
@@ -129,18 +145,19 @@
                           <span class="pi pi-times-circle" @click="deleteOneUserSelected(user)"></span>
                     </Chip>
                   </div>
+                  </div>
                 </template>
               </Card>
               <IconField>
                 <InputIcon class="pi pi-search" />
-                <InputText v-model="filter" placeholder="Search" />
+                <InputText fluid v-model="filter" placeholder="Search" />
               </IconField>
-              <CheckboxGroup name="participant" v-model="selectedUsers" >
-              <VirtualScroller :items="filterUsers" :itemSize="50" class="border border-surface-200 dark:border-surface-700 rounded" style="width: 300px; height: 200px">
+              <CheckboxGroup name="participant" class="w-full" v-model="selectedUsers" >
+              <VirtualScroller :items="filterUsers" :itemSize="50" class="" style="width: 100%; height: 200px">
                   <template v-slot:item="{ item, options }">
-                    <div :class="['flex items-center p-2', { 'bg-surface-100 dark:bg-surface-700': options.odd }]" style="height: 50px">
-                        <Checkbox :inputId="item.id"  :value="item" />
-                        <label :for="item.id" style="display:flex;">
+                    <label :for="item.id" :class="['flex items-center gap-4 p-2 border mt-2 rounded-xl hover:bg-orange-200 hover:border-purple-500', { 'bg-surface-100 dark:bg-surface-700': options.odd, 'bg-purple-300 hover:border-none hover:bg-purple-300':selectedUsers.includes(item) }]" style="height: 50px">
+                        <Checkbox :inputId="item.id" :value="item" />
+                        <!-- <label :for="item.id" class="flex gap-3"> -->
                           <Avatar v-if="item.photo" size="large" shape="circle" :image="'data:image/png;base64,' + item.photo"  @click="toggleReglage">
                           </Avatar>
                           <Avatar size="large" shape="circle" v-else @click="toggleReglage">
@@ -152,13 +169,13 @@
                             <div>{{ item.prenom + " " + item.nom }}</div>
                             <div>{{ item.email }}</div>
                           </div>
-                        </label>
-                    </div>
+                        <!-- </label> -->
+                      </label>
                   </template>
                 </VirtualScroller>
               </CheckboxGroup>
                 <div v-if="selectedUsers.length != 0" class="flex pt-6 justify-end">
-                    <PButton label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(2)" />
+                    <PButton label="Continuer" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(2)" />
                 </div>
             </StepPanel>
             <StepPanel v-slot="{ activateCallback }" :value="2">
@@ -168,7 +185,8 @@
                   </div>
                   <Card v-for="user in selectedUsers" :key="user.id">
                     <template #header>
-                      <div>
+                      <div class="flex p-2 items-center justify-between">
+                        <div class="flex items-center gap-2">
                         <Avatar v-if="user.photo" size="large" shape="circle" :image="'data:image/png;base64,' + user.photo"  @click="toggleReglage" />                        <Avatar size="large" shape="circle" v-else @click="toggleReglage">
                           <div>{{ user.prenom?.charAt(0).toUpperCase() + '' + user.nom?.charAt(0).toUpperCase() }}</div>
                         </Avatar>
@@ -176,11 +194,13 @@
                           <div>{{ user.prenom + " " + user.nom }}</div>
                           <div>{{ user.email }}</div>
                         </div>
+                        </div>
+                        <span class="pi pi-times" @click="deleteOneUserSelected(user)"></span>
+
                       </div>
-                      <span class="pi pi-times" @click="deleteOneUserSelected(user)"></span>
                     </template>
                     <template #content>
-                      <div>
+                      <div class="flex flex-col gap-3">
                         <span>Rôle</span>
                         <SelectButton v-model="user.role" defaultValue="adherent" :options="statuses" optionLabel="label" optionValue="value" dataKey="value" aria-labelledby="custom">
                           <template #option="slotProps">
@@ -188,19 +208,22 @@
                             <span>{{slotProps.option.label}}</span>
                           </template>
                         </SelectButton>
+                        <div>
                         <label :for="'date'+user.id">Date d'adhésion</label>
-                        <DatePicker showIcon :inputId="'date'+user.id" v-model="user.date_adhesion" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
+                        <DatePicker fluid showIcon :inputId="'date'+user.id" v-model="user.date_adhesion" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
+                        </div>
+                        <div class="flex gap-2 items-center">
                         <span>L'utilisateur est-il actif dans l'association ?</span>
                         <ToggleButton v-model="user.est_actif" onLabel="Actif" offLabel="Inactif" />
+                        </div>
                       </div>
                     </template>
                   </Card>
                 </div>
                 <div class="flex pt-6 justify-between">
-                    <PButton label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(1)" />
-                    <PButton :label="`Envoyer ${selectedUsers.length} invitations`" icon="pi pi-send" @click="saveProduct()" />
+                    <PButton label="Revenir en arrière" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(1)" />
+                    <PButton :label="`Envoyer ${selectedUsers.length} invitations`" icon="pi pi-send" @click="saveProduct()" :pt="{root:'bg-purple-900 border-purple-900'}" />
                 </div>
-                {{selectedUsers}}
             </StepPanel>
         </StepPanels>
       </Stepper>

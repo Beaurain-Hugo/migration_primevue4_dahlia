@@ -1,41 +1,21 @@
 <template>
-  <nav class="sidebar">
-    <ul class="sidebar__list">
+  <nav class="h-[95vh] sticky z-50 top-5 bg-white/50 p-3 rounded-3xl">
+    <ul class="flex h-full justify-between flex-col">
     <!-- <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle">
       <em :class="iconeBouton"></em>
     </button> -->
-    <li class="sidebar__list-item">
-    <router-link to="/" class="layout-topbar-logo">
-      <img class="logo-image" alt="Logo Aide Asso" src="@/assets/images/Logo_aide_asso.png" />
-    </router-link>
-    </li>
-    <li class="sidebar__list-item"><router-link to="/tableau-de-bord"><img src="" alt="" /><span>Tableau de bord</span></router-link></li>
-    <li class="sidebar__list-item"><router-link :to="`/asso-detail/${props.idAsso}`"><img src="" alt="" /><span>Informations importantes</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Création association</span></router-link></li>
-    <li class="sidebar__list-item"><router-link :to="`/asso-reunion/${props.idAsso}`"><img src="" alt="" /><span>Réunions</span></router-link></li>
-    <li class="sidebar__list-item"><router-link :to="`/asso-planning/${props.idAsso}`"><img src="" alt="" /><span>Planning</span></router-link></li>
-    <li class="sidebar__list-item"><router-link :to="`/asso-actions/${props.idAsso}`"><img src="" alt="" /><span>Tâches à effectuer</span></router-link></li>
-    <li class="sidebar__list-item"><router-link :to="`/asso-benevoles/${props.idAsso}`"><img src="" alt="" /><span>Adhérents</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to=""><img src="" alt="" /><span>Suivi administratif</span></router-link></li>
-    <li class="sidebar__list-item"><router-link :to="`/tresorerie-detail/${props.idAsso}`"><img src="" alt="" /><span>Trésorerie</span></router-link></li>
-    <li class="sidebar__list-item"><router-link to="/mon-profil"><img src="" alt="" /><span>Profil</span></router-link></li>
-    <li class="sidebar__list-item">
-    <button
-      class="p-link layout-topbar-menu-button layout-topbar-button"
-      v-styleclass="{
-        selector: '@next',
-        enterClass: 'hidden',
-        enterActiveClass: 'scalein',
-        leaveToClass: 'hidden',
-        leaveActiveClass: 'fadeout',
-        hideOnOutsideClick: true,
-      }"
-    >
-      <em class="pi pi-ellipsis-v"></em>
-    </button>
-    </li>
-    <li class="sidebar__list-item">
-      <!-- Content for logged-in user -->
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" to="/tableau-de-bord"><span style="" class="pi text-2xl pi-info-circle"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white hidden px-4 py-2 w-max">Tableau de bord</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-detail/${props.idAsso}`"><span style="" class="pi text-2xl pi-info-circle"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Informations importantes</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" to=""><span style="" class="pi text-2xl pi-file"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white z-50 w-max px-4 py-2 hidden">Création association</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-reunion/${props.idAsso}`"><span style="" class="pi text-2xl pi-users"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Réunions</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-planning/${props.idAsso}`"><span style="" class="pi text-2xl pi-calendar"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Planning</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-actions/${props.idAsso}`"><span style="" class="pi text-2xl pi-list"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Tâches à effectuer</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-benevoles/${props.idAsso}`"><span style="" class="pi text-2xl pi-user-plus"></span><span class="hidden group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Adhérents</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" to=""><span style="" class="pi text-2xl pi-file-pdf"></span><span class="hidden group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 ">Suivi administratif</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/tresorerie-detail/${props.idAsso}`"><span style="" class="pi text-2xl pi-euro"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Trésorerie</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" to="/mon-profil"><span style="" class="pi text-2xl pi-user"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Profil</span></router-link></li>
+    <!-- <li class="sidebar__list-item group">
+      Content for logged-in user
       <div class="p-link layout-topbar-button">
         <router-link :to="user ? '' : '/login'" class="layout-topbar-logo">
           <Avatar v-if="photo" size="large" shape="circle" :image="'data:image/png;base64,' + photo"  @click="toggleReglage">
@@ -59,7 +39,7 @@
               <Badge v-if="user.email" :value="user.email" class="mr-2" style="color: #fff" />
             </div>
           </div>
-          <!-- User Settings -->
+          User Settings
           <div class="mb-2">
             <div style="display: flex; justify-content: space-between; width: 100%">
               <div class="mb-3">
@@ -102,11 +82,11 @@
           </div>
         </div>
       </OverlayPanel>
-    </li>
-    <li class="sidebar__list-item">
-      <button v-if="user" class="p-link layout-topbar-button" @click="confirmerDeconnexion($event)">
-        <em class="fas fa-sign-out"></em>
-        <span>Se déconnecter</span>
+    </li> -->
+    <li class="sidebar__list-item group">
+      <button v-if="user" class="p-linklayout-topbar-button flex p-3 relative group-hover:bg-white/75 text-black" @click="confirmerDeconnexion($event)">
+        <span class="pi pi-sign-out"></span>
+        <span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Se déconnecter</span>
       </button>
       <ConfirmPopup></ConfirmPopup>
     </li>

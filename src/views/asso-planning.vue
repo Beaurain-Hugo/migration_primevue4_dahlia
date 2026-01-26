@@ -1,112 +1,5 @@
 <template>
-	<div id="example-full">
-		<!-- <div class="calendar-controls">
-			<div v-if="state.message" class="notification is-success">{{ state.message }}</div>
-
-			<div class="box">
-				<h4 class="title is-5">Play with the options!</h4>
-
-				<div class="field">
-					<label class="label">Period UOM</label>
-					<div class="control">
-						<div class="select">
-							<select v-model="state.displayPeriodUom">
-								<option>month</option>
-								<option>week</option>
-								<option>year</option>
-							</select>
-						</div>
-					</div>
-				</div>
-
-				<div class="field">
-					<label class="label">Period Count</label>
-					<div class="control">
-						<div class="select">
-							<select v-model="state.displayPeriodCount">
-								<option :value="1">1</option>
-								<option :value="2">2</option>
-								<option :value="3">3</option>
-							</select>
-						</div>
-					</div>
-				</div>
-
-				<div class="field">
-					<label class="label">Starting day of the week</label>
-					<div class="control">
-						<div class="select">
-							<select v-model="state.startingDayOfWeek">
-								<option v-for="(d, index) in dayNames" :key="index" :value="index">
-									{{ d }}
-								</option>
-							</select>
-						</div>
-					</div>
-				</div>
-
-				<div class="field">
-					<label class="checkbox">
-						<input v-model="state.useTodayIcons" type="checkbox" />
-						Use icon for today's period
-					</label>
-				</div>
-
-				<div class="field">
-					<label class="checkbox">
-						<input v-model="state.displayWeekNumbers" type="checkbox" />
-						Show week number
-					</label>
-				</div>
-
-				<div class="field">
-					<label class="checkbox">
-						<input v-model="state.showTimes" type="checkbox" />
-						Show times
-					</label>
-				</div>
-
-				<div class="field">
-					<label class="label">Themes</label>
-					<label class="checkbox">
-						<input v-model="state.useDefaultTheme" type="checkbox" />
-						Default
-					</label>
-				</div>
-
-				<div class="field">
-					<label class="checkbox">
-						<input v-model="state.useHolidayTheme" type="checkbox" />
-						Holidays
-					</label>
-				</div>
-			</div>
-
-			<div class="box">
-				<div class="field">
-					<label class="label">Title</label>
-					<div class="control">
-						<input v-model="state.newItemTitle" class="input" type="text" />
-					</div>
-				</div>
-
-				<div class="field">
-					<label class="label">Start date</label>
-					<div class="control">
-						<input v-model="state.newItemStartDate" class="input" type="date" />
-					</div>
-				</div>
-
-				<div class="field">
-					<label class="label">End date</label>
-					<div class="control">
-						<input v-model="state.newItemEndDate" class="input" type="date" />
-					</div>
-				</div>
-
-				<button class="button is-info" @click="clickTestAddItem">Add Item</button>
-			</div>
-		</div> -->
+	<div id="example-full" class="flex gap-2 mt-2">
 		<div class="calendar-parent">
 			<CalendarView
 				:items="state.items"
@@ -135,12 +28,6 @@
 				@click-item="onClickItem"
 			>
 				<template #header="{ headerProps }">
-					  <!-- <MyCalendarViewHeader
-       					 :header-props="headerProps"
-       					 @input="setShowDate = $event"
-     				 	  @add-event="openCreateModal"
-       					 @filter="applyFilter"
-      					/> -->
 						 <MyCalendarViewHeader
       						:header-props="headerProps"
      				 		@input="setShowDate"
@@ -148,30 +35,31 @@
       						@filter="applyFilter"
 							@period="changePeriod"
     					/>
-						<!-- <CalendarViewHeader :header-props="headerProps" @input="setShowDate"/> -->
 				</template>
 			</CalendarView>
 		</div>
 		<div>
-			<Card>
+			<Card class="p-4">
 				<template #header>
 					<span class="pi pi-clock"></span>
-					<span>Prochains évènements : {{ comingEvents.length }} à venir</span>
+					<span class="text-xl">Prochains évènements : {{ comingEvents.length }} à venir</span>
 				</template>
 				<template #content>
 					<div v-if="comingEvents && comingEvents.length == 0">
 						<span class="pi pi-clock"></span>
 						<span>Aucun évènement à venir</span>
 					</div>
-					<div v-else>
-						<div v-for="event in comingEvents" :key="event.id">
-							<Card>
+					<div v-else class="flex flex-col gap-4 ">
+							<Card  v-for="event in comingEvents" :key="event.id">
 								<template #header>
-									<span>{{ event.title }}</span>
-									<Chip :label="event.startDate.toLocaleDateString()" />
+									<div class="flex p-2 justify-between items-baseline">
+										<span class="text-black">{{ event.title }}</span>
+										<Tag class="bg-transparent border !text-black" :value="event.startDate.toLocaleDateString()" />
+									</div>
 								</template>
 								<template #content>
-									<div>
+									<div class="flex flex-col gap-2">
+									<div class="flex">
 										<span class="pi pi-clock"></span>
 										<span>{{ formatDate(event.startDate) }} - {{ formatDate(event.endDate) }}</span>
 									</div>
@@ -179,9 +67,12 @@
 										<span class="pi pi-map-marker"></span>
 										<span>{{ event.lieu}}</span>
 									</div>
+									<div>
+										<span>{{ event.description}}</span>
+									</div>
+									</div>
 								</template>
 							</Card>
-						</div>
 					</div>
 				</template>
 			</Card>
@@ -190,44 +81,65 @@
 	<PDialog modal header="Créer un évènement" v-model:visible="VISIBLE">
 		<template #header>
 			<h5>Créer un évènement</h5>
-			<span>Organisez une réunion ou un évènement avec vos membres.</span>
 		</template>
-		<div>
-			<label for="title">Titre de l'évènement</label>
-            <InputText id="title" v-model="titre" placeholder="Réunion du CA" />
-			<label for="description">Description</label>
-			<PTextarea id="description" v-model="description" rows="5" cols="30" placeholder="Objectifs / Notes"/>
- 			<label for="dateD">Date {{ multiDay ? 'de début' : '' }}</label>
-            <DatePicker showIcon inputId="dateD" v-model="date_debut" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
-            {{ date_debut }}
-			<label for="hourD">Heure de début</label>
-			<DatePicker timeOnly showIcon inputId="hourD" v-model="hour_debut" placeholder="Heure de début" />
-			{{ hour_debut }}
-			<label for="multiDay">Votre évènement dure plusieurs jours ?</label>
-			<Checkbox inputId="multiDay" v-model="multiDay" binary @update:modelValue="val => { if (!val) date_fin = '' }"/>
+		<div class="flex flex-col gap-2">
+			<span>Organisez une réunion ou un évènement avec vos membres.</span>
+			<div>
+				<label for="title">Titre de l'évènement</label>
+            	<InputText fluid id="title" v-model="titre" placeholder="Réunion du CA" />
+			</div>
+			<div>
+				<label for="description">Description</label>
+				<PTextarea fluid id="description" v-model="description" rows="5" cols="30" placeholder="Objectifs / Notes"/>
+			</div>
+			<div class="flex gap-4">
+				<div class="flex flex-col">
+ 					<label for="dateD">Date {{ multiDay ? 'de début' : '' }}</label>
+	            	<DatePicker showIcon inputId="dateD" v-model="date_debut" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
+				</div>
+				<div class="flex flex-col">
+					<label for="hourD">Heure de début</label>
+					<DatePicker timeOnly showIcon inputId="hourD" v-model="hour_debut" placeholder="Heure de début" />
+				</div>
+				
+			</div>
+			<div class="flex gap-2">
+					<label for="multiDay">Votre évènement dure plusieurs jours ?</label>
+					<Checkbox :disabled="!date_debut" inputId="multiDay" v-model="multiDay" binary @update:modelValue="val => { if (!val) date_fin = '' }"/>
+				</div>
 			<div v-if="multiDay">
-			<label for="dateF">Date de fin</label>
-            <DatePicker showIcon :minDate="minDateFin" inputId="dateF" v-model="date_fin" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
-            {{ date_fin }}
-			<label for="hour">Heure de fin</label>
-			<DatePicker timeOnly showIcon inputId="hour" v-model="hour_fin" placeholder="Heure de fin" />
-			{{ hour_fin }}
+				<div class="flex gap-4">
+				<div class="flex flex-col">
+ 					<label for="dateF">Date de fin</label>
+            		<DatePicker showIcon :minDate="minDateFin" inputId="dateF" v-model="date_fin" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
+				</div>
+				<div class="flex flex-col">
+					<label for="hour">Heure de fin</label>
+					<DatePicker timeOnly showIcon inputId="hour" v-model="hour_fin" placeholder="Heure de fin" />
+				</div>			
+			</div>
 			</div>
 			<Select v-if="!multiDay" v-model="selectedDuree" :options="duree" optionLabel="name" optionValue="code" placeholder="Sélectionner une durée" class="w-full md:w-56" />
 			<Select v-model="selectedType" :options="type" optionLabel="name" optionValue="code" placeholder="Sélectionner un type d'évènement" class="w-full md:w-56" />
 			<label for="lieu">Lieu</label>
             <InputText v-model="lieu" id="lieu" placeholder="Adresse du lieu" />
-			<CheckboxGroup name="participant" v-model="selectedPart" >
-            	<div v-for="membre of membres" :key="membre.id" class="flex align-items-center">
-                	<Checkbox :inputId="membre.user_id.toString()"  :value="{user_id:membre.user_id}" />
-                    <label :for="membre.user_id.toString()">{{ membre.username }}</label>
-                </div>
-            </CheckboxGroup>
-			{{ selectedPart }}
+			    <CheckboxGroup class="flex flex-col gap-2" name="participant" v-model="selectedPart" >
+                    <span>Participants</span>
+                    <VirtualScroller :items="membres" :itemSize="30" style="width: 300px; height: 200px">
+                        <template v-slot:item="{ item, options }">
+                            <div :class="['flex items-center p-2', { 'bg-surface-100 dark:bg-surface-700': options.odd }]" style="height: 30px">
+                                <div class="flex align-items-center gap-1">
+                                    <Checkbox :inputId="item.id"  :value="{ code: item.user_id, name: item.username }" />
+                                    <label :for="item.id">{{ item.username }}</label>
+                                </div>
+                            </div>
+                        </template>
+                    </VirtualScroller>
+                </CheckboxGroup>
 		</div>
 		<template #footer>
-			<PButton v-if="editEvent" label="Supprimer" @click="deleteEvent(id)"/>
-			<PButton :label="editEvent ? 'Enregistrer' : 'Ajouter'" @click="addEvent"/>
+			<PButton v-if="editEvent" severity='danger' label="Supprimer" @click="deleteEvent(id)"/>
+			<PButton :label="editEvent ? 'Enregistrer' : 'Inviter et Ajouter'" :pt="{root:'text-white bg-purple-900 border-purple-900'}" @click="addEvent"/>
 			</template>
 	</PDialog>
 </template>
@@ -238,9 +150,9 @@
 	display: flex;
 	flex-direction: row;
 	font-family: Calibri, sans-serif;
-	width: 96vw;
-	min-width: 30rem;
-	max-width: 100rem;
+	/* width: 96vw; */
+	/* min-width: 30rem;
+	max-width: 100rem; */
 	min-height: 40rem;
 	margin-left: auto;
 	margin-right: auto;
@@ -390,80 +302,7 @@ const state = reactive({
 	useDefaultTheme: true,
 	useHolidayTheme: true,
 	useTodayIcons: false,
-	items: [
-		// /*{
-		// 	id: "e0",
-		// 	startDate: "2018-01-05",
-		// },*/
-		// {
-		// 	id: "e1",
-		// 	startDate: thisMonth(15, 18, 30),
-		// },
-		// {
-		// 	id: "e2",
-		// 	startDate: thisMonth(15),
-		// 	title: "Single-day item with a long title",
-		// },
-		// {
-		// 	id: "e3",
-		// 	startDate: thisMonth(7, 9, 25),
-		// 	endDate: thisMonth(10, 16, 30),
-		// 	title: "Multi-day item with a long title and times",
-		// },
-		// {
-		// 	id: "e4",
-		// 	startDate: thisMonth(20),
-		// 	title: "My Birthday!",
-		// 	classes: "birthday",
-		// 	url: "https://en.wikipedia.org/wiki/Birthday",
-		// },
-		// {
-		// 	id: "e5",
-		// 	startDate: thisMonth(5),
-		// 	endDate: thisMonth(12),
-		// 	title: "Multi-day item",
-		// 	classes: "purple",
-		// 	tooltip: "This spans multiple days",
-		// },
-		// {
-		// 	id: "foo",
-		// 	startDate: thisMonth(29),
-		// 	title: "Same day 1",
-		// },
-		// {
-		// 	id: "e6",
-		// 	startDate: thisMonth(29),
-		// 	title: "Same day 2",
-		// 	classes: "orange",
-		// },
-		// {
-		// 	id: "e7",
-		// 	startDate: thisMonth(29),
-		// 	title: "Same day 3",
-		// },
-		// {
-		// 	id: "e8",
-		// 	startDate: thisMonth(29),
-		// 	title: "Same day 4",
-		// 	classes: "orange",
-		// },
-		// {
-		// 	id: "e9",
-		// 	startDate: thisMonth(29),
-		// 	title: "Same day 5",
-		// },
-		// {
-		// 	id: "e10",
-		// 	startDate: thisMonth(29),
-		// 	title: "Same day 6",
-		// 	classes: "orange",
-		// },
-		// {
-		// 	id: "e11",
-		// 	startDate: thisMonth(29),
-		// 	title: "Same day 7",
-		// },
-	],
+	items: [],
 } as IExampleState)
 
 const comingEvents = computed(() => {

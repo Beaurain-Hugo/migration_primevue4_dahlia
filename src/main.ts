@@ -62,6 +62,8 @@ import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import VirtualScroller from 'primevue/virtualscroller';
 import Slider from 'primevue/slider';
+import Divider from 'primevue/divider';
+import FloatLabel from 'primevue/floatlabel';
 
 import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
@@ -87,6 +89,7 @@ app.use(ToastService);
 app.use(router);
 
 // Enregistrements globaux
+app.component('FloatLabel', FloatLabel);
 app.component('Slider', Slider);
 app.component('PButton', Button);
 app.component('Card', Card);
@@ -94,6 +97,7 @@ app.component('Chart', Chart);
 app.component('Avatar', Avatar);
 app.component('Badge', Badge);
 app.component('PDialog', Dialog);
+app.component('Divider', Divider);
 app.component('Toast', Toast);
 app.component('InputText', InputText);
 app.component('InputNumber', InputNumber);
