@@ -1,14 +1,12 @@
 <template>
-  <div class="flex bg-orange-100 p-5 " @click="onWrapperClick">
-    <DialogErreur v-model:afficherDialogErreur="afficherDialogErreur" v-model:libelleErreur="libelleErreur" />
-    <Toast />
-    <ConfirmPopup />
+  <div class="flex bg-orange-100 p-5 gap-4 " @click="onWrapperClick">
+    
     <AppSideBar :idAsso="assoId" :staticMenuInactive="staticMenuInactive" :mobileMenuActive="mobileMenuActive" @menuToggle.prevent="onMenuToggle" />
     <!-- <div class="layout-sidebar" @click="onSidebarClick">
       <AppMenu :model="menu" @menuitemClick="onMenuItemClick" />
     </div> -->
 
-    <div class="layout-main-containr flex gap-4 w-full flex-col justify-between p-6 min-h-screen bg-white rounded-3xl">
+    <div class="layout-main-containr shadow-lg flex gap-4 w-full flex-col justify-between p-6 min-h-screen bg-white rounded-3xl">
       <div>
         <DashboardHeader v-model="assoId" />
       </div>
@@ -31,7 +29,9 @@
       </div>
       <AppFooter />
     </div>
-
+<DialogErreur v-model:afficherDialogErreur="afficherDialogErreur" v-model:libelleErreur="libelleErreur" />
+    <Toast />
+    <ConfirmPopup />
     <transition name="layout-mask">
       <div class="layout-mask p-component-overlay" v-if="mobileMenuActive"></div>
     </transition>

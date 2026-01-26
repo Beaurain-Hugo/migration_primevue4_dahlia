@@ -1,5 +1,5 @@
 <template>
-  <nav class="h-[95vh] sticky z-50 top-5 bg-white/50 p-3 rounded-3xl">
+  <nav class="h-[95vh] sticky z-50 top-5 bg-white/50 shadow-lg p-3 rounded-3xl">
     <ul class="flex h-full justify-between flex-col">
     <!-- <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle">
       <em :class="iconeBouton"></em>
