@@ -18,7 +18,8 @@ const AssoReu = defineAsyncComponent(() => import('@/views/asso-reunions.vue'));
 const AssoPlanning = defineAsyncComponent(() => import('@/views/asso-planning.vue'));
 const Profil = defineAsyncComponent(() => import('@/views/profil.vue'));
 const AssoActions = defineAsyncComponent(() => import('@/views/asso-actions.vue'));
-
+const AssoAdministration = defineAsyncComponent(() => import('@/views/asso-administratif.vue'));
+const AssoInfo = defineAsyncComponent(() => import('@/views/asso-informations.vue'));
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -97,6 +98,26 @@ const router = createRouter({
           },
         },
         {
+          path: '/asso-administration/:id',
+          name: 'asso-administration',
+          component: AssoAdministration,
+          meta: { 
+            requiresAuth: true,
+            title: "Suivi administratif",
+            subtitle:"Gardez le contrôle sur toutes vos obligations administratives"
+          },
+        },
+        {
+          path: '/asso-info/:id',
+          name: 'asso-info',
+          component: AssoInfo,
+          meta: { 
+            requiresAuth: true,
+            title: "Informations importantes",
+            subtitle:"Annonces et informations internes"
+          },
+        },
+        {
           path: '/mon-profil/',
           name: 'profil',
           component: Profil,
@@ -132,7 +153,7 @@ const router = createRouter({
 });
 
 export function isAuthenticated() {
-  return !!sessionStorage.getItem('jwt'); // Vérifie si un token JWT est stocké
+  return !!localStorage.getItem('jwt'); // Vérifie si un token JWT est stocké
 }
 
 router.beforeEach(async (to, from, next) => {

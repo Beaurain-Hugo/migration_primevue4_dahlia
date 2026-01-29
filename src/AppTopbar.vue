@@ -1,16 +1,13 @@
 <template>
-  <div class="layout-topbar">
+  <div class="bg-white w-11/12 absolute shadow-xl flex justify-between mt-3 rounded-xl left-1/2 -translate-x-1/2">
     <!-- <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle">
       <em :class="iconeBouton"></em>
     </button> -->
     <router-link to="/" class="layout-topbar-logo">
-      <img class="logo-image" alt="Logo Aide Asso" src="@/assets/images/Logo_aide_asso.png" />
+      <img class="text-black w-4/5" alt="Logo Aide Asso" src="/Logo-Dahlia.svg" />
     </router-link>
 
-    <div class="flex justify-content-center" v-if="!isHomePage">
-      <Breadcrumb :home="home" :model="fileAriane" />
-    </div>
-    <div class="flex justify-center ml-8">
+    <!-- <div class="flex justify-center ml-8">
       <AutoComplete v-model="associationSelected" optionLabel="nom" placeholder="Chercher une association ..."
         :suggestions="associationFiltred" @complete="search">
         <template #option="slotProps">
@@ -18,7 +15,7 @@
             <div class="flex items-center space-x-2">
               <img v-if="slotProps.option.logo" :src="'data:image/png;base64,' + slotProps.option.logo"
                 :alt="slotProps.option.nom" style="width: 15px;" class="mr-3" />
-              <div class="text-lg font-medium">{{ slotProps.option.nom }}</div> <!-- Texte plus grand -->
+              <div class="text-lg font-medium">{{ slotProps.option.nom }}</div> <!-- Texte plus grand 
             </div>
           </router-link>
 
@@ -28,8 +25,8 @@
           <div class="font-medium px-3 py-2">Associations disponible</div>
         </template>
       </AutoComplete>
-    </div>
-    <button
+    </div> -->
+    <!-- <button
       class="p-link layout-topbar-menu-button layout-topbar-button"
       v-styleclass="{
         selector: '@next',
@@ -41,8 +38,8 @@
       }"
     >
       <em class="pi pi-ellipsis-v"></em>
-    </button>
-    <ul class="layout-topbar-menu hidden lg:flex origin-top">
+    </button> -->
+    <ul class="m-auto flex gap-5">
       <!-- <li>
         <div class="layout-topbar-button" :class="{ 'w-6rem border-radius-2rem': windowInnerWidth >= 992 }">
           <em class="fas fa-moon" :class="{ 'mr-2': windowInnerWidth >= 992 }"></em>
@@ -66,83 +63,77 @@
       <li>
         <div>Nous contacter</div>
       </li>
-      <li>
-        <!-- Content for logged-in user -->
-        <div class="p-link layout-topbar-button">
-          <router-link :to="user ? '' : '/login'" class="layout-topbar-logo">
-            <Avatar v-if="photo" size="large" shape="circle" :image="'data:image/png;base64,' + photo"  @click="toggleReglage">
-            </Avatar>
-            <Avatar size="large" shape="circle" v-else-if="user" @click="toggleReglage">
-              <div>
-                {{ user.prenom?.charAt(0).toUpperCase() + '' + user.nom?.charAt(0).toUpperCase() }}
-              </div>
-            </Avatar>
-            <Avatar size="large" shape="circle" v-else @click="toggleReglage">
-              <div><em class="fas fa-user"></em></div>
-            </Avatar>
-            <span class="ml-3">Profil</span>
-          </router-link>
-        </div>
-        <OverlayPanel ref="userR">
-          <div class="flex flex-column gap-3 w-28rem" v-if="user">
-            <div class="mb-4" style="display: flex; justify-content: space-between; align-items: center; text-align: center">
-              <span class="font-medium text-900 block">Réglages</span>
-              <div>
-                <Badge v-if="user.email" :value="user.email" class="mr-2" style="color: #fff" />
-              </div>
-            </div>
-            <!-- User Settings -->
-            <div class="mb-2">
-              <div style="display: flex; justify-content: space-between; width: 100%">
-                <div class="mb-3">
-                  <label for="firstname" class="block mb-1">Prénom</label>
-                  <inputText id="firstname" v-model="user.prenom" type="text" />
-                </div>
-                <div class="mb-3 ml-2">
-                  <label for="lastname" class="block mb-1">Nom</label>
-                  <inputText id="lastname" v-model="user.nom" type="text" />
-                </div>
-              </div>
-              <div class="mb-3">
-                <label for="email" class="block mb-1">Email</label>
-                <inputText id="email" v-model="user.email" type="email" class="w-full" />
-              </div>
-              <div class="mb-3">
-                <label for="password" class="block mb-1">Mot de passe</label>
-                <Password v-model="password" id="password" toggleMask />
-              </div>
-              <div class="mb-3">
-                <label for="photo" class="block mb-1">Photo de profil</label>
-                <img
-                  v-if="photo"
-                  :src="'data:image/png;base64,' + photo"
-                  alt="Tournament Image"
-                  :style="{ width: '50%', height: 'auto' }"
-                />
-                <FileUpload
-                  :v-model="'data:image/png;base64,' + user.photo"
-                  :multiple="false"
-                  accept="image/*"
-                  :maxFileSize="1000000"
-                  @select="onSelectedFile($event)"
-                />
-              </div>
-            </div>
-            <div class="mb-3" style="display: flex; justify-content: flex-end">
-              <PButton label="Annuler" icon="pi pi-times" class="p-button-text" @click="toggleReglage" />
-              <PButton label="Modifier" icon="pi pi-plus" @click="modifUser()" />
-            </div>
-          </div>
-        </OverlayPanel>
-      </li>
-      <li>
-        <button v-if="user" class="p-link layout-topbar-button" @click="confirmerDeconnexion($event)">
-          <em class="fas fa-sign-out"></em>
-          <span>Se déconnecter</span>
-        </button>
-        <ConfirmPopup></ConfirmPopup>
-      </li>
+     
     </ul>
+    <ul class="flex m-auto">
+     <li>
+        <!-- Content for logged-in user -->
+         <PButton variant="text" :pt="{root:'hover:!text-main !text-black'}" @click="connectDialog= true" label="Se connecter"/>
+      
+      </li>
+    <li>  <PButton :pt="{root:'border-none !bg-main'}" @click="signupDialog = true" label="S'inscrire"/>
+</li>
+      </ul>
+    <PDialog v-model:visible="signupDialog" header="Créer un compte" modal>
+      <template #header>
+        <span class="text-transparent bg-gradient-to-r from-main to-second bg-clip-text m-auto text-3xl font-bold">Créer un compte</span>
+      </template>
+       <div class="flex flex-col gap-4">
+        <div class="flex flex-col p-4 border-2 bg-gradient-to-r from-[#FFEDE2] to-purple-50 rounded-xl border-[#FC82A4]/20">
+            <div class="text-main">
+              <span class="pi pi-user border-2 rounded-full p-1 border-main"></span>
+              <span class="font-bold"> Rejoignez Dahlia</span>
+            </div>
+            <span>Après votre inscription, vous pourrez rejoindre une association existante ou créer la vôtre.</span>
+        </div>
+        <div class="flex gap-2">
+          <div class="w-1/2">
+            <label for="lastname">Nom</label>
+            <InputText :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid id="lastname" v-model="nom" placeholder="Dupont" />
+          </div>
+           <div class="w-1/2">
+            <label for="firstname">Prénom</label>
+            <InputText id="firstname" :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid v-model="prenom" placeholder="Dupont" />
+          </div>
+        </div>
+         <div>
+            <label for="email">Email</label>
+            <InputText id="email" :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid v-model="mail" placeholder="Dupont" />
+          </div>
+          <div>
+            <label for="password">Mot de passe</label>
+            <Password inputId="password" :pt="{pcInputText:{root:'!bg-[#F0F0F0] !shadow'}}" fluid v-model="password" />
+          </div>
+          <div>
+            <label for="password_confirm">Confirmez votre mot de passe</label>
+            <Password inputId="password_confirm" :pt="{pcInputText:{root:'!bg-[#F0F0F0] !shadow'}}" fluid v-model="password_confirmation" />
+          </div>
+      <PButton fluid :pt="{root:'shadow-lg border-none !bg-gradient-to-r from-main to-second'}" label="Créer mon compte" @click="signup" />
+      <div class="flex flex-col">  
+        <span class="text-center">En vous inscrivant, vous acceptez nos conditions d'utilisation</span>
+        <span class="text-center text-main">Déja inscrit ? <PButton class="!text-main p-0 underline" label="Connectez-vous" link @click="signupDialog = false; connectDialog = true" /></span>
+      </div>
+  </div>
+    </PDialog>
+    <PDialog v-model:visible="connectDialog" header="Se connecter" modal>
+       <template #header>
+        <span class="text-transparent bg-gradient-to-r from-main to-second bg-clip-text m-auto text-3xl font-bold">Se connecter</span>
+      </template>
+       <div class="flex flex-col gap-4">
+         <div>
+            <label for="email">Email</label>
+            <InputText id="email" :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid v-model="mail" placeholder="Dupont" />
+          </div>
+          <div>
+            <label for="password">Mot de passe</label>
+            <Password inputId="password" :pt="{pcInputText:{root:'!bg-[#F0F0F0] !shadow'}}" fluid v-model="password" />
+          </div>
+      <PButton fluid :pt="{root:'shadow-lg border-none !bg-gradient-to-r from-main to-second'}" label="Se connecter" @click="login" />
+      <div class="flex flex-col">  
+        <span class="text-center text-main">Pas encore de compte ? <PButton class="!text-main p-0 underline" label="Inscrivez-vous" link @click="connectDialog=false; signupDialog = true;" /></span>
+      </div>
+  </div>
+    </PDialog>
     <Toast />
   </div>
 </template>
@@ -150,10 +141,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import EventBus from '@/AppEventBus';
-import { useUserService } from '@/composables/user/UserService';
+// import { useUserService } from '@/composables/user/UserService';
+import { useUserService } from '@/composable/user/UserService'; // Assurez-vous d'importer correctement votre service utilisateur
 import UserModel from './models/UserModel';
-import { useRoute } from 'vue-router';
-import router from '@/router';
+import { useRoute, useRouter } from 'vue-router';
 import { MenuItem } from 'primevue/menuitem';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
@@ -164,6 +155,9 @@ const confirm = useConfirm();
 const associationService = useAssoService();
 const toast = useToast();
 const route = useRoute();
+const router = useRouter();
+const signupDialog = ref(false)
+const connectDialog = ref(false)
 const userService = useUserService();
 const user = ref<UserModel | null>(null);
 const photo = ref();
@@ -172,6 +166,11 @@ const jwt = ref(false);
 const op = ref();
 const userR = ref();
 const password = ref('');
+const nom = ref('');
+const prenom = ref('');
+const mail = ref('');
+const password_confirmation = ref('');
+const isActive = ref(true);
 const associationListe = ref<Association[]>([]);
 const associationSelected = ref<Association>();
 const associationFiltred = ref<Association[]>([]);
@@ -188,6 +187,58 @@ const search = (event) => {
       });
     }
   }, 250);
+}
+
+function addEmail(suffix: string) {
+  mail.value += suffix;
+}
+
+function onSelectedFile(event: any) {
+  const file = event.files[0];
+
+  const reader = new FileReader();
+
+  reader.onloadend = function () {
+    // Convertir le Blob en une chaîne de caractères
+    const base64String = reader?.result as string | null;
+
+    if (base64String) {
+      const [, data] = base64String.split(',');
+      // Enregistrer la chaîne de caractères dans votre objet ou l'envoyer au serveur
+      photo.value = data;
+      console.log(photo.value);
+    }
+  };
+
+  // Lire le contenu du fichier en tant que Blob
+  reader.readAsDataURL(file);
+}
+
+async function signup() {
+  if(password.value === password_confirmation.value){
+    const response = await userService.createUserAccount(prenom.value, nom.value, mail.value, password.value);
+    console.log(response);
+    if (response == true) {
+      toast.add({ severity: 'success', summary: 'Succès', detail: 'Vous êtes connecté', life: 3000 });
+      router.push('/tableau-de-bord');
+    } else {
+      toast.add({ severity: 'error', summary: 'Erreur', detail: response, life: 3000 });
+    }
+  } else {
+    console.error('salut')
+    return'Les mots de passe ne correspondent pas';
+  }
+}
+
+async function login() {
+  const response = await userService.loginUser(mail.value, password.value);
+  console.log(response);
+  if (response == true) {
+    toast.add({ severity: 'success', summary: 'Succès', detail: 'Vous êtes connecté', life: 3000 });
+    router.push('/tableau-de-bord');
+  } else {
+    toast.add({ severity: 'error', summary: 'Erreur', detail: response, life: 3000 });
+  }
 }
 
 const home = ref({

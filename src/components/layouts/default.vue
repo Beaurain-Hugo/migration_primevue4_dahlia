@@ -1,17 +1,17 @@
 <template>
-  <div class="flex bg-orange-100 p-5 gap-4 " @click="onWrapperClick">
+  <div class="flex bg-gradient-to-br  from-[#FFEDE2] via-[#F0F0F0] to-[#FFFFFF] p-5 gap-4 " @click="onWrapperClick">
     
     <AppSideBar :idAsso="assoId" :staticMenuInactive="staticMenuInactive" :mobileMenuActive="mobileMenuActive" @menuToggle.prevent="onMenuToggle" />
     <!-- <div class="layout-sidebar" @click="onSidebarClick">
       <AppMenu :model="menu" @menuitemClick="onMenuItemClick" />
     </div> -->
 
-    <div class="layout-main-containr shadow-lg flex gap-4 w-full flex-col justify-between p-6 min-h-screen bg-white rounded-3xl">
+    <div class="layout-main-containr shadow-[0_8px_32px_#451d941a] flex gap-4 w-full flex-col justify-between p-6 min-h-screen bg-[#FFFFFFb3] rounded-3xl">
       <div>
         <DashboardHeader v-model="assoId" />
       </div>
       <div class="layout-main" :class="{ 'flex align-items-stretch': isFallbackDisplayed }">
-        <div class="bg-violet-100 p-4 rounded-2xl">
+        <div v-if="$route.meta.title" class="bg-gradient-to-r from-purple-600/10 to-[#EBE4EE]/50 p-4 rounded-2xl mb-4">
           <h1 class="text-black">{{ $route.meta.title }}</h1>
           <h2 class="text-xl">{{ $route.meta.subtitle }}</h2>
         </div>
@@ -27,7 +27,7 @@
           </div>
         </RouterView>
       </div>
-      <AppFooter />
+      <!-- <AppFooter /> -->
     </div>
 <DialogErreur v-model:afficherDialogErreur="afficherDialogErreur" v-model:libelleErreur="libelleErreur" />
     <Toast />

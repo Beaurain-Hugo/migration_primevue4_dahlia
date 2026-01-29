@@ -15,7 +15,6 @@
       </div>
 
       <h1>S'inscrire</h1>
-
       <div class="in">
         <label for="name">Nom</label>
         <div>
@@ -103,7 +102,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useUserService } from '@/composables/user/UserService'; // Assurez-vous d'importer correctement votre service utilisateur
+// import { useUserService } from '@/composables/user/UserService'; // Assurez-vous d'importer correctement votre service utilisateur
+import { useUserService } from '@/composable/user/UserService'; // Assurez-vous d'importer correctement votre service utilisateur
 import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
 
@@ -144,7 +144,7 @@ function onSelectedFile(event: any) {
   reader.readAsDataURL(file);
 }
 async function signup() {
-  const response = await userService.createUserAccount(nom.value, prenom.value, mail.value, password.value, password_confirmation.value, photo.value);
+  const response = await userService.createUserAccount(prenom.value, nom.value, mail.value, password.value);
   console.log(response);
   if (response == true) {
     toast.add({ severity: 'success', summary: 'Succès', detail: 'Vous êtes connecté', life: 3000 });

@@ -22,6 +22,10 @@ export function useAssoApi() {
       const res = await axiosInstance.get(`${ApiUrlAssos}/${id}/membres`);
       return res.data.body;
     },
+    async getMemberInfoByAssoId(user_id: number, asso_id: number) {
+      const res = await axiosInstance.get(`${ApiUrlUsers}/${user_id}/associations/${asso_id}`);
+      return res.data.body;
+    },
 
     async updateAssociation(id: number, updatedAsso: any) {
       const res = await axiosInstance.put(`${ApiUrlAssos}/update/${id}`, updatedAsso);

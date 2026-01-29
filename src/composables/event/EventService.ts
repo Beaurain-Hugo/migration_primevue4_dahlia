@@ -2,7 +2,7 @@ import { useEventApi } from './EventAPI';
 
 const EventApi = useEventApi();
 
-export function useEventService() {
+export function useEvent() {
   return {
     async addEvent(data: any) {
       try {

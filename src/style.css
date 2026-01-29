@@ -2,7 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* debut */
+@layer components {
+    .sibebar-itemsjh{
+        /* @apply rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2; */
+    }
+}
+ .sibebar-itemsjh{
+        @apply rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2;
+    }
+/* debug */
 /* * {
     border:solid 1px red
 } */

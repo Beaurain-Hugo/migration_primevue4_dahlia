@@ -8,7 +8,7 @@
       <AppMenu :model="menu" @menuitemClick="onMenuItemClick" />
     </div>
 
-    <div class="layout-main-container">
+    <div class="layout-main-containr bg-[#FFEDE2]">
       <div class="layout-main" :class="{ 'flex align-items-stretch': isFallbackDisplayed }">
         <RouterView v-slot="{ Component }">
           <div :class="{ 'flex align-items-stretch flex-1': isFallbackDisplayed }">

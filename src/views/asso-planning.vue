@@ -1,6 +1,6 @@
 <template>
 	<div id="example-full" class="flex gap-2 mt-2">
-		<div class="calendar-parent">
+		<div class="calendar-parent pa">
 			<CalendarView
 				:items="state.items"
 				:show-date="state.showDate"
@@ -39,10 +39,10 @@
 			</CalendarView>
 		</div>
 		<div>
-			<Card class="p-4">
-				<template #header>
-					<span class="pi pi-clock"></span>
-					<span class="text-xl">Prochains évènements : {{ comingEvents.length }} à venir</span>
+			<Card class="border shadow hover:shadow-lg transition-all duration-300">
+				<template #title>
+					<span class="pi pi-clock text-black"></span>
+					<span class="text-xl text-black"> Prochains évènements : {{ comingEvents.length }} à venir</span>
 				</template>
 				<template #content>
 					<div v-if="comingEvents && comingEvents.length == 0">
@@ -50,7 +50,7 @@
 						<span>Aucun évènement à venir</span>
 					</div>
 					<div v-else class="flex flex-col gap-4 ">
-							<Card  v-for="event in comingEvents" :key="event.id">
+							<Card class="border" v-for="event in comingEvents" :key="event.id">
 								<template #header>
 									<div class="flex p-2 justify-between items-baseline">
 										<span class="text-black">{{ event.title }}</span>
@@ -61,11 +61,11 @@
 									<div class="flex flex-col gap-2">
 									<div class="flex">
 										<span class="pi pi-clock"></span>
-										<span>{{ formatDate(event.startDate) }} - {{ formatDate(event.endDate) }}</span>
+										<span> {{ formatDate(event.startDate) }} - {{ formatDate(event.endDate) }}</span>
 									</div>
 									<div>
 										<span class="pi pi-map-marker"></span>
-										<span>{{ event.lieu}}</span>
+										<span> {{ event.lieu}}</span>
 									</div>
 									<div>
 										<span>{{ event.description}}</span>
@@ -119,8 +119,26 @@
 				</div>			
 			</div>
 			</div>
-			<Select v-if="!multiDay" v-model="selectedDuree" :options="duree" optionLabel="name" optionValue="code" placeholder="Sélectionner une durée" class="w-full md:w-56" />
-			<Select v-model="selectedType" :options="type" optionLabel="name" optionValue="code" placeholder="Sélectionner un type d'évènement" class="w-full md:w-56" />
+			<Select :pt="{option:'p-0'}" v-if="!multiDay" v-model="selectedDuree" :options="duree" optionLabel="name" optionValue="code" placeholder="Sélectionner une durée" class="w-full md:w-56" >
+				<template #option="{ option, selected, index }">
+                    <div :class="['px-3 w-full h-full py-2 rounded-lg transition-colors cursor-pointer',
+                                    selected ? 'bg-second text-white' : 'text-black',
+                                    'hover:bg-second hover:text-white'
+                            ]">
+                                {{ option.name }}
+                	</div>
+                </template>
+			</Select>
+			<Select :pt="{option:'p-0'}" v-model="selectedType" :options="type" optionLabel="name" optionValue="code" placeholder="Sélectionner un type d'évènement" class="w-full md:w-56">
+				<template #option="{ option, selected, index }">
+                    <div :class="['px-3 w-full h-full py-2 rounded-lg transition-colors cursor-pointer',
+                                    selected ? 'bg-second text-white' : 'text-black',
+                                    'hover:bg-second hover:text-white'
+                            ]">
+                                {{ option.name }}
+                	</div>
+                </template>
+			</Select>
 			<label for="lieu">Lieu</label>
             <InputText v-model="lieu" id="lieu" placeholder="Adresse du lieu" />
 			    <CheckboxGroup class="flex flex-col gap-2" name="participant" v-model="selectedPart" >
@@ -129,8 +147,8 @@
                         <template v-slot:item="{ item, options }">
                             <div :class="['flex items-center p-2', { 'bg-surface-100 dark:bg-surface-700': options.odd }]" style="height: 30px">
                                 <div class="flex align-items-center gap-1">
-                                    <Checkbox :inputId="item.id"  :value="{ code: item.user_id, name: item.username }" />
-                                    <label :for="item.id">{{ item.username }}</label>
+                                    <Checkbox :inputId="item.id"  :value="{ code: item.id, name: item.firstname + ' ' + item.lastName }" />
+                                    <label :for="item.id">{{ item.firstname + ' ' + item.lastName }}</label>
                                 </div>
                             </div>
                         </template>
@@ -139,20 +157,79 @@
 		</div>
 		<template #footer>
 			<PButton v-if="editEvent" severity='danger' label="Supprimer" @click="deleteEvent(id)"/>
-			<PButton :label="editEvent ? 'Enregistrer' : 'Inviter et Ajouter'" :pt="{root:'text-white bg-purple-900 border-purple-900'}" @click="addEvent"/>
+			<PButton :label="editEvent ? 'Enregistrer' : 'Inviter et Ajouter'"@click="addEvent"/>
 			</template>
 	</PDialog>
 </template>
 <style>
     /* @import "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"; */
+.cv-wrapper{
+	border-bottom-left-radius: 1rem;
+	box-shadow:0 1px 3px 0 #0000001a;
+	border-bottom-right-radius: 1rem;
+		transition-property:box-shadow!important;
+	transition-timing-function: cubic-bezier(.4, 0, .2, 1)!important;
+	transition-duration:.3s!important;
+	min-height:60vh!important
+}
+.cv-wrapper:hover{
+	box-shadow:0 10px 15px -3px #0000001a;
+	
+}
+.cv-header-day{
+	background-color:white!important;
 
+}
+.cv-header-days{
+	border-right:1px solid #E5E5E5
+}
+
+.cv-weeks{
+	border-bottom-left-radius: 1rem;
+	border-bottom-right-radius: 1rem;
+	border-right:1px solid #E5E5E5;
+}
+.cv-header-days, .cv-weeks{
+	background-color:white!important;
+	padding:0 2rem!important;
+}
+.cv-day.past, .cv-day.future{
+	background-color:white!important;
+}
+.cv-day.outsideOfMonth{
+	opacity:.5;
+}
+.cv-header-day, .cv-day{
+	
+	margin:0.1rem
+}
+.cv-header-day{
+	text-transform: capitalize;
+	border:none;
+}
+.cv-day{
+	border:1px solid #ddd;
+}
+.today{
+	
+	border-width:1px;
+	border-color:#411d8a!important ;
+	background-color: color-mix(in oklab,#411d8a 5%, transparent)!important;
+}
+.cv-day:hover{
+		transition-property:background-color!important;
+	transition-timing-function: cubic-bezier(.4, 0, .2, 1)!important;
+	transition-duration:.3s!important;
+	background-color: #ffede2!important;
+}
+/*
     #example-full {
 	display: flex;
 	flex-direction: row;
 	font-family: Calibri, sans-serif;
 	/* width: 96vw; */
 	/* min-width: 30rem;
-	max-width: 100rem; */
+	max-width: 100rem; 
 	min-height: 40rem;
 	margin-left: auto;
 	margin-right: auto;
@@ -161,7 +238,7 @@
 #example-full .calendar-controls {
 	margin-right: 1rem;
 	/*min-width: 14rem;
-	max-width: 14rem; */
+	max-width: 14rem; 
 }
 
 #example-full .calendar-parent {
@@ -184,28 +261,28 @@
 /* These styles are optional, to illustrate the flexbility of styling the calendar purely with CSS. */
 
 /* Add some styling for items tagged with the "birthday" class */
-#example-full .theme-default .cv-item.birthday {
+/* #example-full .theme-default .cv-item.birthday {
 	background-color: #e0f0e0;
 	border-color: #d7e7d7;
-}
+} */
 
 #example-full .theme-default .cv-item.birthday::before {
-	content: "\1F382"; /* Birthday cake */
-	margin-right: 0.5em;
+	/* content: "\1F382"; Birthday cake */
+	/* margin-right: 0.5em; */
 }
 
 /* The following classes style the classes computed in myDateClasses and passed to the component's dateClasses prop. */
-#example-full .theme-default .cv-day.ides {
+/* #example-full .theme-default .cv-day.ides {
 	background-color: #ffe0e0;
-}
+} */
 
-#example-full .ides .cv-day-number::before {
+/* #example-full .ides .cv-day-number::before {
 	content: "\271D";
-}
+} */
 
-#example-full .cv-day.do-you-remember.the-21st .cv-day-number::after {
+/* #example-full .cv-day.do-you-remember.the-21st .cv-day-number::after {
 	content: "\1F30D\1F32C\1F525";
-}
+} */ 
 </style>
 <script setup lang="ts">
 // Using the publish version, you would do this instead:
@@ -222,13 +299,17 @@ import { ref, onMounted, reactive, computed } from "vue";
 import MyCalendarViewHeader from "@/components/MyCalendarViewHeader.vue";
 import Event from '@/models/EventModel';
 import Membre from '@/models/MembreModel';
-import {useEventService} from '@/composables/event/EventService';
-import {useAssoService} from '@/composables/asso/AssoService';
+import {useUserService} from '@/composable/user/UserService';
+import {useEventService} from '@/composable/event/EventService';
+import {useAssoService} from '@/composable/asso/AssoService';
+import {useMemberService} from '@/composable/member/MemberService';
 
 const VISIBLE=ref(false);
 const events = ref<Event[]>([]);
 const membres = ref<Membre[]>([]);
 const EventService = useEventService();
+const MemberService = useMemberService();
+const UserService = useUserService();
 const AssoService = useAssoService();
 const minDateFin = computed(() => {
 	return new Date(date_debut.value.getTime() + 86400 *1000)
@@ -339,18 +420,30 @@ const myDateClasses = (): DateClasses => {
 onMounted(async() => {
 	state.newItemStartDate = CalendarMath.isoYearMonthDay(CalendarMath.today())
 	state.newItemEndDate = CalendarMath.isoYearMonthDay(CalendarMath.today())
+	const idAsso = sessionStorage.getItem('idAsso'); // Récupérer l'ID de l'association actuelle
+  const res = await AssoService.getAssociationById(Number(idAsso));
+  console.log(res)
+  membres.value = await Promise.all(
+    res.associationUsers.map(async element => {
+	      const member = await MemberService.getMember(element)
+      const user = await UserService.getUser(member.user)
+      return { ...user }
+    })
+  )
+  console.log(membres.value)
 	events.value = await EventService.getEventsByAssoId(Number(sessionStorage.getItem('idAsso')))
-	membres.value = await AssoService.getMembersByAssoId(Number(sessionStorage.getItem('idAsso')))
+	console.log(events.value)
+	// membres.value = await AssoService.getMembersByAssoId(Number(sessionStorage.getItem('idAsso')))
 	// state.items = events.value
 	state.items = events.value.map(event => ({
        id:event.id,
-		title: event.titre,
+		title: event.name,
 		description: event.description,
-		type: event.type,
-		startDate: new Date(event.date_debut),
-		lieu: event.lieu,
-		participants:JSON.parse(event.participants),
-		...(event.date_fin && {endDate: new Date(event.date_fin)})
+		type: event.eventType,
+		startDate: new Date(event.startDate),
+		lieu: event.location,
+		participants:event.participants,
+		...(event.endDate && {endDate: new Date(event.endDate)})
       }));
 })
 
@@ -373,21 +466,25 @@ const addEvent = async() => {
 	} else {
 		endDate.value = new Date(date_debut.value.getTime() + selectedDuree.value *60000)
 	}
+	console.log(selectedPart.value)
 	const data = {
-		association_id: sessionStorage.getItem('idAsso'),
-		titre: titre.value,
+		association: `/api/associations/${sessionStorage.getItem('idAsso')}`,
+		name: titre.value,
 		description: description.value,
-		date_debut: date_debut.value,
-		lieu: lieu.value,
-		type: selectedType.value,
-		date_fin: endDate.value
+		startDate: date_debut.value,
+		location: lieu.value,
+		eventType: `/api/event_types/1`,
+		endDate: endDate.value,
+		user:`/api/users/${localStorage.getItem('id_user')}`,
+		participants:selectedPart.value?.length ? selectedPart.value.map(id => `/api/users/${id.code}`): []
 	}
 
 	try {
+		console.log(data)
 		const res = await EventService.addEvent(data);
-		if (selectedPart.value && selectedPart.value.length > 0){
-			await EventService.addParticipantsToEvent(res.id, selectedPart.value)
-		}
+		// if (selectedPart.value && selectedPart.value.length > 0){
+		// 	await EventService.addParticipantsToEvent(res.id, selectedPart.value)
+		// }
 	} catch (error){
 		console.error('Erreur :', error)
 	}
@@ -438,6 +535,7 @@ const onClickDay = (d: Date): void => {
 }
 
 const onClickItem = (item: INormalizedCalendarItem): void => {
+	console.log(item)
 	state.message = `You clicked: ${item.title}`
 	VISIBLE.value=true
 	titre.value = item.title
@@ -446,7 +544,7 @@ const onClickItem = (item: INormalizedCalendarItem): void => {
 	date_debut.value = item.startDate
 	description.value = item.originalItem.description
 	lieu.value = item.originalItem.lieu
-	selectedType.value = item.originalItem.type
+	selectedType.value = item.originalItem.eventType
 	selectedPart.value = item.originalItem.participants.map(participant => ({user_id:participant.user_id}))
 	if(date_debut.value.getDay() != item.endDate.getDay())
 	{

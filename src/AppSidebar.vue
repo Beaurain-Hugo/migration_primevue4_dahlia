@@ -4,89 +4,20 @@
     <!-- <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle">
       <em :class="iconeBouton"></em>
     </button> -->
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" to="/tableau-de-bord"><span style="" class="pi text-2xl pi-info-circle"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white hidden px-4 py-2 w-max">Tableau de bord</span></router-link></li>
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-detail/${props.idAsso}`"><span style="" class="pi text-2xl pi-info-circle"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Informations importantes</span></router-link></li>
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" to=""><span style="" class="pi text-2xl pi-file"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white z-50 w-max px-4 py-2 hidden">Création association</span></router-link></li>
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-reunion/${props.idAsso}`"><span style="" class="pi text-2xl pi-users"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Réunions</span></router-link></li>
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-planning/${props.idAsso}`"><span style="" class="pi text-2xl pi-calendar"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Planning</span></router-link></li>
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-actions/${props.idAsso}`"><span style="" class="pi text-2xl pi-list"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Tâches à effectuer</span></router-link></li>
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/asso-benevoles/${props.idAsso}`"><span style="" class="pi text-2xl pi-user-plus"></span><span class="hidden group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Adhérents</span></router-link></li>
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" to=""><span style="" class="pi text-2xl pi-file-pdf"></span><span class="hidden group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 ">Suivi administratif</span></router-link></li>
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" :to="`/tresorerie-detail/${props.idAsso}`"><span style="" class="pi text-2xl pi-euro"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Trésorerie</span></router-link></li>
-    <li class="group"><router-link class="flex p-3 relative group-hover:bg-white/75 text-black" to="/mon-profil"><span style="" class="pi text-2xl pi-user"></span><span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Profil</span></router-link></li>
-    <!-- <li class="sidebar__list-item group">
-      Content for logged-in user
-      <div class="p-link layout-topbar-button">
-        <router-link :to="user ? '' : '/login'" class="layout-topbar-logo">
-          <Avatar v-if="photo" size="large" shape="circle" :image="'data:image/png;base64,' + photo"  @click="toggleReglage">
-          </Avatar>
-          <Avatar size="large" shape="circle" v-else-if="user" @click="toggleReglage">
-            <div>
-              {{ user.prenom?.charAt(0).toUpperCase() + '' + user.nom?.charAt(0).toUpperCase() }}
-            </div>
-          </Avatar>
-          <Avatar size="large" shape="circle" v-else @click="toggleReglage">
-            <div><em class="fas fa-user"></em></div>
-          </Avatar>
-          <span class="ml-3">Profil</span>
-        </router-link>
-      </div>
-      <OverlayPanel ref="userR">
-        <div class="flex flex-column gap-3 w-28rem" v-if="user">
-          <div class="mb-4" style="display: flex; justify-content: space-between; align-items: center; text-align: center">
-            <span class="font-medium text-900 block">Réglages</span>
-            <div>
-              <Badge v-if="user.email" :value="user.email" class="mr-2" style="color: #fff" />
-            </div>
-          </div>
-          User Settings
-          <div class="mb-2">
-            <div style="display: flex; justify-content: space-between; width: 100%">
-              <div class="mb-3">
-                <label for="firstname" class="block mb-1">Prénom</label>
-                <inputText id="firstname" v-model="user.prenom" type="text" />
-              </div>
-              <div class="mb-3 ml-2">
-                <label for="lastname" class="block mb-1">Nom</label>
-                <inputText id="lastname" v-model="user.nom" type="text" />
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="email" class="block mb-1">Email</label>
-              <inputText id="email" v-model="user.email" type="email" class="w-full" />
-            </div>
-            <div class="mb-3">
-              <label for="password" class="block mb-1">Mot de passe</label>
-              <Password v-model="password" id="password" toggleMask />
-            </div>
-            <div class="mb-3">
-              <label for="photo" class="block mb-1">Photo de profil</label>
-              <img
-                v-if="photo"
-                :src="'data:image/png;base64,' + photo"
-                alt="Tournament Image"
-                :style="{ width: '50%', height: 'auto' }"
-              />
-              <FileUpload
-                :v-model="'data:image/png;base64,' + user.photo"
-                :multiple="false"
-                accept="image/*"
-                :maxFileSize="1000000"
-                @select="onSelectedFile($event)"
-              />
-            </div>
-          </div>
-          <div class="mb-3" style="display: flex; justify-content: flex-end">
-            <PButton label="Annuler" icon="pi pi-times" class="p-button-text" @click="toggleReglage" />
-            <PButton label="Modifier" icon="pi pi-plus" @click="modifUser()" />
-          </div>
-        </div>
-      </OverlayPanel>
-    </li> -->
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" to="/tableau-de-bord"><span style="" class="pi text-2xl pi-info-circle"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Tableau de bord</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" :to="`/asso-info/${props.idAsso}`"><span style="" class="pi text-2xl pi-info-circle"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Informations importantes</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" to="/qsfqsf"><span style="" class="pi text-2xl pi-file"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Création association</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" :to="`/asso-reunion/${props.idAsso}`"><span style="" class="pi text-2xl pi-users"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Réunions</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" :to="`/asso-planning/${props.idAsso}`"><span style="" class="pi text-2xl pi-calendar"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Planning</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" :to="`/asso-actions/${props.idAsso}`"><span style="" class="pi text-2xl pi-list"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Tâches à effectuer</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" :to="`/asso-benevoles/${props.idAsso}`"><span style="" class="pi text-2xl pi-user-plus"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Adhérents</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" :to="`/asso-administration/${props.idAsso}`"><span style="" class="pi text-2xl pi-file-pdf"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 ">Suivi administratif</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" :to="`/tresorerie-detail/${props.idAsso}`"><span style="" class="pi text-2xl pi-euro"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Trésorerie</span></router-link></li>
+    <li class="group"><router-link class="flex p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-black" to="/mon-profil"><span style="" class="pi text-2xl pi-user"></span><span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Profil</span></router-link></li>
     <li class="sidebar__list-item group">
-      <button v-if="user" class="p-linklayout-topbar-button flex p-3 relative group-hover:bg-white/75 text-black" @click="confirmerDeconnexion($event)">
+      <button v-if="user" class="flex items-center p-3 relative transition-colors duration-300 group-hover:bg-white/75 rounded-xl text-red-500" @click="seDeconnecter()">
         <span class="pi pi-sign-out"></span>
-        <span class="group-hover:!flex rounded-full group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2 hidden">Se déconnecter</span>
+        <span class="rounded-full transition group-hover:translate-x-0 -translate-x-2 duration-300 opacity-0 group-hover:!opacity-100 group-hover:scale-100 scale-95  group-hover:z-10 absolute left-12 bg-white w-max px-4 py-2">Se déconnecter</span>
       </button>
       <ConfirmPopup></ConfirmPopup>
     </li>
@@ -98,7 +29,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import EventBus from '@/AppEventBus';
-import { useUserService } from '@/composables/user/UserService';
+import { useUserService } from '@/composable/user/UserService';
 import UserModel from './models/UserModel';
 import { useRoute } from 'vue-router';
 import router from '@/router';
@@ -164,8 +95,9 @@ function formatDate(date: Date) {
 async function fetchData() {
   if (jwt.value) {
     try {
-      const userData = await userService.getUserById(Number(sessionStorage.getItem('jwt')));
+      const userData = await userService.getUserById(Number(localStorage.getItem('id_user')));
       user.value = userData;
+      console.log(userData)
       photo.value = user.value.photo;
       console.log('User connected:', user.value);
     } catch (error) {
@@ -226,7 +158,7 @@ const iconeBouton = computed(() => {
 onMounted(async () => {
     associationListe.value = await associationService.getAllAssociation();
   fileAriane.value = [{ label: route.name?.toString(), to: { path: route.path } }];
-  jwt.value = !!sessionStorage.getItem('jwt');
+  jwt.value = !!localStorage.getItem('id_user');
   if (window.localStorage.getItem('dark-mode')) {
     themeSombreActive.value = window.localStorage.getItem('dark-mode') === 'true';
     if (themeSombreActive.value) changerTheme();
@@ -271,7 +203,9 @@ async function seDeconnecter() {
   if (user.value) {
     user.value = null;
   }
-  sessionStorage.removeItem('jwt');
+  localStorage.removeItem('id_user');
+  localStorage.removeItem('jwt');
+  sessionStorage.removeItem('idAsso');
   router.push({ name: 'accueil' });
 }
 
@@ -308,6 +242,15 @@ onBeforeUnmount(() => {
   max-width: 100%;      /* Le logo s'adapte à la taille du conteneur */
   height: 4rem;         /* Définit une hauteur fixe pour le logo */
   object-fit: contain;  /* S'assure que l'image reste contenue dans le conteneur */
+}
+.router-link-exact-active{
+  background: #fc82a4;
+}
+.router-link-exact-active:hover{
+  background: #fc82a4;
+}
+.router-link-exact-active > .pi{
+  color:white;
 }
 
 </style>

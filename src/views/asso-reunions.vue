@@ -6,36 +6,44 @@
                 <Tab value="1">Nouveau CR</Tab>
                 <Tab value="2">Rappels</Tab>
             </TabList>
-            <TabPanels>
-            <TabPanel value="0">
+            <TabPanels :pt="{root:'bg-transparent'}">
+            <TabPanel value="0" >
                 <h3 class="text-black">Historique des réunions</h3>
                 <div class="flex gap-4 flex-wrap">
                 <Card class="p-3" v-for="(reunion, index) in reunions" :key="index">
                     <template #header>
+                        
                         <div class="flex justify-between items-baseline">
-                            <h4 class="text-black ">{{ reunion.titre }}</h4>
-                            <Tag :value="statutReunion(reunion.date_debut, reunion.document)" rounded />
+                            <h4 class="text-black ">{{ reunion.name }}</h4>
+                            <Tag  
+                                :class="[' !rounded-full',
+                                    statutReunion(reunion.startDate, reunion.document) === 'Terminé' ? 'text-white !bg-main' : '',
+                                    statutReunion(reunion.startDate, reunion.document) === 'En attente' ? 'text-white !bg-second' : '',
+                                    statutReunion(reunion.startDate, reunion.document) === 'À venir' ? 'bg-white border !border-blue-300 !text-blue-300' : '']"
+                                :value="statutReunion(reunion.startDate, reunion.document)" rounded
+                            />
                         </div>
                     </template>
                     <template #content>
                         <div class="flex gap-3 flex-col">                            
                             <div class="flex gap-2">
                                 <span class="pi pi-calendar"></span>
-                                <span>{{ formatDate(reunion.date_debut) }}</span>
+                                <span>{{ formatDate(reunion.startDate) }}</span>
                             </div>
                             <div class="flex gap-2">
                                 <span class="pi pi-users"></span>
-                                <span>{{reunion.participants.length}} Participants</span>
+                                <span>{{reunion.participants?.length}} Participants</span>
                             </div>
                         </div>
                     </template>
                     <template #footer>
-                        <div v-if="reunion.document?.titre" class="flex gap-2">
-                            <PButton rounded label="Voir" icon="pi pi-eye" @click="openPdf(reunion.document?.id)" />
-                            <PButton rounded label="Télécharger le PDF" icon="pi pi-download" @click="downloadPdf(reunion.document?.id)" />
+                        
+                        <div v-if="reunion.document && reunion.document[0]?.title" class="flex gap-2">
+                            <PButton rounded label="Voir" icon="pi pi-eye" @click="openPdf(reunion.document[0].filePath)" />
+                            <PButton rounded label="Télécharger le PDF" icon="pi pi-download" @click="downloadPdf(reunion.document[0].filePath)" />
                         </div>
                         <div v-else>
-                            <PButton label="Créer le compte-rendu" icon="pi pi-file-pdf" @click="createCR(reunion)" />
+                            <PButton :pt="{root:'text-white !bg-[#451d94] border-none'}" label="Créer le compte-rendu" icon="pi pi-file-pdf" @click="createCR(reunion)" />
                         </div>
                     </template>
                 </Card>
@@ -55,11 +63,11 @@
                     >
                         <StepList
                         :pt="{
-                            root:'bg-amber-200'
+                            root:'bg-[#ffede2]/30'
                         }">
                             <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="1">
                                 <div class="flex flex-row flex-auto gap-2" v-bind="a11yAttrs.root">
-                                    <PButton class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
+                                    <PButton :pt="{root:'border-none'}" class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
                                          <span :class="[
                                                 'pi pi-file p-2 rounded-full text-2xl inline-flex items-center justify-center',
                                                 {'bg-white text-black': Number(value) > activeStep, 'bg-green-500 text-white': Number(value) < activeStep, 'text-white bg-purple-800': Number(value) == activeStep }
@@ -78,7 +86,7 @@
                             </Step>
                             <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="2">
                                 <div class="flex flex-row flex-auto gap-2 pl-2" v-bind="a11yAttrs.root">
-                                    <PButton class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
+                                    <PButton :pt="{root:'border-none'}" class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
                                             <span :class="[
                                                 'pi pi-calendar p-2 rounded-full text-2xl inline-flex items-center justify-center',
                                                 {'bg-white text-black': Number(value) > activeStep, 'bg-green-500 text-white': Number(value) < activeStep, 'text-white bg-purple-800': Number(value) == activeStep }
@@ -97,7 +105,7 @@
                             </Step>
                             <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="3">
                               <div class="flex flex-row flex-auto gap-2 pl-2" v-bind="a11yAttrs.root">
-                                    <PButton class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
+                                    <PButton :pt="{root:'border-none'}" class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
                                             <span :class="[
                                                 'pi pi-users p-2 rounded-full text-2xl inline-flex items-center justify-center',
                                                 {'bg-white text-black': Number(value) > activeStep, 'bg-green-500 text-white': Number(value) < activeStep, 'text-white bg-purple-800': Number(value) == activeStep }
@@ -116,7 +124,7 @@
                             </Step>
                              <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="4">
                                 <div class="flex flex-row flex-auto gap-2 pl-2" v-bind="a11yAttrs.root">
-                                    <PButton class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
+                                    <PButton :pt="{root:'border-none'}" class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
                                             <span :class="[
                                                 'pi pi-check-circle p-2 rounded-full text-2xl inline-flex items-center justify-center',
                                                 {'bg-white text-black': Number(value) > activeStep, 'bg-green-500 text-white': Number(value) < activeStep, 'text-white bg-purple-800': Number(value) == activeStep }
@@ -135,7 +143,7 @@
                             </Step>
                             <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="5">
                               <div class="flex flex-row flex-auto gap-2 pl-2" v-bind="a11yAttrs.root">
-                                    <PButton class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
+                                    <PButton :pt="{root:'border-none'}" class="bg-transparent inline-flex gap-2" @click="activateCallback" v-bind="a11yAttrs.header">
                                             <span :class="[
                                                 'pi pi-send p-2 rounded-full text-2xl inline-flex items-center justify-center',
                                                 {'bg-white text-black': Number(value) > activeStep, 'bg-green-500 text-white': Number(value) < activeStep, 'text-white bg-purple-800': Number(value) == activeStep }
@@ -188,8 +196,8 @@
                                                 <template v-slot:item="{ item, options }">
                                                     <div :class="['flex items-center p-2', { 'bg-surface-100 dark:bg-surface-700': options.odd }]" style="height: 30px">
                                                         <div class="flex align-items-center gap-1">
-                                                            <Checkbox :inputId="item.code"  :value="{ code: item.user_id, name: item.name }" />
-                                                            <label :for="item.code">{{ item.name }}</label>
+                                                            <Checkbox :inputId="item.id"  :value="{ code: item.id, name: item.firstname + ' ' + item.lastName }" />
+                                                            <label :for="item.id">{{ item.firstname + ' ' + item.lastName }}</label>
                                                         </div>
                                                     </div>
                                                 </template>
@@ -197,7 +205,7 @@
                                         </CheckboxGroup>
                                     </div>
                                 </div>
-                                <div class="flex bg-yellow-100 py-3 pr-3 justify-end align-middle">
+                                <div class="flex bg-[#ffede2]/30 py-3 pr-3 justify-end align-middle">
                                     <PButton label="Suivant" icon="pi pi-arrow-right" :pt="{root:'bg-purple-900 border-purple-900'}" iconPos="right" @click="activateCallback(2)" />
                                 </div>
                             </StepPanel>
@@ -230,8 +238,8 @@
                                     </div>
                                     </div>
                                 </div>
-                                <div class="flex py-3 px-3 justify-between bg-yellow-100">
-                                    <PButton label="Précédent" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(1)" />
+                                <div class="flex py-3 px-3 justify-between bg-[#ffede2]/30">
+                                    <PButton :pt="{root:'hover:text-white hover:!bg-second border-none !bg-[#f0f0f0] !text-black'}" label="Précédent" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(1)" />
                                     <PButton label="Suivant" icon="pi pi-arrow-right" :pt="{root:'bg-purple-900 border-purple-900'}" iconPos="right" @click="activateCallback(3)" />
                                 </div>
                             </StepPanel>
@@ -264,8 +272,8 @@
                                         </Card>
                                     </div>
                                 </div>
-                                <div class="flex p-3 justify-between bg-yellow-100">
-                                    <PButton label="Précédent" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(2)" />
+                                <div class="flex p-3 justify-between bg-[#ffede2]/30">
+                                    <PButton :pt="{root:'hover:text-white hover:!bg-second border-none !bg-[#f0f0f0] !text-black'}" label="Précédent" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(2)" />
                                     <PButton label="Suivant" icon="pi pi-arrow-right" :pt="{root:'bg-purple-900 border-purple-900'}" iconPos="right" @click="activateCallback(4)" />
                                 </div>
                             </StepPanel>
@@ -286,12 +294,14 @@
                                             <FloatLabel variant="in">
                                                 <label :for="'titre-'+point.id">Titre du point *</label>
                                                 <InputText fluid v-model="actions[index].title" :id="'titre-'+point.id" placeholder="Ex: Validation du budget" />
-                                            </FloatLabel>                                   
+                                            </FloatLabel>
+                                            <div>                             
                                             <ToggleButton @click="console.log(actions)" :modelValue="isOpen(point.id)" @update:modelValue="() => toggleAction(point.id)" onLabel="Réduire" offLabel="Modifier" />
                                             <PButton severity="danger" variant="text" icon="pi pi-trash" @click="removeAction(index)"  />
+                                                </div>
                                         </div>
                                         <div class="flex gap-1 items-baseline">
-                                            <Chip v-if="point.responsable" class="bg-transparent" :label="point.responsable.username" icon="pi pi-user" />
+                                            <Chip v-if="point.responsable" class="bg-transparent" :label="point.responsable.firstname + ' ' + point.responsable.lastName" icon="pi pi-user" />
                                             <Chip v-if="point.date"  class="bg-transparent" :label="point.date" icon="pi pi-calendar" />
                                             <Tag :class="['text-white !rounded-full',
                                                     valueToLabel(point.prio, priorite, 'code')?.name === 'Faible' ? 'bg-gray-500' : '',
@@ -307,7 +317,7 @@
                                         <div class="flex items-baseline gap-3" v-if="isOpen(point.id)">
                                            <div>
                                                 <label :for="'resp'+point.id">Assigné à *</label>
-                                                <Select v-model="actions[index].responsable" :id="'resp'+point.id" :options="membres" optionLabel="username" :optionValue="option => option" placeholder="Sélectionner le responsable" />
+                                                <Select v-model="actions[index].responsable" :id="'resp'+point.id" :options="membres" :optionLabel="m => `${m.firstname} ${m.lastName}`" :optionValue="option => option" placeholder="Sélectionner le responsable" />
                                             </div>
                                             <div>
                                                 <label for="date">Date d'échéance *</label>
@@ -328,8 +338,8 @@
                                     </div>
                                 </div>
                                 </div>
-                                <div class="flex p-3 justify-between bg-yellow-100">
-                                    <PButton label="Précédent" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(3)" />
+                                <div class="flex p-3 justify-between bg-[#ffede2]/30">
+                                    <PButton :pt="{root:'hover:text-white hover:!bg-second border-none !bg-[#f0f0f0] !text-black'}" label="Précédent" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(3)" />
                                     <PButton label="Suivant" icon="pi pi-arrow-right" :pt="{root:'bg-purple-900 border-purple-900'}" iconPos="right" @click="activateCallback(5)" />
                                 </div>
                             </StepPanel>
@@ -416,17 +426,16 @@
                                             <template #body>
                                               <ul>
                                                 <li v-for="p in presentMembers" :key="p.user_id">
-                                                  {{ p.name }}              
+                                                  {{ p.firstname + ' ' + p.lastName }}              
                                                 </li>
                                               </ul>
                                             </template>
                                           </Column>
-                                        
                                           <Column header="Absents">
                                             <template #body>
                                               <ul>
                                                 <li v-for="p in absentMembers" :key="p.user_id">
-                                                  {{ p.name }}
+                                                  {{ p.firstname + ' ' + p.lastName }}
                                                 </li>
                                               </ul>
                                             </template>
@@ -452,21 +461,38 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="flex flex-col gap-2">
+                                        <div class="flex flex-col gap-2" v-if="actions.length > 0">
                                             <Chip><span>Actions à prendre</span></Chip>
                                             <DataTable :value="actions" showGridlines tableStyle="min-width: 50rem">
-                                                <Column field="title" header="Actions"></Column>
-                                                <Column field="statut" header="Etat"></Column>
-                                                <Column field="prio" header="Priorité"></Column>
+                                                <Column field="title" header="Actions">
+                                                </Column>
+                                                <Column field="statut" header="Etat"><template #body="{ data }">
+                                                   <Tag :class="['text-white !rounded-full',
+                                                    valueToLabel(data.statut, statut, 'code')?.name === 'À faire' ? 'bg-orange-200 !text-black' : '',
+                                                    valueToLabel(data.statut, statut, 'code')?.name === 'En cours' ? 'bg-purple-900' : '',
+                                                    valueToLabel(data.statut, statut, 'code')?.name === 'Terminé' ? 'bg-green-500 ' : '']"
+                                                    :icon="'pi ' + state(valueToLabel(data.statut, statut, 'code').name)" :value="valueToLabel(data.statut, statut, 'code').name" />
+                                                </template></Column>
+                                                <Column field="prio" header="Priorité"><template #body="{ data }">
+                                                    <Tag :class="['text-white !rounded-full',
+                                                    valueToLabel(data.prio, priorite, 'code')?.name === 'Faible' ? 'bg-gray-500' : '',
+                                                    valueToLabel(data.prio, priorite, 'code')?.name === 'Moyenne' ? 'bg-orange-400' : '',
+                                                    valueToLabel(data.prio, priorite, 'code')?.name === 'Forte' ? 'bg-red-500 ' : '']"
+                                                :icon="'pi ' + prio(valueToLabel(data.prio, priorite, 'code').name)" :value="valueToLabel(data.prio, priorite, 'code').name" />
+                                                </template></Column>
                                                 <Column field="date" header="Deadline"></Column>
-                                                <Column field="responsable.username" header="Personne en charge"></Column>
+                                                <Column  field="responsable.username" header="Personne en charge">
+                                                    <template #body="{ data }">
+                                                    {{ data.responsable?.firstname +' '+ data.responsable?.lastName}}
+                                                </template></Column>
                                             </DataTable>
+                                          
                                         </div>
                                     </div>
                                     </div>
 
-                                    <div class="flex p-3 justify-between bg-yellow-100">
-                                    <PButton label="Précédent" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(4)" />
+                                    <div class="flex p-3 justify-between bg-[#ffede2]/30">
+                                    <PButton :pt="{root:'hover:text-white hover:!bg-second border-none !bg-[#f0f0f0] !text-black'}" label="Précédent" severity="secondary" icon="pi pi-arrow-left" @click="activateCallback(4)" />
                                     <PButton :pt="{root:'bg-purple-900 border-purple-900'}" label="Publier et envoyer" severity="secondary" icon="pi pi-send" @click="generatePdf" />
                                     </div>
                             </StepPanel>
@@ -489,8 +515,12 @@
     import Reunion from '@/models/ReunionModel';
     import Event from '@/models/EventModel';
     import Membre from '@/models/MembreModel';
-    import {useEventService} from '@/composables/event/EventService';
-    import {useAssoService} from '@/composables/asso/AssoService';
+    import {useEventService} from '@/composable/event/EventService';
+    import {useEvent} from '@/composables/event/EventService';
+    import {useUserService} from '@/composable/user/UserService';
+    import {useDocumentService} from '@/composable/document/DocumentService';
+    import {useAssoService} from '@/composable/asso/AssoService';
+    import {useMemberService} from '@/composable/member/MemberService';
     import { ref, onMounted, computed } from 'vue';
     import html2canvas from 'html2canvas';
     import jsPDF from 'jspdf';
@@ -517,13 +547,27 @@
 
         const formData = new FormData();
         formData.append('contenu', blob, 'compte_rendu.pdf');
-        formData.append('association_id', sessionStorage.getItem('idAsso'));
-        formData.append('titre', `compte_rendu_${title.value}`);
+        formData.append('association_id', '1');
+        formData.append('titre', `compte_rendu_${compte_rendu.value.titre}`);
         const id = await AssoService.addDocuments(formData);
-
-        await EventService.updateEvent(compte_rendu.value.id, {
-            document_id: id.id
-        });
+        console.log(id)
+        const data = {
+             "title": `compte_rendu_${compte_rendu.value.titre}`,
+            "filePath": `${id.id}`,
+            "createDate": `${new Date().toISOString()}`,
+            "updateDate": `${new Date().toISOString()}`,
+            "archived": false,
+            "readRoles": "",
+            "association":`/api/associations/${sessionStorage.getItem('idAsso')}`,
+            "downloadRoles": "",
+            "documentType": "/api/document_types/1",
+            "user": `/api/users/${localStorage.getItem('id_user')}`,
+            "event": `/api/events/${compte_rendu.value.id}`
+        }
+        await DocumentService.addDocument(data);
+        // await uEvent.updateEvent(compte_rendu.value.id, {
+        //     document_id: id.id
+        // });
     };
     const openPdf = async (id) => {
         const { blob } = await AssoService.getDocumentById(id);
@@ -546,15 +590,15 @@
         const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
         return new Intl.DateTimeFormat('fr-FR', options).format(parsedDate);
     };
-    const statutReunion = (date: Date | string | number | null | undefined, hasCR:Boolean): string => {
+    const statutReunion = (date: Date | string | number | null | undefined, hasCR:any): string => {
         if (!date) return '';
         const parsedDate = new Date(date);
-        if(Date.now() > parsedDate && hasCR){
+        console.log(hasCR)
+        if(Date.now() > parsedDate && hasCR.length > 0){
             return 'Terminé';
-        }else if (Date.now() > parsedDate && !hasCR) {
+        }else if (Date.now() > parsedDate && hasCR.length == 0) {
             return 'En attente'
         } else {
-            console.log(hasCR)
             return 'À venir'
         }
     };
@@ -564,7 +608,11 @@
     const membres = ref<Membre[]>([]);
     const compte_rendu = ref({});
     const EventService = useEventService();
+    const uEvent = useEvent();
     const AssoService = useAssoService();
+    const DocumentService = useDocumentService();
+    const UserService = useUserService();
+    const MemberService = useMemberService();
     const title = ref()
     const lieu = ref()
     const date = ref()
@@ -585,16 +633,21 @@
 });
 
 const participantsWithStatus = computed(() => {
-  const participants = compte_rendu?.value.participants ?? [];
-  const presentIds = new Set(
-    selectedPart.value?.map(s => s.code) ?? []
-  );
+  const participants = compte_rendu.value?.participants ?? []
 
-  return participants.map(p => ({
-    ...p,
-    isPresent: presentIds.has(p.user_id)
-  }));
-});
+  // On normalise les IDs présents (number)
+  const presentIds = new Set(
+    (selectedPart.value ?? []).map(p => Number(p.code))
+  )
+
+  return participants.map(user => ({
+    id: user.id,
+    firstname: user.firstname,
+    lastName: user.lastName,
+    email: user.email,
+    isPresent: presentIds.has(user.id)
+  }))
+})
 
 const presentMembers = computed(() =>
   participantsWithStatus.value.filter(p => p.isPresent)
@@ -656,10 +709,50 @@ const absentMembers = computed(() =>
             icon:"pi-send"
         }
     ]
+const getUsersFromParticipants = async (participants) => {
+  if (!participants || !participants.length) return []
 
+  return await Promise.all(
+    participants.map(async (userIri) => {
+      const response = await UserService.getUser(userIri)
+      return await response
+    })
+  )
+}
+const geDocumentsFromEvents = async (documents) => {
+  if (!documents || !documents.length) return []
+
+  return await Promise.all(
+    documents.map(async (userIri) => {
+      const response = await DocumentService.getDocument(userIri)
+      return await response
+    })
+  )
+}
     onMounted(async () => {
-        membres.value = await AssoService.getMembersByAssoId(Number(sessionStorage.getItem('idAsso')));
-        reunions.value = await EventService.getEventsByTypeByAssoId(Number(sessionStorage.getItem('idAsso')), "reunion")
+        const response = await AssoService.getAssociationById(Number(sessionStorage.getItem('idAsso')));
+        console.log(response)
+        membres.value = await Promise.all(
+          response.associationUsers.map(async element => {
+        	      const member = await MemberService.getMember(element)
+            const user = await UserService.getUser(member.user)
+            return { ...user }
+          })
+        )
+        console.log(membres.value)
+        const res = await EventService.getEventsByTypeByAssoId(Number(sessionStorage.getItem('idAsso')), "test")
+        reunions.value = await Promise.all(
+    res.map(async (event) => {
+      const participantsDetails = await getUsersFromParticipants(event.participants)
+        const document = await geDocumentsFromEvents(event.documents)
+      return {
+        ...event,
+        participants:participantsDetails,
+        document
+      }
+    })
+  )
+        console.log(reunions.value)
     })
 
     const valueToLabel = (value, array, label) => {
@@ -731,6 +824,7 @@ const removeAction = (index) => {
 }
 
 import { reactive } from 'vue';
+import User from '@/components/User.vue';
 
 const openedActions = reactive(new Set());
 

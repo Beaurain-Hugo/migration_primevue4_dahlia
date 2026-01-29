@@ -31,6 +31,7 @@ import DatePicker from 'primevue/datepicker';
 import AutoComplete from 'primevue/autocomplete';
 import ConfirmDialog from 'primevue/confirmdialog';
 import RadioButton from 'primevue/radiobutton';
+import RadioButtonGroup from 'primevue/radiobuttongroup';
 import OverlayPanel from 'primevue/overlaypanel';
 import Chip from 'primevue/chip';
 import FileUpload from 'primevue/fileupload';
@@ -64,6 +65,7 @@ import VirtualScroller from 'primevue/virtualscroller';
 import Slider from 'primevue/slider';
 import Divider from 'primevue/divider';
 import FloatLabel from 'primevue/floatlabel';
+import Password from 'primevue/password';
 
 import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
@@ -81,6 +83,27 @@ const app = createApp(AppWrapper);
 app.use(PrimeVue, {
   theme: {
     preset: Aura
+  },
+  pt:{
+    tablist:{
+      root:'!bg-[#ffede2] rounded-full p-1',
+      activeBar:'bg-white h-full rounded-full z-0',
+      tablist:'border-none justify-around'
+    },
+    tab:{
+      root:'!text-black z-10 border-none'
+    },
+    datepicker:{
+      root:'shadow-none p-0'
+    },
+    inputtext:{
+      root:'focus:!border-main'
+    },
+    dialog:{
+      root:'!bg-[#f0f0f0]',
+      header:'!bg-[#f0f0f0]',
+      content:'!bg-[#f0f0f0]',
+    }
   }
 });
 
@@ -89,6 +112,7 @@ app.use(ToastService);
 app.use(router);
 
 // Enregistrements globaux
+app.component('Password', Password);
 app.component('FloatLabel', FloatLabel);
 app.component('Slider', Slider);
 app.component('PButton', Button);
@@ -113,6 +137,7 @@ app.component('Breadcrumb', Breadcrumb);
 app.component('AutoComplete', AutoComplete);
 app.component('ConfirmDialog', ConfirmDialog);
 app.component('RadioButton', RadioButton);
+app.component('RadioButtonGroup', RadioButtonGroup);
 app.component('OverlayPanel', OverlayPanel);
 app.component('Chip', Chip);
 app.component('FileUpload', FileUpload);

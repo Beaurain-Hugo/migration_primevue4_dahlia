@@ -59,6 +59,19 @@ export function useAssoService() {
         return 'Erreur lors de la récupération des membres de l\'association.';
       }
     },
+    async getMemberInfoByAssoId(user_id: number, asso_id: number) {
+      try {
+        const response = await assoApi.getMemberInfoByAssoId(user_id, asso_id);
+        if (response) {
+          return response;  // Retourne la liste des membres si l'appel est réussi
+        } else {
+          return 'Aucun membre trouvé.';
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des membres :', error);
+        return 'Erreur lors de la récupération des membres de l\'association.';
+      }
+    },
 
     async updateAssociation(id: number, updatedAsso: any) {
       try {

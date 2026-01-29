@@ -1,12 +1,12 @@
 <template>
-  <div class="cv-header custom-calendar-header bg-white p-4 py-6 rounded-t-2xl">
+  <div class="cv-header custom-calendar-header bg-white p-4 py-3 rounded-t-2xl !border-b">
     <!-- Navigation -->
     <div class="cv-header-nav flex gap-2">
-      <PButton class="text-black bg-gray-200" icon="pi pi-angle-double-left" :disabled="!headerProps.previousYear" @click="emitDate(headerProps.previousYear)" />
-      <PButton class="text-black bg-gray-200" icon="pi pi-chevron-left" :disabled="!headerProps.previousPeriod" @click="emitDate(headerProps.previousPeriod)"/>
-      <PButton class="text-black bg-gray-200" icon="pi pi-chevron-right" :disabled="!headerProps.nextPeriod" @click="emitDate(headerProps.nextPeriod)" />
-      <PButton class="text-black bg-gray-200" icon="pi pi-angle-double-right" :disabled="!headerProps.nextYear" @click="emitDate(headerProps.nextYear)"/>
-      <PButton class="text-black bg-gray-200" :label="headerProps.currentPeriodLabel" :disabled="!headerProps.currentPeriod" @click="emitDate(headerProps.currentPeriod)"/>
+      <PButton class="text-black !bg-[#F0F0F0]" :pt="{root:'!text-[#1d1d1d]'}" icon="pi pi-angle-double-left" :disabled="!headerProps.previousYear" @click="emitDate(headerProps.previousYear)" />
+      <PButton class="text-black !bg-[#F0F0F0]" :pt="{root:'!text-[#1d1d1d]'}" icon="pi pi-chevron-left" :disabled="!headerProps.previousPeriod" @click="emitDate(headerProps.previousPeriod)"/>
+      <PButton class="text-black !bg-[#F0F0F0]" :pt="{root:'!text-[#1d1d1d]'}" icon="pi pi-chevron-right" :disabled="!headerProps.nextPeriod" @click="emitDate(headerProps.nextPeriod)" />
+      <PButton class="text-black !bg-[#F0F0F0]" :pt="{root:'!text-[#1d1d1d]'}" icon="pi pi-angle-double-right" :disabled="!headerProps.nextYear" @click="emitDate(headerProps.nextYear)"/>
+      <PButton class="text-black !bg-[#F0F0F0]" :pt="{root:'!text-[#1d1d1d]'}" :label="headerProps.currentPeriodLabel" :disabled="!headerProps.currentPeriod" @click="emitDate(headerProps.currentPeriod)"/>
     </div>
 
     <!-- Libellé de période -->
@@ -17,7 +17,14 @@
 
     <!-- 🔽 EXTENSION PERSONNALISÉE -->
     <div class="custom-actios flex gap-2">
-        <SelectButton v-model="value" @update:modelValue="$emit('period', value)" :options="options"  />
+        <SelectButton :pt="{
+          root:'!bg-[#ffede2]',
+          pcToggleButton:{
+            root:'!bg-[#ffede2]',
+            content:value === 'week' ? '!bg-main' : ''
+          },
+          label:'bg-[#ffede2]'
+        }" v-model="value" @update:modelValue="$emit('period', value)" :options="options"  />
         <PButton @click="$emit('add-event')" label="Créer un évènement" icon="pi pi-plus" :pt="{root:'text-white bg-purple-900 border-purple-900'}" />
         <!-- <select @change="$emit('filter', $event.target.value)">
             <option value="all">Tous</option>

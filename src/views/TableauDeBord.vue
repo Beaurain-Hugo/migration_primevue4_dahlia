@@ -1,5 +1,216 @@
 <template>
-  <div class="btn-top-association">
+  <main class="flex flex-col gap-4">
+    <Card class="border-blue-200 border rounded-2xl !bg-gradient-to-br from-blue-50 to-indigo-50">
+      <template #title>
+        <div class="flex items-center gap-3">
+          <span class="pi pi-shield text-blue-600 p-2.5 bg-blue-100 rounded-full text-2xl"></span>
+          <div class="flex flex-col">
+            <h1 class="text-3xl m-0">Conformité</h1>
+            <h2 class="text-xl m-0">Suivi de vos obligations</h2>
+          </div>
+        </div>
+      </template>
+      
+      <template #footer>
+        <Divider />
+        <div class="flex flex-col gap-2">
+          <div>
+            <span class="pi pi-file text-blue-600"></span>
+            <span> Plateforme certifée pour les associations françaises</span>
+          </div>
+          <div class="bg-white/60 py-2 px-2 rounded-xl text-slate-500">
+            <span class="font-bold">Transparence :</span>
+            <span>
+              Cette plateforme respecte le cadre légal français pour les associations.
+              Toutes les fonctionnalités sont conçues pour vous accompagner dans le respect de vos obligations légales et administratives selon la loi du 1er juillet 1901.
+            </span>
+          </div>
+        </div>
+      </template>
+    </Card>
+    <Card class="!bg-gradient-to-br from-main via-main to-purple-600 text-white">
+      <template #title>
+        <div class="flex justify-between">
+        <div>
+          <h3>Tableau de bord général</h3>
+          <span class="font-normal">Vue d'ensemble de vos activités bénévoles</span>
+        </div>
+        <div>
+          <PButton label="Créer une association" icon="pi pi-building" @click="createAssoDialog = true" :pt="{root:'bg-white !text-main border-none hover:!bg-[#FFEDE2]'}" />
+          </div>
+        </div>
+      </template>
+    </Card>
+    <section v-if="Array.isArray(events) && events?.length > 0">
+      <div class="flex items-baseline gap-2">
+        <span class="pi pi-calendar text-main text-xl"></span>
+        <h4>Planning</h4>
+      </div>
+      <ul class="flex flex-wrap gap-4">
+        <li v-for="event in events" :key="event.id">
+        <Card >
+          <template #title>
+            <div class="flex justify-between">
+              <span>{{ event.name }}</span>
+              <Tag :value="event.eventType.name "/>
+            </div>
+          </template>
+          <template #content>
+            <div class="flex gap-3 flex-col">    
+                <span>{{event?.description}}</span>
+                <div class="flex gap-2">
+                    <span class="pi pi-calendar"></span>
+                    <span>{{ new Date(event.startDate).toLocaleDateString("fr-FR", { timeZone: "UTC" }) }}</span>
+                </div>
+                <div class="flex gap-2">
+                    <span class="pi pi-users"></span>
+                    <span>{{event?.participants?.length}} Participants</span>
+                </div>
+                <div class="flex gap-2">
+                    <span class="pi pi-map-marker"></span>
+                    <span>{{event?.location}}</span>
+                </div>
+            </div>
+          </template>
+        </Card>
+        </li>
+      </ul>
+    </section>
+    <section>
+      <Card>
+        <template #title>
+          <span>Vos tâches à effectuer</span>
+        </template>
+        <template #content>
+          <div v-for="(action, index) in actions" :key="index">
+            <ul v-if="actions[index].length > 0" v-for="(a, i) in action" :key="i" class="flex flex-col">
+              <li><h5 v-if="actions[index].length > 0" class="text-black text-2xl"><span :class="[
+            'pi', 
+            {'pi-info-circle text-blue-500 text-xl': etat(index) === 'À faire', 'pi-clock text-orange-500 text-xl': etat(index) === 'En cours','pi-check-circle text-green-500 text-xl': etat(index) === 'Terminé'}]">
+            </span>
+            {{ etat(index) }}</h5>
+                 <div :class="['hover:bg-[#FFEDE2] p-4 flex flex-col gap-2 rounded-xl',{'opacity-75' : index.toString() === 'DONE'}]"v-for="(a, i) in action" :key="i">
+                  <!-- <template #title> -->
+                    <div class="flex justify-between items-baseline">
+                        <div class="text-xl flex gap-2 items-baseline">
+                            <span>{{ a.title }}</span>
+                            <Tag :value="prio(a.priority)" :class="['text-white !rounded-full',
+                              prio(a.priority) === 'Faible' ? 'bg-blue-500' : '',
+                              prio(a.priority) === 'Moyenne' ? 'bg-orange-400' : '',
+                              prio(a.priority) === 'Forte' ? 'bg-red-500 ' : '']"
+                            />
+                        </div>
+                    </div>
+                  <!-- </template> -->
+                  <!-- <template #content> -->
+                      <div class="flex flex-col gap-2">
+                          <span class="text-lg">{{ a.description }}</span>
+                      <div class="flex gap-3">
+                          <div class="flex gap-1">
+                              <span class="pi pi-calendar"></span>
+                              <span>{{ new Date(a.deadline).toLocaleDateString() }}</span>
+                          </div>
+                          <div class="flex gap-1">
+                              <span class="pi pi-tag"></span>
+                              <span>{{ a.category }}</span>
+                          </div>
+                      </div>
+                      </div> 
+                  <!-- </template> -->
+                </div>
+              </li>
+            </ul>
+          </div>
+        </template>
+      </Card>
+    </section>
+    <PDialog v-model:visible="createAssoDialog" header="Se connecter" modal>
+       <template #header>
+        <span class="text-transparent bg-gradient-to-r from-main to-second bg-clip-text m-auto text-3xl font-bold">Créer une nouvelle association</span>
+      </template>
+       <div class="flex flex-col gap-4">
+        <div class="flex flex-col p-4 border-2 bg-gradient-to-r from-[#FFEDE2] to-purple-50 rounded-xl border-[#FC82A4]/20">
+            <div class="text-main">
+              <span class="pi pi-user border-2 rounded-full p-1 border-main"></span>
+              <span class="font-bold"> Rejoignez Dahlia</span>
+            </div>
+            <span>Après votre inscription, vous pourrez rejoindre une association existante ou créer la vôtre.</span>
+        </div>
+        <div class="flex flex-col gap-2">
+          <div class="text-main font-bold">
+            <span class="pi pi-building"></span>
+            <span class=" text-xl"> Informations générales</span>
+          </div>
+          <div>
+            <label for="nom_association">Nom de l'association</label>
+            <InputText id="nom_association" :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid v-model="newAssociation.name" placeholder="Association pour la protection de l'environnement" />
+          </div>
+          <div class="flex gap-2">
+            <div class="w-1/2">
+              <label for="acronyme">Sigle / Acronyme</label>
+              <InputText :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid id="acronyme" v-model="newAssociation.acronym" placeholder="Dupont" />
+            </div>
+            <div class="w-1/2">
+              <label for="creation_date">Date de création</label>
+              <DatePicker inputId="creation_date" :pt="{root:'!shadow-none border-none p-0', pcInputText:'!bg-[#F0F0F0]'}" fluid v-model="newAssociation.date_creation" placeholder="Dupont" />
+            </div>
+          </div>
+          <div>
+            <label for="object">Objet de l'association</label>
+            <PTextarea rows="5" cols="30" id="object" :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid v-model="newAssociation.object" placeholder="Décrivez l'objet principal de votre association" />
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+            <div class="text-main font-bold">
+              <span class="pi pi-file"></span>
+              <span class="text-xl"> Identification légale</span>
+            </div>
+            <div class="flex gap-2">
+              <div class="w-1/2">
+                <label for="numero_rna">Numéro RNA (W...)</label>
+                <InputText :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid id="numero_rna" v-model="newAssociation.numero_rna" placeholder="W123456789" />
+              </div>
+            <div class="w-1/2">
+              <label for="numero_siret">Numéro SIRET</label>
+              <InputText :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid id="numero_siret" v-model="newAssociation.numero_siret" placeholder="12345678901234" />
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <div class="text-main font-bold">
+            <span class="pi pi-map-marker"></span>
+            <span class=" text-xl"> Coordonées</span>
+          </div>
+          <div>
+              <label for="adresse">Adresse</label>
+              <InputText id="adresse" :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid v-model="adresse" placeholder="12 Rue de la république" />
+          </div>
+          <div class="flex gap-2">
+            <div class="w-1/2">
+              <label for="code_postal">Code postal</label>
+              <InputText :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid id="code_postal" v-model="code_postal" placeholder="75001" />
+            </div>
+            <div class="w-1/2">
+              <label for="ville">Ville</label>
+              <InputText :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid id="ville" v-model="ville" placeholder="Paris" />
+            </div>
+          </div>
+           <div class="flex gap-2">
+            <div class="w-1/2">
+              <label for="email">Email</label>
+              <InputText :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid id="email" v-model="newAssociation.email" placeholder="contact@association.fr" />
+            </div>
+            <div class="w-1/2">
+              <label for="telephone">Téléphone</label>
+              <InputText :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid id="telephone" v-model="newAssociation.phoneNumber" placeholder="01 23 45 67 89" />
+            </div>
+          </div>
+        </div>
+      <PButton fluid :pt="{root:'shadow-lg border-none !bg-gradient-to-r from-main to-second'}" label="Créer l'association" @click="saveAssociation" />
+  </div>
+    </PDialog>
+  </main>
+  <!-- <div class="btn-top-association">
     <PButton label="Nouvelle association" icon="pi pi-plus" iconPos="right" @click="showDialog = true" />
   </div>
   <div class="container mt-4" v-if="!isLoading">
@@ -32,10 +243,10 @@
         </Card>
       </div>
     </div>
-    <!-- Dialog for creating new association -->
+    <!-- Dialog for creating new association 
     <PDialog v-model:visible="showDialog" class="flex-1 mx-5 md:flex-none custom-dialog" header="Nouvelle association" @hide="resetDialog">
       <Steps :model="steps" v-model:activeStep="active" />
-      <!-- Step 1: Basic information -->
+      <!-- Step 1: Basic information 
       <div v-if="active === 0">
         <div class="flex-1 flex flex-column gap-2 mt-3">
           <h2>Nouvelle association</h2>
@@ -45,7 +256,7 @@
           <label for="newAssociation.numero_rna">Numéro SIREN ou RNA</label>
           <InputText v-model="newAssociation.numero_rna" id="newAssociation.numero_rna" placeholder="Entrez le SIREN ou RNA" @blur="fetchAssociationData" />
         </div>
-        <!-- Automatically fill in association data after fetching -->
+        <!-- Automatically fill in association data after fetching 
         <div v-if="associationData" class="flex-1 flex flex-column gap-2 mt-3">
           <label for="associationName">Nom de l'association</label>
           <InputText v-model="newAssociation.nom" id="associationName" :disabled="false" />
@@ -79,7 +290,7 @@
           <PButton label="Suivant" icon="pi pi-arrow-right" @click="validateStep(nextStep)" />
         </div>
       </div>
-      <!-- Step 2: Logo -->
+      <!-- Step 2: Logo 
       <div v-if="active === 1">
         <div class="flex-1 flex flex-column gap-2 mt-3">
           <h2>Définissez le logo</h2>
@@ -99,46 +310,63 @@
   <Toast />
   <div class="spinner-container" v-if="isLoading">
     <LoadingSpinner />
-  </div>
+  </div> -->
 </template>
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAssoService } from '@/composables/asso/AssoService';
-import { useUserService } from '@/composables/user/UserService';
-import { useToast } from 'primevue/usetoast';
+
+import { useAssoService } from '@/composable/asso/AssoService';
+import { useUserService } from '@/composable/user/UserService';
+import { useEventService } from '@/composable/event/EventService';
+import { useRoleService } from '@/composable/role/RoleService';
+import { useMemberService } from '@/composable/member/MemberService';
+import { useTaskService } from '@/composable/task/TaskService';
 import { useUtilsService } from '@/composables/UtilsService';
+
+import { useToast } from 'primevue/usetoast';
 import LoadingSpinner from '@/components/ui-elements/LoadingSpinner.vue';
 import UserModel from '@/models/UserModel';
+import EventModel from '@/models/EventModel';
 import { Association } from '@/models/AssociationModel';
 import axios from 'axios';
+import { create } from 'domain';
+import { useMemberApi } from '@/composables/member/MemberAPI';
 
 const toast = useToast();
+
 const { isLoading } = useUtilsService();
 const associationService = useAssoService();
+const taskService = useTaskService();
 const userService = useUserService();
-const router = useRouter();
+const EventService = useEventService();
+const roleService = useRoleService();
+const MemberService = useMemberService();
 
+const router = useRouter();
+const events = ref<Event[]>([]);
+const actions = ref()
 const showDialog = ref(false);
 const active = ref(0);
 const steps = [{ label: '' }, { label: '' }];
 const user = ref<UserModel | null>(null);
-
+const createAssoDialog = ref(false)
 const associationListe = ref<Association[]>([]);
 const newAssociation = ref<Association>({
-  id: 0, // L'ID sera défini après la création
-  nom: '',
-  logo: '',
+  name: '',
+  acronym: '',
+  object: '',
   numero_rna: '',
   numero_siren: '',
   page_web_url: '',
-  description: '',
   email: '',
-  telephone: '',
-  date_pub_jo: new Date(),
-  user_id: Number(sessionStorage.getItem('jwt')) || 0, // L'ID utilisateur est récupéré du sessionStorage
+  phoneNumber: '',
+  activity:'test',
+  verified: false,
 });
-
+const adresse = ref()
+const code_postal = ref()
+const ville = ref()
 const associationData = ref<any>(null); // Stocke les données de l'association récupérées via l'API
 
 async function fetchData() {
@@ -161,15 +389,63 @@ watch(
     await fetchData();
   }
 );
+function groupByStatus(items, order) {
+  // Commence par grouper
+  const grouped = items.reduce((acc, item) => {
+    (acc[item.status] ||= []).push(item)
+    return acc
+  }, {})
 
+  // Puis reconstruire dans l'ordre demandé
+  const orderedGrouped = {}
+  order.forEach(status => {
+    if (grouped[status]) {
+      orderedGrouped[status] = grouped[status]
+    }
+  })
+
+  return orderedGrouped
+}
 onMounted(async () => {
   const jwt = sessionStorage.getItem('jwt');
   isLoading.value = true;
   await fetchData();
-  associationListe.value = await associationService.getAllAssociations(Number(jwt));
-  console.log(associationListe.value);
+  // associationListe.value = await associationService.getAllAssociations(Number(jwt));
+  const res = await EventService.getEventsByAssoId(Number(sessionStorage.getItem('idAsso')))
+  // actions.value = await taskService.getTasksByAssoId(Number(sessionStorage.getItem('idAsso')));
+  const response = await userService.getUserById(Number(localStorage.getItem('id_user')));
+  console.log(response)
+  events.value = await Promise.all(res.map(async event => {
+        const transactionType = await EventService.getEventType(event.eventType)
+        return {
+          ...event,
+          eventType:transactionType,
+        }
+      }));
+
+     const tasks = await Promise.all(response.tasks.map(async action => {
+        const actiontask = await taskService.getTask(action)
+        console.log(actiontask)
+        return actiontask
+        
+      }));
+      console.log(tasks)
+      actions.value = groupByStatus(tasks, ['TODO', 'DOING', 'DONE']);
+      console.log(actions.value)
   isLoading.value = false;
 });
+
+const prio = (label) => {
+        console.log(label)
+        switch(label){
+            case label = "low":
+                return "Faible"
+            case label = "mid":
+                return "Moyenne"
+            case label = "high":
+                return "Forte"
+        } 
+    };
 
 const resetDialog = () => {
   showDialog.value = false;
@@ -232,11 +508,43 @@ const saveAssociation = async () => {
   // Combine the properties of newAssociation.value with user_id
   const assoAndUser = {
     ...newAssociation.value, // Spread the properties from newAssociation.value
-    user_id: sessionStorage.getItem('jwt'), // Add user_id to the merged object
+    user: `/api/users/${localStorage.getItem('id_user')}`, // Add user_id to the merged object
+    headOffice:adresse.value + ' ' + code_postal.value + ' ' + ville.value
   };
   console.log(assoAndUser);
+  const presidentRole = {
+    "name": "Président",
+    "orderIndex": "1",
+    "createTransac": true,
+    "cancelTransac": true,
+    "readTreasury": true,
+    "exportTreasury": true,
+    "createDocument": true,
+    "updateDocument": true,
+    "archiveDocument": true,
+    "downloadDocument": true,
+    "readDocument": true,
+    "viewDocument": true,
+    "createDocumentType": true,
+    "updateDocumentType": true,
+    "deleteDocumentType": true,
+    "createEvent": true,
+    "updateEvent": true,
+    "cancelEvent": true,
+    "joinEvent": true,
+    "importEvent": true
+  }
   try {
-    await associationService.createAssociation(assoAndUser); // Use the combined object
+    const response = await associationService.createAssociation(assoAndUser); // Use the combined object
+    console.log(response)
+    const res = await roleService.addRole(presidentRole);
+    const membre = {
+      association:`/api/associations/${response}`,
+      user:`/api/users/${localStorage.getItem('id_user')}`,
+      role:`/api/roles/${res}`,
+    }
+    const re = await MemberService.addMember(membre);
+    console.log(res)
     toast.add({
       severity: 'success',
       summary: 'Succès',
@@ -264,7 +572,16 @@ const validateStep = async (callback: Function) => {
     callback();
   }
 };
-
+ const etat = (label) => {
+        switch(label){
+            case label = "TODO":
+                return "À faire"
+            case label = "DOING":
+                return "En cours"
+            case label = "DONE":
+                return "Terminé"
+        } 
+    };
 async function assoDetail(id: number) {
   sessionStorage.setItem('idAsso', id.toString()); // Suppose que `token` est renvoyé par l'API
   router.push('/asso-detail');

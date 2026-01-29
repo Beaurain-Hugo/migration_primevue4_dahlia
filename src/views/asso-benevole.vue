@@ -2,7 +2,7 @@
   <div>
     <ul class="adherent-card-list">
       <li class="adherent-card-list__card">
-        <div class="border flex p-4 rounded-xl shadow gap-2">
+        <div class="border flex items-center p-4 rounded-xl shadow gap-2">
           <span class="pi pi-users text-3xl p-2 rounded-full bg-blue-200 text-blue-600 inline-flex items-center justify-center"></span>
           <div class="flex flex-col">
             <span class="text-lg">Total adhérents</span>
@@ -11,7 +11,7 @@
         </div>
       </li>
       <li class="adherent-card-list__card">
-        <div class="border flex p-4 rounded-xl shadow gap-2">
+        <div class="border flex items-center p-4 rounded-xl shadow gap-2">
           <span class="pi pi-users text-3xl  p-2 rounded-full bg-green-200 text-green-600 inline-flex items-center justify-center"></span>
           <div class="flex flex-col">
             <span class="text-lg">Adhérents actifs</span>
@@ -20,7 +20,7 @@
         </div>
       </li>
       <li class="adherent-card-list__card">
-        <div class="border flex p-4 rounded-xl shadow gap-2">
+        <div class="border flex items-center p-4 rounded-xl shadow gap-2">
           <span class="pi pi-crown text-3xl"></span>
           <div class="flex flex-col">
             <span class="text-lg">Bureau</span>
@@ -29,7 +29,7 @@
         </div>
       </li>
       <li class="adherent-card-list__card">
-        <div class="border flex p-4 rounded-xl shadow gap-2">
+        <div class="border flex items-center p-4 rounded-xl shadow gap-2">
           <span class="pi pi-calendar text-3xl  p-2 rounded-full bg-orange-200 text-orange-600 inline-flex items-center justify-center"></span>
           <div class="flex flex-col">
             <span class="text-lg">Nouveaux ce mois-ci</span>
@@ -38,8 +38,8 @@
         </div>
       </li>
     </ul>
-    <div style="width:70vw" class="card">
-      <Toolbar class="mb-6">
+    <div class="cad">
+      <Toolbar class="my-6 shadow-md">
         <template #start>
             <InputText v-model="filters['global'].value" placeholder="Rechercher un adhérent" />
         </template>
@@ -56,7 +56,15 @@
         </template>
       </Toolbar>
       <DataTable
-        ref="dt"
+        :pt="{
+          root:'rounded-xl bg-white px-6 border shadow-lg',
+          header:'rounded-t-xl bg-white border-none',
+          pcPaginator:{
+            paginatorContainer:{class:'rounded-b-xl border-none'},
+          },
+          bodyrow:'hover:bg-orange-50'
+
+        }"
         v-model:selection="selectedProducts"
         :value="listeMembres"
         dataKey="id"
@@ -70,48 +78,62 @@
       >
         <template #header>
           <div class="flex" style="justify-content:space-between; align-items:baseline">
-            <h4 class="m-0">Gérer les bénévoles</h4>
+            <h4 class="m-0">Liste des adhérents ({{listeMembres.length}})</h4>
             <!-- <InputText v-model="filters['global'].value" placeholder="Rechercher" /> -->
           </div>
         </template>
 
-        <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-        <Column field="username" header="Membre" sortable>
+        <Column :pt="{
+          headerCell:'bg-white'
+        }"selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
+        <Column :pt="{
+          headerCell:'bg-white'
+        }" :field="f => `${f.firstname} ${f.lastName}`" header="Membre" sortable>
           <template #body="slotProps">
-            <Avatar v-if="slotProps.data.photo" size="large" shape="circle" :image="'data:image/png;base64,' + slotProps.data.photo"  @click="toggleReglage">
-            </Avatar>
-            <Avatar size="large" shape="circle" v-else @click="toggleReglage">
+            <div class="flex items-center gap-2">
+              <Avatar v-if="slotProps.data.photo" size="large" shape="circle" :image="'data:image/png;base64,' + slotProps.data.photo">
+              </Avatar>
+              <Avatar size="large" shape="circle" v-else>
+                <div>
+                  {{ slotProps.data.firstname?.charAt(0).toUpperCase() + '' + slotProps.data.lastName.charAt(0).toUpperCase() }}
+                </div>
+              </Avatar>
               <div>
-                {{ slotProps.data.prenom?.charAt(0).toUpperCase() + '' + slotProps.data.nom.charAt(0).toUpperCase() }}
+                <div>{{ slotProps.data.firstname + " " + slotProps.data.lastName}}</div>
+                <div>{{ slotProps.data.email }}</div>
               </div>
-            </Avatar>
-            <div>
-              <div>{{ slotProps.data.prenom + " " + slotProps.data.nom}}</div>
-              <div>{{ slotProps.data.email }}</div>
             </div>
           </template>
         </Column>
-        <Column field="role" header="Rôle" sortable style="min-width: 12rem"></Column>
-        <Column field="email" header="Mail" sortable style="min-width: 12rem"></Column>
-        <Column field="date_adhesion" header="Date d'adhésion" sortable style="min-width: 12rem">
-          <!-- <template #body="slotProps">
-            salut
-          </template> -->
+        <Column :pt="{
+          headerCell:'bg-white'
+        }" field="role" header="Rôle" sortable style="min-width: 6rem">
+          <template #body="slotProps">
+            <Tag :value="slotProps.data.role.name" />
+          </template>
+        </Column>
+        <Column :pt="{
+          headerCell:'bg-white'
+        }" field="date_adhesion" header="Date d'adhésion" sortable>
           <template #body="{ data }">
-            <!-- {{formatDate("2024-04-10T22:00:00.000Z")}} -->
+            <span class="pi pi-calendar"></span>
             {{ formatDate(data.date_adhesion) }}
           </template>
         </Column>
-        <Column field="est_actif" header="Activité" sortable style="min-width: 12rem">
+        <Column :pt="{
+          headerCell:'bg-white'
+        }" field="est_actif" header="Activité" sortable style="min-width: 6rem">
           <template #body="slotProps">
             <Tag v-if="slotProps.data.est_actif" value="Actif" severity="success" />
             <Tag v-else value="Inactif" severity="danger" />
           </template>
         </Column>
-        <Column :exportable="false" style="min-width: 12rem">
+        <Column :pt="{
+          headerCell:'bg-white'
+        }" :exportable="false" style="min-width: 12rem">
           <template #body="slotProps">
-            <PButton icon="pi pi-pencil" outlined rounded class="mr-2" @click="editProduct(slotProps.data)" />
-            <PButton icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
+            <PButton :pt="{root:'hover:!bg-second hover:!text-white'}" severity="contrast" icon="pi pi-pencil" variant="text" rounded class="mr-2" @click="editProduct(slotProps.data)" />
+            <PButton :pt="{root:'hover:!bg-second'}" icon="pi pi-trash" variant="text" rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
           </template>
         </Column>
       </DataTable>
@@ -119,30 +141,33 @@
     <PDialog v-model:visible="addMembreDialog" :style="{ width: '600px' }" header="Inviter de nouveaux adhérents" modal>
       <Stepper v-model:value="activeStep" linear class="basis-[40rem]">
        <StepPanels>
-            <StepPanel v-slot="{ activateCallback }" :value="1">
-              <div>
+            <StepPanel class="!bg-[#F0F0F0]" v-slot="{ activateCallback }" :value="1">
+              <div class="flex flex-col gap-2">
+              <div class="bg-[#F0F0F0]">
                 <span>Sélectionnez un ou plusieurs utilisateurs pour les inviter dans votre association.</span>
               </div>
-              <Card v-if="selectedUsers.length != 0">
-                <template #header>
-                  <span>
-                    {{selectedUsers.length}} personnes sélectionnées.
-                  </span>
-                  <PButton label="Tout déselectionner" variant="text" @click="selectedUsers = []" />
+              <Card class="!border-[#FC82A4] border !bg-gradient-to-br !from-[#FFEDE2]/50 !to-[#FFEDE2]/20" v-if="selectedUsers.length != 0">
+                <template #title>
+                  <div class="flex justify-between">
+                    <span class="text-lg text-slate-700 font-medium">
+                      {{selectedUsers.length}} personnes sélectionnées.
+                    </span>
+                    <PButton class="text-slate-700 font-medium" label="Tout déselectionner" severity="secondary" variant="text" @click="selectedUsers = []" />
+                  </div>
                 </template>
                 <template #content>
                   <div class="flex">
                   <div v-for="user in selectedUsers" :key="user.id" >
-                    <Chip class="bg-white border">
-                     <Avatar v-if="user.photo" shape="circle" :image="'data:image/png;base64,' + item.photo"  @click="toggleReglage">
+                    <Chip class="bg-white border font-semibold !border-[#451D94]/20">
+                     <Avatar v-if="user.photo" shape="circle" :image="'data:image/png;base64,' + user.photo">
                           </Avatar>
-                          <Avatar shape="circle" v-else @click="toggleReglage">
+                          <Avatar shape="circle" v-else>
                             <div>
-                              {{ user.prenom?.charAt(0).toUpperCase() + '' + user.nom?.charAt(0).toUpperCase() }}
+                              {{ user.firstname?.charAt(0).toUpperCase() + '' + user.lastName?.charAt(0).toUpperCase() }}
                             </div>
                           </Avatar>
-                          <div>{{ user.prenom + " " + user.nom }}</div>
-                          <span class="pi pi-times-circle" @click="deleteOneUserSelected(user)"></span>
+                          <div>{{ user.firstname + " " + user.lastName }}</div>
+                          <span class="pi pi-times" @click="deleteOneUserSelected(user)"></span>
                     </Chip>
                   </div>
                   </div>
@@ -150,50 +175,46 @@
               </Card>
               <IconField>
                 <InputIcon class="pi pi-search" />
-                <InputText fluid v-model="filter" placeholder="Search" />
+                <InputText :pt="{root:'!bg-[#F0F0F0] !shadow'}" fluid v-model="filter" placeholder="Cherchez un utilisateur..." />
               </IconField>
               <CheckboxGroup name="participant" class="w-full" v-model="selectedUsers" >
-              <VirtualScroller :items="filterUsers" :itemSize="50" class="" style="width: 100%; height: 200px">
+              <VirtualScroller :items="filterUsers" :itemSize="86" class="" style="width: 100%; height: 200px">
                   <template v-slot:item="{ item, options }">
-                    <label :for="item.id" :class="['flex items-center gap-4 p-2 border mt-2 rounded-xl hover:bg-orange-200 hover:border-purple-500', { 'bg-surface-100 dark:bg-surface-700': options.odd, 'bg-purple-300 hover:border-none hover:bg-purple-300':selectedUsers.includes(item) }]" style="height: 50px">
+                    <label :for="item.id" :class="['flex items-center gap-4 px-2 py-4 border mt-2 rounded-xl hover:bg-[#FFEDE2]/30 hover:border-main/30', { 'bg-main/5 border-main hover:border-main hover:bg-main/5':selectedUsers.includes(item) }]" style="height:86px" >
                         <Checkbox :inputId="item.id" :value="item" />
                         <!-- <label :for="item.id" class="flex gap-3"> -->
-                          <Avatar v-if="item.photo" size="large" shape="circle" :image="'data:image/png;base64,' + item.photo"  @click="toggleReglage">
+                          <Avatar v-if="item.photo" size="large" shape="circle" :image="'data:image/png;base64,' + item.photo">
                           </Avatar>
-                          <Avatar size="large" shape="circle" v-else @click="toggleReglage">
+                          <Avatar size="large" shape="circle" v-else>
                             <div>
-                              {{ item.prenom?.charAt(0).toUpperCase() + '' + item.nom?.charAt(0).toUpperCase() }}
+                              {{ item.firstname?.charAt(0).toUpperCase() + '' + item.lastName?.charAt(0).toUpperCase() }}
                             </div>
                           </Avatar>
-                          <div>
-                            <div>{{ item.prenom + " " + item.nom }}</div>
-                            <div>{{ item.email }}</div>
-                          </div>
+                            <span class="font-bold text-xl capitalize">{{ item.firstname + " " + item.lastName }}</span>
                         <!-- </label> -->
                       </label>
                   </template>
                 </VirtualScroller>
               </CheckboxGroup>
                 <div v-if="selectedUsers.length != 0" class="flex pt-6 justify-end">
-                    <PButton label="Continuer" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(2)" />
+                    <PButton :pt="{root:'bg-purple-900 border-purple-900'}" label="Continuer" icon="pi pi-arrow-right" iconPos="right" @click="activateCallback(2)" />
+                </div>
                 </div>
             </StepPanel>
-            <StepPanel v-slot="{ activateCallback }" :value="2">
+            <StepPanel class="!bg-[#F0F0F0]" v-slot="{ activateCallback }" :value="2">
                 <div>
                   <div>
                       <span>Définissez le rôle et la date d'adhésion pour chaque utilisateur sélectionné</span>
                   </div>
-                  <Card v-for="user in selectedUsers" :key="user.id">
-                    <template #header>
-                      <div class="flex p-2 items-center justify-between">
+                  <Card class="!bg-[#F0F0F0]" v-for="user in selectedUsers" :key="user.id">
+                    <template #title>
+                      <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                        <Avatar v-if="user.photo" size="large" shape="circle" :image="'data:image/png;base64,' + user.photo"  @click="toggleReglage" />                        <Avatar size="large" shape="circle" v-else @click="toggleReglage">
-                          <div>{{ user.prenom?.charAt(0).toUpperCase() + '' + user.nom?.charAt(0).toUpperCase() }}</div>
+                        <Avatar v-if="user.photo" size="large" shape="circle" :image="'data:image/png;base64,' + user.photo"  />
+                        <Avatar size="large" shape="circle" v-else>
+                          <div>{{ user.firstname?.charAt(0).toUpperCase() + '' + user.lastName?.charAt(0).toUpperCase() }}</div>
                         </Avatar>
-                        <div>
-                          <div>{{ user.prenom + " " + user.nom }}</div>
-                          <div>{{ user.email }}</div>
-                        </div>
+                          <span class="capitalize">{{ user.firstname + " " + user.lastName }}</span>
                         </div>
                         <span class="pi pi-times" @click="deleteOneUserSelected(user)"></span>
 
@@ -202,15 +223,16 @@
                     <template #content>
                       <div class="flex flex-col gap-3">
                         <span>Rôle</span>
-                        <SelectButton v-model="user.role" defaultValue="adherent" :options="statuses" optionLabel="label" optionValue="value" dataKey="value" aria-labelledby="custom">
-                          <template #option="slotProps">
-                            <span :class="'pi ' + 'pi-'+getStatusLabel(slotProps.option.value)"></span>
-                            <span>{{slotProps.option.label}}</span>
-                          </template>
-                        </SelectButton>
+                           <RadioButtonGroup name="role" class="flex justify-center items-center gap-4" v-model="user.role" >
+                            <label v-for="role in roles" :key="role.id" :for="'membre-'+role.id" :class="['flex flex-col text-center px-2 py-4 border mt-2 rounded-3xl hover:bg-[#FFEE2]/30 hover:border-main/30', { 'border-main bg-main/5 text-main':user.role === role  }]"  >
+                              <span :class="['p-1 bg-slate-100 rounded-md m-auto pi ' + 'pi-'+getStatusLabel(role.name), { '!bg-main text-white':user.role?.id === role.id  }]"></span>
+                              <span class="">{{ role.role }}</span>
+                              <RadioButton :pt="{box:'hidden', root:'hidden'}" :inputId="'membre-'+role.id" :value="role" />
+                            </label>
+                            </RadioButtonGroup>
                         <div>
                         <label :for="'date'+user.id">Date d'adhésion</label>
-                        <DatePicker fluid showIcon :inputId="'date'+user.id" v-model="user.date_adhesion" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
+                        <DatePicker :pt="{pcInputText:{root:'!bg-[#F0F0F0] !shadow-none'}}" fluid showIcon :inputId="'date'+user.id" v-model="user.date_adhesion" dateFormat="dd/mm/yy" placeholder="Sélectionner une date" />
                         </div>
                         <div class="flex gap-2 items-center">
                         <span>L'utilisateur est-il actif dans l'association ?</span>
@@ -227,114 +249,9 @@
             </StepPanel>
         </StepPanels>
       </Stepper>
-      
-      <!-- <div class="flex flex-col gap-6"> -->
-      <!-- <MultiSelect
-          id="user-select"
-          v-model="selectedUsers"
-          :options="membres"
-          :optionLabel="'username'"
-          :optionValue="'id'"
-          filter
-          filterPlaceholder="Rechercher un utilisateur"
-          :placeholder="'Choisissez des utilisateurs'"
-          class="w-full"
-        >
-          <template #selectedValue="slotProps">
-            {{ slotProps.value }}
-            <img
-              v-if="membre.image"
-              :src="`https://primefaces.org/cdn/primevue/images/membre/${membre.image}`"
-              :alt="membre.image"
-              class="block m-auto pb-4"
-            />
-            <Tag class="mr-2 mb-1" :value="slotProps.value.name" />
-          </template>
-        </MultiSelect> -->
-      <!-- <template #footer>
-        <PButton v-if="step === 1" label="Suivant" icon="pi pi-arrow-right" @click="goToStep(2)" :disabled="!selectedUsers.length" />
-        <PButton v-else-if="step === 2" label="Enregistrer" icon="pi pi-check" @click="saveProduct" />
-        <PButton label="Annuler" icon="pi pi-times" text />
-      </template> -->
-      <!-- Étape 1 : Sélection des utilisateurs -->
-      <!-- <div v-if="step === 1">
-        <label for="user-select" class="block text-sm font-medium text-gray-700 mb-2">Sélectionnez des utilisateurs</label>
-        <MultiSelect
-          id="user-select"
-          v-model="selectedUsers"
-          :options="membres"
-          :optionLabel="'username'"
-          :optionValue="'id'"
-          filter
-          filterPlaceholder="Rechercher un utilisateur"
-          :placeholder="'Choisissez des utilisateurs'"
-          class="w-full"
-        >
-          <template #selectedValue="slotProps">
-            {{ slotProps.value }}
-            <img
-              v-if="membre.image"
-              :src="`https://primefaces.org/cdn/primevue/images/membre/${membre.image}`"
-              :alt="membre.image"
-              class="block m-auto pb-4"
-            />
-            <Tag class="mr-2 mb-1" :value="slotProps.value.name" />
-          </template>
-        </MultiSelect>
-      </div>
-      <!-- Étape 2 : Définition des informations -->
-      <!-- <div v-if="step === 2">
-        <div v-for="(user, index) in selectedUsersDetails" :key="user.id" class="mb-4 p-4 border rounded">
-          <h3 class="text-lg font-bold mb-2">{{ user.username }}</h3>
-          <div class="flex flex-col gap-2">
-            <div> -->
-              <!-- <label for="role" class="block font-bold mb-3">Rôle</label>
-              <Dropdown
-                id="inventoryStatus"
-                v-model="membre.role"
-                :options="statuses"
-                optionLabel="label"
-                optionValue="label"
-                placeholder="Choisissez un rôle"
-              > -->
-              <!-- <label :for="'role-' + index" class="block font-medium">Rôle</label>
-              <Dropdown
-                v-model="user.role"
-                :options="statuses"
-                optionLabel="label"
-                :id="'role-' + index"
-                placeholder="Sélectionnez un rôle"
-              >
-                <template #value="slotProps">
-                  <div v-if="slotProps.value && slotProps.value.value">
-                    <Tag :value="slotProps.value.label" :severity="getStatusLabel(slotProps.value.label)" />
-                  </div>
-                  <div v-else-if="slotProps.value && !slotProps.value.value">
-                    <Tag :value="slotProps.value" :severity="getStatusLabel(slotProps.value)" />
-                  </div>
-                  <span v-else>{{ slotProps.placeholder }}</span>
-                </template>
-              </Dropdown>
-            </div>
-            <div>
-              <label :for="'date_adhesion-' + index" class="block font-bold mb-3">Date d'adhésion</label>
-              <Calendar v-model="user.date_adhesion" :id="'date_adhesion-' + index" />
-            </div>
-            <div>
-              <label :for="'est_actif-' + index" class="block font-bold mb-3">Activité</label>
-              <ToggleButton v-model="user.est_actif" :id="'est_actif-' + index" onLabel="Actif" offLabel="Inactif" @click="console.log(user.est_actif)" />
-            </div>
-          </div>
-        </div>
-      </div> -->
-      <!-- </div> -->
 
-      <!-- <template #footer>
-        <PButton label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-        <PButton label="Save" icon="pi pi-check" @click="updateProduct" />
-      </template> -->
     </PDialog>
-    <PDialog v-model:visible="editMembreDialog" :style="{ width: '450px' }" :header="membre.prenom + ' ' + membre.nom" :modal="true">
+    <PDialog v-model:visible="editMembreDialog" :style="{ width: '450px' }" :header="membre.firstname + ' ' + membre.lastName" :modal="true">
       <div class="flex flex-col gap-6">
         <img
           v-if="membre.image"
@@ -344,25 +261,24 @@
         />  
         <div>
           <label for="role" class="block font-bold mb-3">Rôle</label>
-          <Dropdown
+          <Select
             id="inventoryStatus"
-            v-model="membre.role"
-            :options="statuses"
-            optionLabel="label"
-            optionValue="label"
+            v-model="membre.role.name"
+            :options="roles"
+            optionLabel="role"
+            optionValue="id"
             placeholder="Choisissez un rôle"
           >
             <template #value="slotProps">
-              {{ slotProps.value.value }}
-              <div v-if="slotProps.value && slotProps.value.value">
-                <Tag :value="slotProps.value.label" :severity="getStatusLabel(slotProps.value.label)" />
+              <div v-if="slotProps.value && slotProps.value">
+                <Tag :value="slotProps.value" :severity="getStatusLabel(slotProps.value.label)" />
               </div>
-              <div v-else-if="slotProps.value && !slotProps.value.value">
+              <!-- <div v-else-if="slotProps.value && !slotProps.value.value">
                 <Tag :value="slotProps.value" :severity="getStatusLabel(slotProps.value)" />
-              </div>
+              </div> -->
               <span v-else>{{ slotProps.placeholder }}</span>
             </template>
-          </Dropdown>
+          </Select>
         </div>
         <div>
           <label for="date_adhesion" class="block font-bold mb-3">Date d'adhésion</label>
@@ -384,7 +300,7 @@
       <div class="flex items-center gap-4">
         <i class="pi pi-exclamation-triangle !text-3xl" />
         <span v-if="membre"
-          >Are you sure you want to delete <b>{{ membre.name }}</b
+          >Are you sure you want to delete <b>{{ membre.firstname + ' ' + membre.lastName }}</b
           >?</span
         >
       </div>
@@ -408,35 +324,65 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import {useAssoService} from '@/composables/asso/AssoService';
-import {useUserService} from '@/composables/user/UserService';
-import { useMemberService } from '@/composables/member/MemberService';
+// import {useAssoService} from '@/composables/asso/AssoService';
+import {useAssoService} from '@/composable/asso/AssoService';
+import {useRoleService} from '@/composable/role/RoleService';
+import {useUserService} from '@/composable/user/UserService';
+// import {useUserService} from '@/composables/user/UserService';
+import { useMemberService } from '@/composable/member/MemberService';
 import Membre from '@/models/MembreModel';
+import { only } from 'node:test';
 
 const listeMembres = ref<Membre[]>([]);
 const ACTIVE_MEMBRES = ref<Membre[]>([]);
 const AssoService = useAssoService();
 const MemberService = useMemberService();
+const RoleService = useRoleService();
 const UserService = useUserService();
 const route = useRoute();
 const activeStep = ref(1);
 const filter = ref('');
-const items = ref(Array.from({ length: 100000 }).map((_, i) => `Item #${i}`));
+const roles = ref();
+const usersNames = reactive<Record<string, string>>({})
 
 onMounted(async () => {
   const idAsso = sessionStorage.getItem('idAsso'); // Récupérer l'ID de l'association actuelle
-  listeMembres.value = await AssoService.getMembersByAssoId(Number(idAsso)); // Récupérer les membres de l'association par son ID
-  allMembres.value = await UserService.getUsers(); // Récupérer tous les membres de la BDD
-  membres.value = allMembres.value.filter((user) => !listeMembres.value.some((member) => member.user_id === user.id));
+  const res = await AssoService.getAssociationById(Number(idAsso));
+  listeMembres.value = await Promise.all(
+    res.associationUsers.map(async element => {
+      const member = await MemberService.getMember(element)
+      const role = await RoleService.getRole(member.role)
+      const user = await UserService.getUser(member.user)
+      return { ...user, role: role, member_id:member.id }
+    })
+  )
+  const membersRole = await Promise.all(
+    res.associationUsers.map(async element => {
+      const member = await MemberService.getMember(element)
+      const role = await RoleService.getRole(member.role)
+      console.log(role)
+      return {"id":role.id,"role":role.name,} 
+    })
+  );
+  // roles.value = membersRole.filter(onlyUnique)
+  roles.value = Array.from(
+    new Map(
+      membersRole.map(role => [role.id, role])
+    ).values())
+  // listeMembres.value = await AssoService.getMembersByAssoId(Number(idAsso)); // Récupérer les membres de l'association par son ID
+  allUsers.value = await UserService.getUsers(); // Récupérer tous les membres de la BDD
+  membres.value = allUsers.value?.member.filter((user) => !listeMembres.value.some((member) => member.id === user.id));
   ACTIVE_MEMBRES.value = listeMembres.value.filter((membre) => membre.est_actif);
   // console.log(listeMembres.value.filter((membre) => console.log("TEST", new Date(membre.date_adhesion))));
   // console.log(listeMembres.value.filter((membre) => new Date(membre.date_adhesion) > new Date( new Date().getFullYear(), new Date().getMonth() - 1, new Date().getDate())))
 });
-
+function onlyUnique(value, index, array) {
+  return array.indexOf(value) === index;
+}
 // CHANGER LES VALEURS DANS LES PAGES QUAND CHANGEMENT D'ASSO
 watch(() => route.params.id, async (newId) => {
     const id = newId ? Number(newId) : null;
@@ -447,7 +393,6 @@ watch(() => route.params.id, async (newId) => {
 });
 
 const toast = useToast();
-const dt = ref();
 const membres = ref<Membre[]>([]);
 const membre = ref<Membre>({});
 const addMembreDialog = ref(false);
@@ -455,7 +400,7 @@ const editMembreDialog = ref(false);
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
 const selectedUsers = ref([]);
-const allMembres = ref<Membre[]>();
+const allUsers = ref<Membre[]>();
 const step = ref(1);
 const selectedUsersDetails = ref([]); // Détails des utilisateurs sélectionnés
 
@@ -522,16 +467,19 @@ const hideDialog = () => {
 };
 const saveProduct = async () => {
   // submitted.value = true;
-  const jsonOutput = {
-    newMembres: selectedUsers.value.map((user) => ({
-      id_user: user.id,
-      role: user.role,
-      date_adhesion: user.date_adhesion,
-      est_actif: user.est_actif,
-    })),
-  };
+
+  const jsonOutput =  selectedUsers.value.map((user) => ({
+       association:`/api/associations/${sessionStorage.getItem('idAsso')}`,
+      user:`/api/users/${user.id}`,
+      role:`/api/roles/${user.role.id}`,
+    }));
   try {
-    await MemberService.addMember(Number(sessionStorage.getItem('idAsso')), jsonOutput);
+    console.log(jsonOutput)
+    for(const user of jsonOutput){
+      await MemberService.addMember(user);
+    }
+    // const re = await MemberService.addMember(membre);
+    // await MemberService.addMember(Number(sessionStorage.getItem('idAsso')), jsonOutput);
     toast.add({
       severity: 'success',
       summary: 'Succès',
@@ -539,8 +487,8 @@ const saveProduct = async () => {
       life: 5000,
     });
     addMembreDialog.value = false;
-    selectedUsers.value = [];
-    listeMembres.value = await AssoService.getMembersByAssoId(Number(sessionStorage.getItem('idAsso')));
+    // selectedUsers.value = [];
+    // listeMembres.value = await AssoService.getMembersByAssoId(Number(sessionStorage.getItem('idAsso')));
   } catch (error) {
     // Handle error if needed
     console.error('Error adding members:', error);
@@ -577,7 +525,7 @@ const confirmDeleteProduct = (prod) => {
 };
 const deleteProduct = async () => {
   try {
-    await MemberService.deleteMember(Number(membre.value.id));
+    await MemberService.deleteMember(Number(membre.value.member_id));
     deleteProductDialog.value = false;
     membre.value = {};
     listeMembres.value = await AssoService.getMembersByAssoId(Number(sessionStorage.getItem('idAsso')));
@@ -651,15 +599,15 @@ const deleteSelectedProducts = async () => {
 
 const getStatusLabel = (status) => {
   switch (status) {
-    case 'adherent':
+    case 'Adhérent':
       return 'user-plus';
-    case 'benevole':
+    case 'Bénévole':
       return 'user';
-    case 'president':
+    case 'Président':
       return 'key';
-    case 'secretaire':
+    case 'Secrétaire':
       return 'file';
-    case 'tresorier':
+    case 'Trésorier':
       return 'wallet';
     default:
       return 'user';
